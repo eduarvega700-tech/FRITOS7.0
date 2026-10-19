@@ -3,6 +3,9 @@
 
 {% block title %}Iniciar sesión · FRITOS TECH{% endblock %}
 
+{# Los mensajes se muestran dentro de la tarjeta #}
+{% block mensajes %}{% endblock %}
+
 {% block contenido %}
 <section class="auth">
   <div class="container">
@@ -72,6 +75,7 @@
               method="post"
               action="{{ url_for('acceso_rol', rol=rol.slug) }}"
             >
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
               <label class="campo-etiqueta" for="correo-login">
                 Correo electrónico

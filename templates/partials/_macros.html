@@ -1,8 +1,11 @@
 {# Imagen con respaldo: si el archivo no existe en static/img, se muestra el emoji. #}
 {% macro media(src, alt, emoji, cls='') -%}
+{# Las fotos que suben los vendedores vienen como 'uploads/archivo.jpg' (carpeta static/uploads);
+   las demás viven en static/img. #}
+{%- set ruta = src if (src and src.startswith('uploads/')) else 'img/' ~ (src or '') -%}
 <div class="media {{ cls }}">
-  <span class="media__fallback" aria-hidden="true">{{ emoji }}</span>
-  <img src="{{ url_for('static', filename='img/' ~ src) }}" alt="{{ alt }}" loading="lazy" onerror="this.remove()">
+  <span class="media__fallback" aria-hidden="true">{{ emoji or '🥟' }}</span>
+  <img src="{{ url_for('static', filename=ruta) }}" alt="{{ alt }}" loading="lazy" onerror="this.remove()">
 </div>
 {%- endmacro %}
 

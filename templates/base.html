@@ -45,6 +45,19 @@
   <a class="visually-hidden-focusable" href="#contenido">Saltar al contenido</a>
   {% include 'partials/_navbar.html' %}
 
+  <!-- Mensajes de Flask (auth.html y registro.html los muestran dentro de su tarjeta) -->
+  {% block mensajes %}
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% if mensajes %}
+      <div class="container pt-3">
+        {% for categoria, texto in mensajes %}
+        <div class="alert alert-{{ categoria }} py-2 small mb-2" role="alert">{{ texto }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+  {% endblock %}
+
   <main id="contenido">
     {% block contenido %}{% endblock %}
   </main>

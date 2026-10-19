@@ -75,8 +75,8 @@
 
                     <li class="nav-item">
                         <a
-                            class="nav-link"
-                            href="{{ url_for('proximamente', pagina='vender') }}"
+                            class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
+                            href="{{ url_for('mis_productos') }}"
                         >
                             Vender
                         </a>
@@ -121,13 +121,42 @@
                         >0</span>
                     </button>
 
+                    {% if session.get('usuario_id') %}
+
+                    <!-- SESIÓN ACTIVA: nombre, panel del vendedor y salir -->
+                    <span class="small text-white-50 d-none d-xl-inline">
+                        <i class="bi bi-person-circle" aria-hidden="true"></i>
+                        {{ session['nombre'] }}
+                    </span>
+
+                    {% if session.get('rol') == 'vendedor' %}
+                    <a
+                        class="btn btn-fritos rounded-pill"
+                        href="{{ url_for('mis_productos') }}"
+                    >
+                        <i class="bi bi-shop me-1" aria-hidden="true"></i>
+                        Mis productos
+                    </a>
+                    {% endif %}
+
+                    <form method="post" action="{{ url_for('salir') }}" class="m-0">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-outline-light rounded-pill" type="submit">
+                            Salir
+                        </button>
+                    </form>
+
+                    {% else %}
+
                     <!-- INICIAR SESIÓN -->
                     <a
                         class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('proximamente', pagina='iniciar-sesion') }}"
+                        href="{{ url_for('iniciar_sesion') }}"
                     >
                         Iniciar sesión
                     </a>
+
+                    {% endif %}
 
                   
                     <!-- <a
