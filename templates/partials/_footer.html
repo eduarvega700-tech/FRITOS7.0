@@ -1,36 +1,53 @@
 {% from 'partials/_macros.html' import media %}
 <footer class="ft-footer">
-  <div class="container py-4">
-    <div class="row align-items-center gy-4">
-      <div class="col-lg-3">
-        <a class="d-flex align-items-center gap-2 text-decoration-none" href="{{ url_for('index') }}">
+  <div class="container">
+    <div class="row gy-4">
+
+      <!-- Marca -->
+      <div class="col-lg-4">
+        <a class="ft-brand d-inline-flex align-items-center gap-2 text-decoration-none" href="{{ url_for('index') }}">
           {{ media('logo.png', 'Logo de FRITOS TECH', '🧑‍🍳', 'logo-mark') }}
-          <span class="lh-1">
-            <span class="marca">FRITOS TECH</span>
-            <span class="lema font-script d-block">El sabor local, conectado.</span>
-          </span>
+          <span class="ft-brand__name">FRITOS<span class="ft-brand__tech">TECH</span></span>
         </a>
+        <p class="ft-lema mt-2 mb-0">Tradición, sabor y tecnología<br>al alcance de todos.</p>
       </div>
-      <nav class="col-lg-6" aria-label="Pie de página">
+
+      <!-- Enlaces -->
+      <nav class="col-6 col-lg-2" aria-label="Enlaces">
+        <h3 class="ft-title">Enlaces</h3>
+        <ul class="ft-list">
+          <li><a href="{{ url_for('index') }}">Inicio</a></li>
+          <li><a href="#">Productos</a></li>
+          <li><a href="#">Vendedores</a></li>
+          <li><a href="#">Contacto</a></li>
+        </ul>
       </nav>
-      
-      <div class="col-lg-3">
-        <div class="d-flex gap-2 justify-content-lg-end">
+
+      <!-- Soporte -->
+      <nav class="col-6 col-lg-3" aria-label="Soporte">
+        <h3 class="ft-title">Soporte</h3>
+        <ul class="ft-list">
+          <li><a href="#">Preguntas frecuentes</a></li>
+          <li><a href="#">Términos y condiciones</a></li>
+          <li><a href="#">Política de privacidad</a></li>
+        </ul>
+      </nav>
+
+      <!-- Redes -->
+      <div class="col-lg-3 ft-social-col">
+        <h3 class="ft-title">Síguenos</h3>
+        <div class="d-flex gap-2">
           <a class="social" href="#" aria-label="Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
           <a class="social" href="#" aria-label="Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
           <a class="social" href="#" aria-label="TikTok"><i class="bi bi-tiktok" aria-hidden="true"></i></a>
           <a class="social" href="#" aria-label="YouTube"><i class="bi bi-youtube" aria-hidden="true"></i></a>
         </div>
       </div>
+
     </div>
-    <div class="row mt-3 small ft-footer__legal">
-      <p class="col-lg-6 mb-1">© {{ anio }} FRITOS TECH. Todos los derechos reservados.</p>
-      <p class="col-lg-6 mb-1 text-lg-end"><i class="bi bi-geo-alt-fill text-warning" aria-hidden="true"></i> Cartagena, Bolívar, Colombia</p>
+
+    <div class="ft-legal">
+      © {{ anio }} Fritos Tech. Todos los derechos reservados.
     </div>
   </div>
-  <svg class="ola" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-    <path d="M0,70 C240,20 480,110 760,66 C1040,22 1240,90 1440,48 L1440,120 L0,120 Z" fill="#C0282D"/>
-    <path d="M0,92 C260,50 520,120 800,84 C1060,50 1260,104 1440,74 L1440,120 L0,120 Z" fill="#F9A826"/>
-    <path d="M0,108 C300,84 560,120 860,102 C1120,86 1300,116 1440,100 L1440,120 L0,120 Z" fill="#E8731A"/>
-  </svg>
 </footer>

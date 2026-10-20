@@ -1445,3 +1445,23 @@ a {
     text-align: right;
     margin: 0;
 }
+.ft-footer {
+  background: var(--ft-cacao-900);   /* antes #0f1621 */
+  color: #fff;
+  padding: 2.5rem 0 0;               /* sin padding abajo para que la ola quede pegada */
+  position: relative;
+  /* borra el border-radius */
+}
+
+.ft-brand__tech { color: var(--ft-brand); }
+.ft-lema,
+.ft-list a,
+.ft-legal { color: rgba(255, 255, 255, .85); }
+
+.ft-list a:hover { color: var(--ft-brand); }
+
+.social:hover {
+  background: var(--ft-brand);
+  border-color: var(--ft-brand);
+  color: var(--ft-cacao-900);
+}
