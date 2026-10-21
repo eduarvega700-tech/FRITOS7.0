@@ -58,6 +58,13 @@
         Selecciona el rol que corresponda a tu cuenta.
       </p>
 
+      <div class="text-center mt-3">
+        <a class="admin-access-link" href="{{ url_for('acceso_rol', rol='administrador') }}">
+          <i class="bi bi-shield-lock me-1" aria-hidden="true"></i>
+          Acceso administrativo
+        </a>
+      </div>
+
       <div class="text-center mt-4">
         <a href="{{ url_for('index') }}" class="enlace-naranja">
           <i class="bi bi-arrow-left" aria-hidden="true"></i>

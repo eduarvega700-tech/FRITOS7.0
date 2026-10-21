@@ -129,7 +129,15 @@
                         {{ session['nombre'] }}
                     </span>
 
-                    {% if session.get('rol') == 'vendedor' %}
+                    {% if session.get('rol') == 'administrador' %}
+                    <a
+                        class="btn btn-fritos rounded-pill"
+                        href="{{ url_for('admin_dashboard') }}"
+                    >
+                        <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>
+                        Dashboard
+                    </a>
+                    {% elif session.get('rol') == 'vendedor' %}
                     <a
                         class="btn btn-fritos rounded-pill"
                         href="{{ url_for('mis_productos') }}"

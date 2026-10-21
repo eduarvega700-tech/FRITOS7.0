@@ -146,11 +146,12 @@
 
             </form>
 
+            {% if rol.slug != 'administrador' %}
             <div class="separador">
               <span>¿Aún no tienes cuenta?</span>
             </div>
 
-            <!-- Botón 2: ir al registro -->
+            <!-- El administrador se crea desde la herramienta local crear_admin.py. -->
             <a
               class="btn btn-contorno-naranja btn-lg rounded-pill w-100"
               href="{{ url_for('registro_rol', rol=rol.slug) }}"
@@ -158,6 +159,11 @@
               Registrarme
               <i class="bi bi-person-plus ms-1" aria-hidden="true"></i>
             </a>
+            {% else %}
+            <p class="small text-secondary text-center mt-3 mb-0">
+              El acceso administrativo se habilita por el responsable del sistema.
+            </p>
+            {% endif %}
 
             <div class="text-center mt-4">
               <a
