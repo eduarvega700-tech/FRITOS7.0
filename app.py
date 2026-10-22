@@ -1,6 +1,7 @@
 # 1. IMPORTACIONES
 
 import hmac
+import math
 import os
 import secrets
 import uuid
@@ -165,10 +166,25 @@ def variables_globales():
 # 8. SESIÓN: PROTEGER PÁGINAS Y ELEGIR A DÓNDE IR TRAS ENTRAR
 
 def destino_por_rol(rol):
-    # El vendedor entra a su panel; los demás a explorar.
+    # Cada rol entra a su panel; los demás a explorar.
     if rol == "vendedor":
         return url_for("mis_productos")
+    if rol == "domiciliario":
+        return url_for("dashboard_domiciliario")
     return url_for("explorar")
+
+
+def domiciliario_requerido(vista):
+    @wraps(vista)
+    def interior(*args, **kwargs):
+        if "usuario_id" not in session:
+            flash("Inicia sesión como domiciliario para ver tus entregas.", "info")
+            return redirect(url_for("acceso_rol", rol="domiciliario"))
+        if session.get("rol") != "domiciliario":
+            flash("Esta sección es solo para domiciliarios.", "warning")
+            return redirect(url_for("explorar"))
+        return vista(*args, **kwargs)
+    return interior
 
 
 def vendedor_requerido(vista):
@@ -539,6 +555,366 @@ def producto_eliminar(producto_id):
     quitar_imagen(producto["imagen"])
     flash("Producto eliminado.", "success")
     return redirect(url_for("mis_productos"))
+
+
+# 16 BIS. PANEL DEL DOMICILIARIO
+
+# Máximo de pedidos que un repartidor puede llevar al mismo tiempo.
+MAX_ENTREGAS_ACTIVAS = 3
+
+# Consulta base: pedido + cliente + local del vendedor (punto de recogida).
+# Cada consulta le agrega su propio WHERE / ORDER BY.
+SQL_PEDIDO = (
+    "SELECT p.id, p.estado, p.total, p.costo_domicilio, p.metodo_pago, "
+    "       p.notas, p.direccion_entrega, p.barrio, p.referencia, "
+    "       p.telefono_contacto, p.latitud AS destino_lat, "
+    "       p.longitud AS destino_lng, p.creado_en, p.entregado_en, "
+    "       p.vendedor_id, cli.nombre AS cliente, "
+    "       COALESCE(l.nombre_local, ven.nombre) AS local, "
+    "       l.direccion AS local_direccion, l.barrio AS local_barrio, "
+    "       l.telefono AS local_telefono, "
+    "       l.latitud AS local_lat, l.longitud AS local_lng "
+    "FROM pedido p "
+    "JOIN usuario cli ON cli.id = p.cliente_id "
+    "JOIN usuario ven ON ven.id = p.vendedor_id "
+    "LEFT JOIN local_vendedor l ON l.vendedor_id = p.vendedor_id "
+)
+
+
+def distancia_km(lat1, lng1, lat2, lng2):
+    # Distancia en línea recta entre dos puntos (fórmula de Haversine).
+    if None in (lat1, lng1, lat2, lng2):
+        return None
+    radio = 6371
+    f1, f2 = math.radians(lat1), math.radians(lat2)
+    df = f2 - f1
+    dl = math.radians(lng2 - lng1)
+    a = (
+        math.sin(df / 2) ** 2
+        + math.cos(f1) * math.cos(f2) * math.sin(dl / 2) ** 2
+    )
+    return round(radio * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)), 1)
+
+
+def completar_pedidos(pedidos):
+    # Agrega a cada pedido sus fritos (lineas), cantidad y distancia.
+    if not pedidos:
+        return pedidos
+
+    ids = [p["id"] for p in pedidos]
+    marcas = ", ".join(["%s"] * len(ids))
+    filas = consultar(
+        "SELECT pedido_id, nombre, cantidad FROM pedido_detalle "
+        "WHERE pedido_id IN (" + marcas + ") ORDER BY id",
+        tuple(ids)
+    )
+    por_pedido = {}
+    for fila in filas:
+        por_pedido.setdefault(fila["pedido_id"], []).append(fila)
+
+    for p in pedidos:
+        p["lineas"] = por_pedido.get(p["id"], [])
+        p["articulos"] = sum(l["cantidad"] for l in p["lineas"])
+        p["distancia_km"] = distancia_km(
+            p["local_lat"], p["local_lng"],
+            p["destino_lat"], p["destino_lng"]
+        )
+    return pedidos
+
+
+def resumen_entregas(uid, solo_hoy):
+    filtro = " AND DATE(entregado_en) = CURDATE()" if solo_hoy else ""
+    fila = consultar(
+        "SELECT COUNT(*) AS entregas, "
+        "       COALESCE(SUM(costo_domicilio), 0) AS ganancias "
+        "FROM pedido WHERE repartidor_id = %s AND estado = 'entregado'"
+        + filtro,
+        (uid,),
+        uno=True
+    )
+    return {"entregas": int(fila["entregas"]), "ganancias": int(fila["ganancias"])}
+
+
+@app.route("/domiciliario")
+@domiciliario_requerido
+def dashboard_domiciliario():
+    uid = session["usuario_id"]
+
+    perfil = {
+        "disponible": 0, "vehiculo": "moto", "placa": None,
+        "telefono": None, "latitud": None, "longitud": None
+    }
+    activos, disponibles, historial = [], [], []
+    hoy = {"entregas": 0, "ganancias": 0}
+    total = {"entregas": 0, "ganancias": 0}
+
+    try:
+        # Si es su primera vez, se crea su perfil de repartidor.
+        ejecutar(
+            "INSERT IGNORE INTO repartidor (usuario_id) VALUES (%s)",
+            (uid,)
+        )
+        perfil = consultar(
+            "SELECT disponible, vehiculo, placa, telefono, latitud, longitud "
+            "FROM repartidor WHERE usuario_id = %s",
+            (uid,),
+            uno=True
+        ) or perfil
+
+        # Entregas que ya aceptó (por recoger o en camino).
+        activos = completar_pedidos(consultar(
+            SQL_PEDIDO +
+            "WHERE p.repartidor_id = %s "
+            "  AND p.estado IN ('asignado', 'en_camino') "
+            "ORDER BY FIELD(p.estado, 'en_camino', 'asignado'), p.creado_en",
+            (uid,)
+        ))
+
+        # Pedidos sin repartidor que alguien puede tomar.
+        disponibles = completar_pedidos(consultar(
+            SQL_PEDIDO +
+            "WHERE p.repartidor_id IS NULL "
+            "  AND p.estado IN ('listo', 'preparando') "
+            "ORDER BY FIELD(p.estado, 'listo', 'preparando'), p.creado_en "
+            "LIMIT 20"
+        ))
+
+        historial = completar_pedidos(consultar(
+            SQL_PEDIDO +
+            "WHERE p.repartidor_id = %s AND p.estado = 'entregado' "
+            "ORDER BY p.entregado_en DESC LIMIT 8",
+            (uid,)
+        ))
+
+        hoy = resumen_entregas(uid, solo_hoy=True)
+        total = resumen_entregas(uid, solo_hoy=False)
+
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        codigo = error.args[0] if error.args else 0
+        if codigo == 1146:
+            flash(
+                "Faltan las tablas del domiciliario. "
+                "Ejecuta el archivo repartidor.sql en MySQL.",
+                "danger"
+            )
+        else:
+            flash("No pudimos cargar tus entregas. Revisa la base de datos.", "danger")
+
+    # Datos para el mapa (se envían como JSON a la plantilla).
+    def punto(lat, lng):
+        return None if lat is None or lng is None else [lat, lng]
+
+    mapa = []
+    for tipo, lista in (("activo", activos), ("disponible", disponibles)):
+        for p in lista:
+            mapa.append({
+                "id": p["id"],
+                "tipo": tipo,
+                "estado": p["estado"],
+                "local": p["local"],
+                "local_direccion": p["local_direccion"],
+                "local_pos": punto(p["local_lat"], p["local_lng"]),
+                "cliente": p["cliente"],
+                "destino": p["direccion_entrega"],
+                "barrio": p["barrio"],
+                "destino_pos": punto(p["destino_lat"], p["destino_lng"])
+            })
+
+    # Locales donde hay que recoger (agrupados por vendedor).
+    locales = {}
+    for tipo, lista in (("activos", activos), ("disponibles", disponibles)):
+        for p in lista:
+            local = locales.setdefault(p["vendedor_id"], {
+                "nombre": p["local"],
+                "direccion": p["local_direccion"],
+                "barrio": p["local_barrio"],
+                "telefono": p["local_telefono"],
+                "lat": p["local_lat"],
+                "lng": p["local_lng"],
+                "activos": 0,
+                "disponibles": 0
+            })
+            local[tipo] += 1
+    locales = sorted(
+        locales.values(),
+        key=lambda x: (-x["activos"], -x["disponibles"], x["nombre"])
+    )
+
+    return render_template(
+        "dashboard_repartidor.html",
+        perfil=perfil,
+        activos=activos,
+        disponibles=disponibles,
+        historial=historial,
+        locales=locales,
+        hoy=hoy,
+        total=total,
+        mapa=mapa,
+        max_activas=MAX_ENTREGAS_ACTIVAS
+    )
+
+
+@app.route("/domiciliario/disponibilidad", methods=["POST"])
+@domiciliario_requerido
+def repartidor_disponibilidad():
+    uid = session["usuario_id"]
+    try:
+        ejecutar(
+            "INSERT IGNORE INTO repartidor (usuario_id) VALUES (%s)", (uid,)
+        )
+        ejecutar(
+            "UPDATE repartidor SET disponible = 1 - disponible "
+            "WHERE usuario_id = %s",
+            (uid,)
+        )
+        perfil = consultar(
+            "SELECT disponible FROM repartidor WHERE usuario_id = %s",
+            (uid,),
+            uno=True
+        )
+        if perfil and perfil["disponible"]:
+            flash("Estás disponible: ya puedes tomar pedidos.", "success")
+        else:
+            flash("Quedaste no disponible. No tomarás pedidos nuevos.", "info")
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cambiar tu disponibilidad.", "danger")
+    return redirect(url_for("dashboard_domiciliario"))
+
+
+@app.route("/domiciliario/pedidos/<int:pedido_id>/aceptar", methods=["POST"])
+@domiciliario_requerido
+def pedido_aceptar(pedido_id):
+    uid = session["usuario_id"]
+    try:
+        perfil = consultar(
+            "SELECT disponible FROM repartidor WHERE usuario_id = %s",
+            (uid,),
+            uno=True
+        )
+        en_curso = consultar(
+            "SELECT COUNT(*) AS n FROM pedido "
+            "WHERE repartidor_id = %s AND estado IN ('asignado', 'en_camino')",
+            (uid,),
+            uno=True
+        )["n"]
+
+        if not perfil or not perfil["disponible"]:
+            flash("Activa tu disponibilidad para tomar pedidos.", "warning")
+        elif en_curso >= MAX_ENTREGAS_ACTIVAS:
+            flash(
+                f"Ya llevas {MAX_ENTREGAS_ACTIVAS} entregas a la vez. "
+                "Termina una para tomar otra.",
+                "warning"
+            )
+        else:
+            # La condición repartidor_id IS NULL evita que dos repartidores
+            # tomen el mismo pedido al mismo tiempo.
+            filas = ejecutar(
+                "UPDATE pedido "
+                "SET repartidor_id = %s, estado = 'asignado', "
+                "    aceptado_en = NOW() "
+                "WHERE id = %s AND repartidor_id IS NULL "
+                "  AND estado = 'listo'",
+                (uid, pedido_id)
+            )
+            if filas:
+                flash(f"Pedido #{pedido_id} asignado. ¡Ve a recogerlo!", "success")
+            else:
+                flash(
+                    "Ese pedido ya no está disponible "
+                    "(otro repartidor lo tomó o sigue en preparación).",
+                    "warning"
+                )
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos asignarte el pedido.", "danger")
+    return redirect(url_for("dashboard_domiciliario"))
+
+
+def mover_pedido(pedido_id, desde, hasta, columna_hora, mensaje):
+    # Cambia el estado de un pedido que pertenece al repartidor actual.
+    # "columna_hora" siempre es un texto fijo escrito aquí, nunca del usuario.
+    try:
+        filas = ejecutar(
+            "UPDATE pedido SET estado = %s, " + columna_hora + " = NOW() "
+            "WHERE id = %s AND repartidor_id = %s AND estado = %s",
+            (hasta, pedido_id, session["usuario_id"], desde)
+        )
+        if filas:
+            flash(mensaje, "success")
+        else:
+            flash("No pudimos actualizar ese pedido.", "warning")
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos actualizar el pedido.", "danger")
+    return redirect(url_for("dashboard_domiciliario"))
+
+
+@app.route("/domiciliario/pedidos/<int:pedido_id>/recoger", methods=["POST"])
+@domiciliario_requerido
+def pedido_recoger(pedido_id):
+    return mover_pedido(
+        pedido_id, "asignado", "en_camino", "recogido_en",
+        f"Pedido #{pedido_id} recogido. ¡Buen viaje!"
+    )
+
+
+@app.route("/domiciliario/pedidos/<int:pedido_id>/entregar", methods=["POST"])
+@domiciliario_requerido
+def pedido_entregar(pedido_id):
+    return mover_pedido(
+        pedido_id, "en_camino", "entregado", "entregado_en",
+        f"Pedido #{pedido_id} entregado. ¡Buen trabajo!"
+    )
+
+
+@app.route("/domiciliario/pedidos/<int:pedido_id>/soltar", methods=["POST"])
+@domiciliario_requerido
+def pedido_soltar(pedido_id):
+    # Devuelve a la lista un pedido que aún no recogió.
+    try:
+        filas = ejecutar(
+            "UPDATE pedido SET repartidor_id = NULL, estado = 'listo', "
+            "       aceptado_en = NULL "
+            "WHERE id = %s AND repartidor_id = %s AND estado = 'asignado'",
+            (pedido_id, session["usuario_id"])
+        )
+        if filas:
+            flash(f"Soltaste el pedido #{pedido_id}.", "info")
+        else:
+            flash("Solo puedes soltar pedidos que aún no has recogido.", "warning")
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos soltar el pedido.", "danger")
+    return redirect(url_for("dashboard_domiciliario"))
+
+
+@app.route("/domiciliario/ubicacion", methods=["POST"])
+@domiciliario_requerido
+def repartidor_ubicacion():
+    # El navegador envía aquí la posición GPS del repartidor.
+    try:
+        lat = float(request.form.get("lat", ""))
+        lng = float(request.form.get("lng", ""))
+    except ValueError:
+        abort(400)
+
+    if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+        abort(400)
+
+    try:
+        ejecutar(
+            "UPDATE repartidor SET latitud = %s, longitud = %s, "
+            "       ubicacion_actualizada = NOW() "
+            "WHERE usuario_id = %s",
+            (lat, lng, session["usuario_id"])
+        )
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        return "", 500
+    return "", 204
 
 
 # 17. PÁGINAS QUE TODAVÍA ESTÁN PENDIENTES
