@@ -27,10 +27,18 @@
             <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
           </a>
 
+          {% if session.get('rol') == 'domiciliario' %}
+          <a class="btn btn-contorno-claro btn-lg rounded-pill"
+             href="{{ url_for('repartir') }}">
+            <i class="bi bi-bicycle me-1" aria-hidden="true"></i>
+            Repartir
+          </a>
+          {% else %}
           <a class="btn btn-contorno-claro btn-lg rounded-pill"
              href="{{ url_for('mis_productos') }}">
             Vender con FRITOS TECH
           </a>
+          {% endif %}
         </div>
 
         <ul class="list-unstyled d-flex flex-wrap gap-3 gap-md-4 mb-0 hero__confianza">
@@ -84,7 +92,7 @@
       <li class="col">
         <img
           class="nose"
-          src="{{ url_for('static', filename='img/' ~ imagenes.get(c.nombre, 'logito.png')) }}"
+          src="{{ url_for('static', filename=imagen_producto(c.nombre, None, imagenes.get(c.nombre)) or 'img/logito.png') }}"
           alt="{{ c.nombre }}"
           loading="lazy">
 
@@ -149,6 +157,9 @@
       'Deditos de queso': 'deditos_queso.jpg',
       'Marranitas': 'marranitas.jpg',
       'Aborrajados': 'aborrajados.jpg',
+      'Empanadas de camarón': 'empanadas_camaron.jpg',
+      'Empanadas de cambray': 'empanadas_cambray.jpg',
+      'Empanadas de yuca': 'empanadas_yuca.jpg',
       'Quibbes': 'quibbes.jpg',
       'Pastel de pollo': 'pastel_pollo.jpg'
     } %}
@@ -156,15 +167,15 @@
       <div class="col-12 col-sm-6 col-lg-3"
            data-categoria="{{ p.categoria }}">
 
-        <article class="producto h-100">
+        <article class="producto h-100 explorar-con-imagen">
 
-          <!-- IMAGEN DEL PRODUCTO -->
-          <div class="producto__imagen">
+          <!-- IMAGEN DEL PRODUCTO (mismas clases que en Explorar) -->
+          <div class="producto__imagen explorar-imagen">
             <img
               src="{{ url_for(
                 'static',
-                filename=(p.img if (p.img and p.img.startswith('uploads/'))
-                          else 'img/' ~ imagenes_productos.get(p.nombre, 'logito.png'))
+                filename=(imagen_producto(p.nombre, (p.img or p.imagen or ''), imagenes_productos.get(p.nombre))
+                          or 'img/default.png')
               ) }}"
               alt="{{ p.nombre }}"
               loading="lazy">
@@ -186,7 +197,7 @@
             {% if p.precio is defined %}
             <p class="producto__precio">
               ${{ "{:,.0f}".format(p.precio).replace(",", ".") }}
-              <span>c/u</span>
+              <span>mil pesos</span>
             </p>
             {% endif %}
 
@@ -217,9 +228,5 @@
 
   </div>
 </section>
-
-<!-- CÓMO FUNCIONA -->
-
-
 
 {% endblock %}

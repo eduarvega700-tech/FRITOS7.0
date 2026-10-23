@@ -152,6 +152,10 @@ a {
   color: #f47721;
   font-size: 0.9rem;
 }
+.ft-legal{
+      text-align: center;
+    
+}
 .explorar-imagen { height: 220px; }
 /* Respeto por la preferencia de movimiento reducido */
 @media (prefers-reduced-motion: reduce) {

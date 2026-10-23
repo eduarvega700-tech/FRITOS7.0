@@ -1,0 +1,688 @@
+{% extends 'base.html' %}
+
+{% block title %}Repartir · FRITOS TECH{% endblock %}
+
+{% block contenido %}
+
+{% set estados = {
+  'preparando': ['Preparándose', 'text-bg-secondary'],
+  'listo':      ['Listo para recoger', 'text-bg-success'],
+  'asignado':   ['Por recoger', 'text-bg-warning'],
+  'en_camino':  ['En camino', 'text-bg-primary']
+} %}
+
+{# ---------- Botones de acción de una entrega en curso ---------- #}
+{% macro acciones(p) %}
+{% if p.estado == 'en_camino' %}
+  {% set nav_lat = p.destino_lat %}{% set nav_lng = p.destino_lng %}
+  {% set nav_texto = p.direccion_entrega ~ ', Cartagena' %}
+  {% set telefono = p.telefono_contacto %}
+{% else %}
+  {% set nav_lat = p.local_lat %}{% set nav_lng = p.local_lng %}
+  {% set nav_texto = (p.local_direccion or p.local) ~ ', Cartagena' %}
+  {% set telefono = p.local_telefono %}
+{% endif %}
+<div class="rp-acciones">
+
+  {% if p.estado == 'asignado' %}
+  <form method="post" class="flex-fill m-0" action="{{ url_for('pedido_recoger', pedido_id=p.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="volver" value="repartir">
+    <button class="btn btn-fritos rounded-pill w-100" type="submit">
+      <i class="bi bi-bag-check me-1" aria-hidden="true"></i>Ya lo recogí
+    </button>
+  </form>
+  {% else %}
+  <form method="post" class="flex-fill m-0" action="{{ url_for('pedido_entregar', pedido_id=p.id) }}"
+        onsubmit="return confirm('¿Confirmas que entregaste el pedido #{{ p.id }}?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="volver" value="repartir">
+    <button class="btn btn-fritos rounded-pill w-100" type="submit">
+      <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Marcar entregado
+    </button>
+  </form>
+  {% endif %}
+
+  {% if telefono %}
+  <a class="btn btn-contorno-naranja rounded-pill" href="tel:{{ telefono }}" title="Llamar" aria-label="Llamar al {{ 'cliente' if p.estado == 'en_camino' else 'local' }}">
+    <i class="bi bi-telephone" aria-hidden="true"></i>
+  </a>
+  {% endif %}
+
+  {% if p.local_lat is not none or p.destino_lat is not none %}
+  <button class="btn btn-contorno-naranja rounded-pill" type="button" data-ver-pedido="{{ p.id }}"
+          title="Ver en el mapa" aria-label="Ver el pedido {{ p.id }} en el mapa">
+    <i class="bi bi-map" aria-hidden="true"></i>
+  </button>
+  {% endif %}
+
+  <a class="btn btn-contorno-naranja rounded-pill" target="_blank" rel="noopener"
+     title="Cómo llegar" aria-label="Cómo llegar (abre Google Maps)"
+     href="https://www.google.com/maps/dir/?api=1&travelmode=driving&destination={% if nav_lat is not none and nav_lng is not none %}{{ nav_lat }},{{ nav_lng }}{% else %}{{ nav_texto|urlencode }}{% endif %}">
+    <i class="bi bi-sign-turn-right" aria-hidden="true"></i>
+  </a>
+
+  {% if p.estado == 'asignado' %}
+  <form method="post" class="m-0" action="{{ url_for('pedido_soltar', pedido_id=p.id) }}"
+        onsubmit="return confirm('¿Soltar este pedido? Volverá a la lista de pedidos para tomar.');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="volver" value="repartir">
+    <button class="btn btn-outline-danger rounded-pill" type="submit" title="Soltar pedido" aria-label="Soltar el pedido {{ p.id }}">
+      <i class="bi bi-x-lg" aria-hidden="true"></i>
+    </button>
+  </form>
+  {% endif %}
+</div>
+{% endmacro %}
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+  .rp {
+    --rp-cacao: #2A1810; --rp-cacao-2: #5A3A26;
+    --rp-naranja: #F9A826; --rp-naranja-osc: #E8920F;
+    --rp-crema: #FDF7EE; --rp-arena: #F8EBD7;
+    --rp-rojo: #C0282D; --rp-verde: #1F7A4D; --rp-borde: #f0e2cc;
+    background: var(--rp-crema); color: var(--rp-cacao);
+    padding: 2rem 0 3.5rem;
+  }
+  .rp__titulo { font-family: 'Playfair Display', serif; font-weight: 700; font-size: clamp(1.7rem, 3vw, 2.4rem); margin: 0; }
+  .rp__sub { color: var(--rp-cacao-2); margin: .25rem 0 0; }
+  .rp h2.rp__h2 { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.3rem; margin: 0; }
+  .rp__ayuda { color: var(--rp-cacao-2); font-size: .875rem; margin: .15rem 0 0; }
+  .rp :focus-visible { outline: 3px solid var(--rp-naranja); outline-offset: 2px; }
+
+  /* Interruptor */
+  .rp-turno { display: inline-flex; align-items: center; gap: .75rem; border: 0; border-radius: 999px; padding: .55rem 1.1rem .55rem .6rem; font-weight: 600; background: var(--rp-arena); color: var(--rp-cacao); }
+  .rp-turno__pastilla { width: 42px; height: 24px; border-radius: 999px; background: #b9a894; position: relative; flex: none; transition: background .2s; }
+  .rp-turno__pastilla::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .rp-turno--on { background: #dff3e7; color: #0f4d2e; }
+  .rp-turno--on .rp-turno__pastilla { background: var(--rp-verde); }
+  .rp-turno--on .rp-turno__pastilla::after { transform: translateX(18px); }
+
+  /* Paneles */
+  .rp-panel { background: #fff; border: 1px solid var(--rp-borde); border-radius: 16px; overflow: hidden; }
+  .rp-panel__cab { padding: 1.1rem 1.25rem .85rem; display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; flex-wrap: wrap; }
+  .rp-panel__cuerpo { padding: 0 1.25rem 1.25rem; }
+  @media (min-width: 1200px) { .rp-fijo { position: sticky; top: 6rem; } }
+  .rp-bloque + .rp-bloque { margin-top: 1.5rem; }
+
+  /* Mapa */
+  .rp-mapa { height: 540px; isolation: isolate; background: var(--rp-arena); border-top: 1px solid var(--rp-borde); }
+  @media (max-width: 575.98px) { .rp-mapa { height: 340px; } }
+  .rp-ruta-info { padding: .7rem 1.25rem; font-size: .875rem; color: var(--rp-cacao-2); border-top: 1px solid var(--rp-borde); display: flex; flex-wrap: wrap; gap: .3rem 1.25rem; }
+  .rp-ruta-info strong { color: var(--rp-cacao); }
+
+  .rp-pin { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(42,24,16,.35); font-weight: 700; font-size: .9rem; color: #fff; }
+  .rp-pin--local { background: var(--rp-naranja); color: var(--rp-cacao); }
+  .rp-pin--destino { background: var(--rp-rojo); }
+  .rp-pin--libre { background: #fff; color: var(--rp-rojo); border-color: var(--rp-rojo); width: 28px; height: 28px; font-size: .75rem; }
+  .rp-pin--yo { background: var(--rp-verde); position: relative; }
+  .rp-pin--yo::before { content: ''; position: absolute; inset: -9px; border-radius: 50%; border: 2px solid var(--rp-verde); opacity: 0; animation: rp-pulso 2.4s ease-out infinite; }
+  @keyframes rp-pulso { 0% { transform: scale(.6); opacity: .7; } 100% { transform: scale(1.3); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .rp-pin--yo::before { animation: none; } }
+  .leaflet-div-icon { background: transparent; border: 0; }
+  .rp-popup strong { display: block; }
+  .rp-popup span { display: block; color: #6b5646; font-size: .85rem; }
+
+  .rp-chip { border: 1px solid #e6d3b3; background: #fff; border-radius: 999px; padding: .3rem .85rem; font-size: .85rem; color: var(--rp-cacao); }
+  .rp-chip[aria-pressed="true"] { background: var(--rp-cacao); border-color: var(--rp-cacao); color: #fff; }
+
+  /* Pedido actual */
+  .rp-ahora { border: 2px solid var(--rp-naranja); border-radius: 14px; padding: 1.1rem; display: flex; flex-direction: column; gap: .9rem; background: #fffaf0; }
+  .rp-ahora__cab { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+  .rp-ahora__num { font-weight: 700; font-size: 1.1rem; margin: 0; }
+  .rp-ahora__sub { color: var(--rp-cacao-2); font-size: .875rem; margin: 0; }
+
+  .rp-pasos { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  .rp-pasos li { font-size: .8rem; text-align: center; color: #9a8a7a; display: flex; flex-direction: column; align-items: center; gap: .3rem; position: relative; }
+  .rp-pasos li::before { content: ''; position: absolute; top: 14px; left: -50%; width: 100%; height: 2px; background: #e6d8c2; z-index: 0; }
+  .rp-pasos li:first-child::before { display: none; }
+  .rp-pasos__bola { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #efe4d1; color: #9a8a7a; font-weight: 700; position: relative; z-index: 1; }
+  .rp-pasos .hecho { color: var(--rp-verde); }
+  .rp-pasos .hecho::before, .rp-pasos .actual::before { background: var(--rp-verde); }
+  .rp-pasos .hecho .rp-pasos__bola { background: var(--rp-verde); color: #fff; }
+  .rp-pasos .actual { color: var(--rp-cacao); font-weight: 600; }
+  .rp-pasos .actual .rp-pasos__bola { background: var(--rp-naranja); color: var(--rp-cacao); }
+
+  .rp-donde { display: flex; gap: .75rem; padding: .8rem; border-radius: 10px; background: #fff4de; }
+  .rp-donde > i { font-size: 1.4rem; color: var(--rp-naranja-osc); line-height: 1; margin-top: .1rem; }
+  .rp-donde--cliente { background: #fde9e9; }
+  .rp-donde--cliente > i { color: var(--rp-rojo); }
+  .rp-donde div { display: flex; flex-direction: column; min-width: 0; font-size: .92rem; }
+  .rp-donde span { color: #6b5646; }
+
+  .rp-lineas { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .3rem .5rem; font-size: .88rem; }
+  .rp-lineas li { background: var(--rp-arena); padding: .15rem .6rem; border-radius: 999px; }
+  .rp-datos { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 0; }
+  .rp-datos dt { font-size: .75rem; font-weight: 500; color: var(--rp-cacao-2); }
+  .rp-datos dd { margin: 0; font-weight: 600; }
+  .rp-ganancia { color: var(--rp-verde); }
+  .rp-acciones { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .rp-acciones form.flex-fill { min-width: 150px; }
+
+  /* Filas compactas */
+  .rp-fila { border: 1px solid var(--rp-borde); border-radius: 12px; padding: .85rem 1rem; display: flex; flex-direction: column; gap: .6rem; background: #fff; }
+  .rp-fila + .rp-fila { margin-top: .75rem; }
+  .rp-fila[hidden] { display: none; }
+  .rp-fila__cab { display: flex; justify-content: space-between; gap: .5rem; align-items: flex-start; }
+  .rp-fila__titulo { font-weight: 700; margin: 0; }
+  .rp-fila__ruta { font-size: .85rem; color: var(--rp-cacao-2); margin: 0; }
+  .rp-fila__datos { display: flex; flex-wrap: wrap; gap: .25rem 1rem; font-size: .85rem; color: var(--rp-cacao-2); }
+  .rp-fila__datos strong { color: var(--rp-verde); }
+
+  .rp-controles { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 1rem; }
+  .rp-orden { border: 1px solid #e6d3b3; border-radius: 999px; padding: .3rem .8rem; font-size: .85rem; background: #fff; color: var(--rp-cacao); }
+
+  .rp-vacio { text-align: center; padding: 1.5rem 1rem; color: var(--rp-cacao-2); }
+  .rp-vacio i { font-size: 2rem; display: block; margin-bottom: .5rem; color: #cdb99d; }
+</style>
+
+
+<section class="rp">
+  <div class="container">
+
+    {# ---------- ENCABEZADO ---------- #}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <h1 class="rp__titulo">Repartir</h1>
+        <p class="rp__sub">
+          {% if activos %}
+            Tienes {{ activos|length }} {{ 'entrega' if activos|length == 1 else 'entregas' }} en curso.
+          {% elif perfil.disponible %}
+            Estás disponible. Elige un pedido para empezar.
+          {% else %}
+            Actívate para empezar a recibir pedidos.
+          {% endif %}
+        </p>
+      </div>
+
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <a class="btn btn-contorno-naranja rounded-pill" href="{{ url_for('dashboard_domiciliario') }}">
+          <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>Ver resumen
+        </a>
+        <form method="post" action="{{ url_for('repartidor_disponibilidad') }}" class="m-0">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="volver" value="repartir">
+          <button type="submit" class="rp-turno {{ 'rp-turno--on' if perfil.disponible }}"
+                  role="switch" aria-checked="{{ 'true' if perfil.disponible else 'false' }}">
+            <span class="rp-turno__pastilla" aria-hidden="true"></span>
+            {{ 'Disponible' if perfil.disponible else 'No disponible' }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="row g-4">
+
+      {# =============== MAPA =============== #}
+      <div class="col-xl-7">
+        <section class="rp-panel rp-fijo" aria-labelledby="rp-t-mapa">
+          <div class="rp-panel__cab">
+            <div>
+              <h2 class="rp__h2" id="rp-t-mapa">Tu ruta</h2>
+              <p class="rp__ayuda">Los números siguen el orden de tus paradas.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="rp-chip" id="rp-ver-libres" aria-pressed="true">Pedidos por tomar</button>
+              <button type="button" class="rp-chip" id="rp-gps" aria-pressed="false">
+                <i class="bi bi-crosshair me-1" aria-hidden="true"></i>Mi ubicación
+              </button>
+            </div>
+          </div>
+          <div id="rp-mapa" class="rp-mapa" role="region" aria-label="Mapa de Cartagena con tu ruta y los pedidos por tomar"></div>
+          <div class="rp-ruta-info" aria-live="polite">
+            <span id="rp-paradas"><strong>0</strong> paradas</span>
+            <span id="rp-km">Sin ruta todavía</span>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-xl-5">
+
+        {# =============== AHORA / DESPUÉS =============== #}
+        <div class="rp-bloque">
+          <section class="rp-panel" aria-labelledby="rp-t-ahora">
+            <div class="rp-panel__cab">
+              <div>
+                <h2 class="rp__h2" id="rp-t-ahora">Ahora</h2>
+                <p class="rp__ayuda">{{ activos|length }} de {{ max_activas }} entregas a la vez.</p>
+              </div>
+            </div>
+            <div class="rp-panel__cuerpo">
+
+              {% if activos %}
+              {% set p = activos[0] %}
+              {% set etiqueta = estados.get(p.estado, [p.estado, 'text-bg-light']) %}
+              <article class="rp-ahora" id="pedido-{{ p.id }}">
+                <div class="rp-ahora__cab">
+                  <div>
+                    <p class="rp-ahora__num">Pedido #{{ p.id }} · {{ p.cliente }}</p>
+                    <p class="rp-ahora__sub">{{ p.local }} → {{ p.barrio or 'Cartagena' }}{% if p.distancia_km is not none %} · {{ p.distancia_km }} km{% endif %}</p>
+                  </div>
+                  <span class="badge {{ etiqueta[1] }}">{{ etiqueta[0] }}</span>
+                </div>
+
+                <ol class="rp-pasos" aria-label="Avance del pedido">
+                  <li class="hecho"><span class="rp-pasos__bola"><i class="bi bi-check-lg" aria-hidden="true"></i></span>Tomado</li>
+                  <li class="{{ 'actual' if p.estado == 'asignado' else 'hecho' }}">
+                    <span class="rp-pasos__bola">{% if p.estado == 'asignado' %}2{% else %}<i class="bi bi-check-lg" aria-hidden="true"></i>{% endif %}</span>Recogido
+                  </li>
+                  <li class="{{ 'actual' if p.estado == 'en_camino' }}"><span class="rp-pasos__bola">3</span>Entregado</li>
+                </ol>
+
+                {% if p.estado == 'asignado' %}
+                <div class="rp-donde">
+                  <i class="bi bi-shop" aria-hidden="true"></i>
+                  <div>
+                    <strong>Recoge en {{ p.local }}</strong>
+                    <span>{{ p.local_direccion or 'Dirección no registrada' }}{% if p.local_barrio %} · {{ p.local_barrio }}{% endif %}</span>
+                  </div>
+                </div>
+                {% else %}
+                <div class="rp-donde rp-donde--cliente">
+                  <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                  <div>
+                    <strong>Entrega en {{ p.direccion_entrega }}</strong>
+                    <span>{{ p.barrio or '' }}</span>
+                    {% if p.referencia %}<span class="fst-italic">«{{ p.referencia }}»</span>{% endif %}
+                  </div>
+                </div>
+                {% endif %}
+
+                <ul class="rp-lineas">
+                  {% for l in p.lineas %}<li><strong>{{ l.cantidad }}×</strong> {{ l.nombre }}</li>{% else %}<li>Sin detalle de productos</li>{% endfor %}
+                </ul>
+
+                <dl class="rp-datos">
+                  <div><dt>Tu ganancia</dt><dd class="rp-ganancia">{{ p.costo_domicilio|cop }}</dd></div>
+                  <div><dt>Pago</dt><dd>{{ p.metodo_pago|capitalize }}</dd></div>
+                  {% if p.metodo_pago == 'efectivo' %}<div><dt>Cobrar al cliente</dt><dd>{{ (p.total + p.costo_domicilio)|cop }}</dd></div>{% endif %}
+                </dl>
+
+                {{ acciones(p) }}
+              </article>
+
+              {% if activos|length > 1 %}
+              <p class="rp__ayuda mt-3 mb-2 fw-semibold">Después</p>
+              {% for p in activos[1:] %}
+              {% set etiqueta = estados.get(p.estado, [p.estado, 'text-bg-light']) %}
+              <article class="rp-fila" id="pedido-{{ p.id }}">
+                <div class="rp-fila__cab">
+                  <div>
+                    <p class="rp-fila__titulo">Pedido #{{ p.id }} · {{ p.cliente }}</p>
+                    <p class="rp-fila__ruta">{{ p.local }} → {{ p.barrio or 'Cartagena' }}</p>
+                  </div>
+                  <span class="badge {{ etiqueta[1] }}">{{ etiqueta[0] }}</span>
+                </div>
+                {{ acciones(p) }}
+              </article>
+              {% endfor %}
+              {% endif %}
+
+              {% else %}
+              <div class="rp-vacio">
+                <i class="bi bi-bicycle" aria-hidden="true"></i>
+                <strong>No tienes entregas en curso.</strong>
+                <p class="mb-0 small">Toma un pedido de la lista de abajo para empezar tu ruta.</p>
+              </div>
+              {% endif %}
+
+            </div>
+          </section>
+        </div>
+
+        {# =============== PEDIDOS PARA TOMAR =============== #}
+        <div class="rp-bloque">
+          <section class="rp-panel" aria-labelledby="rp-t-libres">
+            <div class="rp-panel__cab">
+              <div>
+                <h2 class="rp__h2" id="rp-t-libres">Pedidos para tomar</h2>
+                <p class="rp__ayuda">Los «listos» ya se pueden recoger.</p>
+              </div>
+              <button type="button" class="btn btn-contorno-naranja btn-sm rounded-pill" onclick="location.reload()">
+                <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Actualizar
+              </button>
+            </div>
+            <div class="rp-panel__cuerpo">
+
+              {% if not perfil.disponible %}
+              <div class="alert alert-warning py-2 small" role="alert">
+                Estás fuera de turno. Activa «Disponible» arriba para tomar pedidos.
+              </div>
+              {% endif %}
+
+              {% if disponibles %}
+              <div class="rp-controles">
+                <div class="d-flex flex-wrap gap-2" role="group" aria-label="Filtrar por barrio">
+                  <button type="button" class="rp-chip" data-barrio="" aria-pressed="true">Todos</button>
+                  {% for b in barrios %}
+                  <button type="button" class="rp-chip" data-barrio="{{ b }}" aria-pressed="false">{{ b }}</button>
+                  {% endfor %}
+                </div>
+                <label class="visually-hidden" for="rp-orden">Ordenar pedidos</label>
+                <select id="rp-orden" class="rp-orden ms-auto">
+                  <option value="ganancia">Mayor ganancia</option>
+                  <option value="cerca">Más cerca de mí</option>
+                  <option value="antiguo">Más antiguos primero</option>
+                </select>
+              </div>
+
+              <div id="rp-libres">
+                {% for p in disponibles %}
+                {% set etiqueta = estados.get(p.estado, [p.estado, 'text-bg-light']) %}
+                {% set lleno = activos|length >= max_activas %}
+                <article class="rp-fila" id="pedido-{{ p.id }}"
+                         data-barrio="{{ p.barrio or '' }}"
+                         data-ganancia="{{ p.costo_domicilio }}"
+                         data-cerca="{{ p.a_local_km if p.a_local_km is not none else (p.distancia_km if p.distancia_km is not none else 999) }}"
+                         data-antiguo="{{ p.creado_en.timestamp()|int if p.creado_en else 0 }}">
+                  <div class="rp-fila__cab">
+                    <div>
+                      <p class="rp-fila__titulo">Pedido #{{ p.id }} · {{ p.local }}</p>
+                      <p class="rp-fila__ruta">{{ p.direccion_entrega }}{% if p.barrio %} · {{ p.barrio }}{% endif %}</p>
+                    </div>
+                    <span class="badge {{ etiqueta[1] }}">{{ etiqueta[0] }}</span>
+                  </div>
+
+                  <div class="rp-fila__datos">
+                    <span>Ganas <strong>{{ p.costo_domicilio|cop }}</strong></span>
+                    {% if p.distancia_km is not none %}<span>{{ p.distancia_km }} km de trayecto</span>{% endif %}
+                    {% if p.a_local_km is not none %}<span>Local a {{ p.a_local_km }} km de ti</span>{% endif %}
+                    <span>{{ p.articulos }} {{ 'producto' if p.articulos == 1 else 'productos' }}</span>
+                  </div>
+
+                  <div class="rp-acciones">
+                    <form method="post" class="flex-fill m-0" action="{{ url_for('pedido_aceptar', pedido_id=p.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="volver" value="repartir">
+                      <button class="btn btn-fritos rounded-pill w-100" type="submit"
+                              {% if p.estado != 'listo' or not perfil.disponible or lleno %}disabled{% endif %}>
+                        {% if p.estado != 'listo' %}
+                          <i class="bi bi-hourglass-split me-1" aria-hidden="true"></i>Aún se prepara
+                        {% elif not perfil.disponible %}
+                          <i class="bi bi-toggle-off me-1" aria-hidden="true"></i>Actívate para tomarlo
+                        {% elif lleno %}
+                          <i class="bi bi-slash-circle me-1" aria-hidden="true"></i>Ya llevas {{ max_activas }}
+                        {% else %}
+                          <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Tomar pedido
+                        {% endif %}
+                      </button>
+                    </form>
+                    {% if p.local_lat is not none or p.destino_lat is not none %}
+                    <button class="btn btn-contorno-naranja rounded-pill" type="button" data-ver-pedido="{{ p.id }}"
+                            title="Ver en el mapa" aria-label="Ver el pedido {{ p.id }} en el mapa">
+                      <i class="bi bi-map" aria-hidden="true"></i>
+                    </button>
+                    {% endif %}
+                  </div>
+                </article>
+                {% endfor %}
+              </div>
+
+              <p id="rp-sin-barrio" class="text-muted small mb-0" hidden>No hay pedidos en ese barrio.</p>
+
+              {% else %}
+              <div class="rp-vacio">
+                <i class="bi bi-inbox" aria-hidden="true"></i>
+                <strong>No hay pedidos por tomar ahora.</strong>
+                <p class="mb-0 small">La página se actualiza sola cada 90 segundos mientras estés disponible.</p>
+              </div>
+              {% endif %}
+
+            </div>
+          </section>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  /* ---------- Lista: filtrar por barrio y ordenar ---------- */
+  const lista = document.getElementById('rp-libres');
+  if (lista) {
+    const filas = Array.from(lista.querySelectorAll('.rp-fila'));
+    const vacio = document.getElementById('rp-sin-barrio');
+    const orden = document.getElementById('rp-orden');
+    let barrio = '';
+
+    function pintar() {
+      const clave = orden.value;
+      const dir = clave === 'ganancia' ? -1 : 1;   // ganancia: de mayor a menor
+      filas.sort((a, b) => dir * (parseFloat(a.dataset[clave]) - parseFloat(b.dataset[clave])))
+           .forEach((f) => lista.appendChild(f));
+      let visibles = 0;
+      filas.forEach((f) => {
+        const ver = !barrio || f.dataset.barrio === barrio;
+        f.hidden = !ver;
+        if (ver) visibles++;
+      });
+      vacio.hidden = visibles > 0;
+    }
+
+    document.querySelectorAll('[data-barrio]').forEach((b) => {
+      if (b.tagName !== 'BUTTON') return;
+      b.addEventListener('click', () => {
+        barrio = b.dataset.barrio;
+        document.querySelectorAll('button[data-barrio]').forEach((x) =>
+          x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+        pintar();
+      });
+    });
+    orden.addEventListener('change', pintar);
+    pintar();
+  }
+
+  /* ---------- Mapa ---------- */
+  const PEDIDOS = {{ mapa|tojson }};
+  const YO = {{ [perfil.latitud, perfil.longitud]|tojson }};
+  const CSRF = {{ csrf_token()|tojson }};
+  const URL_UBICACION = {{ url_for('repartidor_ubicacion')|tojson }};
+  const AUTO_ACTUALIZAR = {{ 'true' if perfil.disponible else 'false' }};
+
+  const contenedor = document.getElementById('rp-mapa');
+  if (!window.L || !contenedor) {
+    if (contenedor) contenedor.innerHTML = '<p class="p-4 mb-0 text-muted">No pudimos cargar el mapa. Revisa tu conexión a internet.</p>';
+    return;
+  }
+
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const pin = (clase, contenido, tam) => L.divIcon({
+    className: '',
+    html: '<span class="rp-pin ' + clase + '">' + contenido + '</span>',
+    iconSize: [tam || 34, tam || 34], iconAnchor: [(tam || 34) / 2, (tam || 34) / 2], popupAnchor: [0, -18]
+  });
+
+  const km = (a, b) => {                      // distancia en línea recta (Haversine)
+    const r = Math.PI / 180;
+    const dLat = (b[0] - a[0]) * r, dLng = (b[1] - a[1]) * r;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLng / 2) ** 2;
+    return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  };
+
+  const map = L.map(contenedor, { scrollWheelZoom: false }).setView([10.3997, -75.5144], 12);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+  map.on('click', () => map.scrollWheelZoom.enable());
+
+  const capaRuta = L.layerGroup().addTo(map);
+  const capaLibres = L.layerGroup().addTo(map);
+  const marcadores = {};      // id de pedido -> marcador
+
+  /* Paradas de la ruta, en el orden de "Mis entregas" */
+  const paradas = [];
+  PEDIDOS.filter((p) => p.tipo === 'activo').forEach((p) => {
+    if (p.estado === 'asignado' && p.local_pos) {
+      const previa = paradas[paradas.length - 1];
+      if (previa && previa.clase === 'rp-pin--local' && previa.pos.join() === p.local_pos.join()) {
+        previa.pedidos.push(p.id);               // mismo local: una sola parada
+      } else {
+        paradas.push({ pos: p.local_pos, clase: 'rp-pin--local', titulo: p.local,
+                       detalle: p.local_direccion || 'Dirección no registrada', pedidos: [p.id] });
+      }
+    }
+    if (p.destino_pos) {
+      paradas.push({ pos: p.destino_pos, clase: 'rp-pin--destino', titulo: p.cliente,
+                     detalle: p.destino + (p.barrio ? ' · ' + p.barrio : ''), pedidos: [p.id] });
+    }
+  });
+
+  paradas.forEach((s, i) => {
+    const m = L.marker(s.pos, { icon: pin(s.clase, i + 1), title: 'Parada ' + (i + 1) })
+      .bindPopup('<div class="rp-popup"><strong>Parada ' + (i + 1) + ' · ' + esc(s.titulo) + '</strong>' +
+                 '<span>' + esc(s.detalle) + '</span>' +
+                 '<span>Pedido' + (s.pedidos.length > 1 ? 's ' : ' ') + s.pedidos.map((id) => '#' + esc(id)).join(', ') + '</span></div>');
+    capaRuta.addLayer(m);
+    s.pedidos.forEach((id) => {
+      if (s.clase === 'rp-pin--destino' || !marcadores[id]) marcadores[id] = m;
+    });
+  });
+
+  /* Pedidos por tomar (marcador del destino + línea punteada desde el local) */
+  PEDIDOS.filter((p) => p.tipo === 'disponible').forEach((p) => {
+    if (p.local_pos && p.destino_pos) {
+      capaLibres.addLayer(L.polyline([p.local_pos, p.destino_pos], { color: '#9a8a7a', weight: 2, opacity: .8, dashArray: '6 8' }));
+    }
+    if (p.local_pos) {
+      capaLibres.addLayer(L.circleMarker(p.local_pos, { radius: 6, color: '#E8920F', weight: 2, fillColor: '#F9A826', fillOpacity: 1 })
+        .bindPopup('<div class="rp-popup"><strong>' + esc(p.local) + '</strong><span>' + esc(p.local_direccion || '') + '</span></div>'));
+    }
+    const pos = p.destino_pos || p.local_pos;
+    if (pos) {
+      const m = L.marker(pos, { icon: pin('rp-pin--libre', p.id, 28), title: 'Pedido #' + p.id })
+        .bindPopup('<div class="rp-popup"><strong>Pedido #' + esc(p.id) + ' · ' + esc(p.local) + '</strong>' +
+                   '<span>' + esc(p.destino) + (p.barrio ? ' · ' + esc(p.barrio) : '') + '</span></div>');
+      capaLibres.addLayer(m);
+      marcadores[p.id] = m;
+    }
+  });
+
+  /* Yo */
+  let marcadorYo = null;
+  function ponerYo(lat, lng) {
+    if (lat == null || lng == null) return;
+    if (!marcadorYo) {
+      marcadorYo = L.marker([lat, lng], { icon: pin('rp-pin--yo', '<i class="bi bi-bicycle"></i>'), title: 'Yo', zIndexOffset: 1000 })
+        .bindPopup('<div class="rp-popup"><strong>Tu ubicación</strong></div>').addTo(map);
+    } else {
+      marcadorYo.setLatLng([lat, lng]);
+    }
+    dibujarRuta();
+  }
+
+  /* Línea de la ruta y resumen */
+  let linea = null;
+  function dibujarRuta() {
+    const puntos = paradas.map((s) => s.pos);
+    if (marcadorYo && puntos.length) {
+      const ll = marcadorYo.getLatLng();
+      puntos.unshift([ll.lat, ll.lng]);
+    }
+    if (linea) { capaRuta.removeLayer(linea); linea = null; }
+    if (puntos.length > 1) {
+      linea = L.polyline(puntos, { color: '#E8920F', weight: 4, opacity: .9 });
+      capaRuta.addLayer(linea);
+      linea.bringToBack();
+    }
+    let total = 0;
+    for (let i = 1; i < puntos.length; i++) total += km(puntos[i - 1], puntos[i]);
+    document.getElementById('rp-paradas').innerHTML = '<strong>' + paradas.length + '</strong> ' + (paradas.length === 1 ? 'parada' : 'paradas');
+    document.getElementById('rp-km').textContent = puntos.length > 1
+      ? 'Unos ' + total.toFixed(1) + ' km en línea recta (las calles pueden sumar más)'
+      : (paradas.length ? 'Comparte tu ubicación para medir la ruta completa' : 'Sin ruta todavía');
+  }
+
+  function encuadrar() {
+    const puntos = [];
+    paradas.forEach((s) => puntos.push(s.pos));
+    if (marcadorYo) puntos.push(marcadorYo.getLatLng());
+    if (!puntos.length && map.hasLayer(capaLibres)) {
+      PEDIDOS.forEach((p) => { if (p.destino_pos) puntos.push(p.destino_pos); if (p.local_pos) puntos.push(p.local_pos); });
+    }
+    if (puntos.length) map.fitBounds(L.latLngBounds(puntos).pad(0.25), { maxZoom: 15 });
+  }
+
+  ponerYo(YO[0], YO[1]);
+  dibujarRuta();
+  encuadrar();
+
+  /* Mostrar u ocultar los pedidos por tomar */
+  const botonLibres = document.getElementById('rp-ver-libres');
+  botonLibres.addEventListener('click', () => {
+    const ver = botonLibres.getAttribute('aria-pressed') !== 'true';
+    botonLibres.setAttribute('aria-pressed', ver ? 'true' : 'false');
+    if (ver) capaLibres.addTo(map); else capaLibres.removeFrom(map);
+  });
+
+  /* Botón "Ver en el mapa" */
+  document.querySelectorAll('[data-ver-pedido]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const m = marcadores[b.dataset.verPedido];
+      if (!m) return;
+      if (!map.hasLayer(m)) {
+        botonLibres.setAttribute('aria-pressed', 'true');
+        capaLibres.addTo(map);
+      }
+      map.flyTo(m.getLatLng(), 16, { duration: 0.8 });
+      m.openPopup();
+      contenedor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  /* Mi ubicación (GPS) · se guarda en el servidor cada 30 s */
+  const botonGps = document.getElementById('rp-gps');
+  let vigilante = null, ultimoEnvio = 0;
+
+  function enviarUbicacion(lat, lng) {
+    const ahora = Date.now();
+    if (ahora - ultimoEnvio < 30000) return;
+    ultimoEnvio = ahora;
+    const datos = new FormData();
+    datos.append('csrf_token', CSRF);
+    datos.append('lat', lat);
+    datos.append('lng', lng);
+    fetch(URL_UBICACION, { method: 'POST', body: datos, credentials: 'same-origin' }).catch(() => {});
+  }
+
+  botonGps.addEventListener('click', () => {
+    if (vigilante !== null) {
+      navigator.geolocation.clearWatch(vigilante);
+      vigilante = null;
+      botonGps.setAttribute('aria-pressed', 'false');
+      return;
+    }
+    if (!navigator.geolocation) { alert('Tu navegador no permite obtener la ubicación.'); return; }
+    let primera = true;
+    botonGps.setAttribute('aria-pressed', 'true');
+    vigilante = navigator.geolocation.watchPosition((pos) => {
+      const { latitude, longitude } = pos.coords;
+      ponerYo(latitude, longitude);
+      enviarUbicacion(latitude, longitude);
+      if (primera) { map.flyTo([latitude, longitude], 15, { duration: 0.8 }); primera = false; }
+    }, () => {
+      alert('No pudimos obtener tu ubicación. Revisa el permiso del navegador.');
+      vigilante = null;
+      botonGps.setAttribute('aria-pressed', 'false');
+    }, { enableHighAccuracy: true, maximumAge: 10000 });
+  });
+
+  /* Actualización automática */
+  if (AUTO_ACTUALIZAR) {
+    setInterval(() => {
+      if (document.visibilityState === 'visible' && !document.querySelector('.leaflet-popup')) location.reload();
+    }, 90000);
+  }
+})();
+</script>
+
+{% endblock %}
