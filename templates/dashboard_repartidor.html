@@ -322,6 +322,10 @@
       </div>
 
       <div class="d-flex flex-wrap align-items-center gap-2">
+        <a class="btn btn-fritos rounded-pill" href="{{ url_for('repartir') }}">
+          <i class="bi bi-bicycle me-1" aria-hidden="true"></i>Ir a repartir
+        </a>
+
         <form method="post" action="{{ url_for('repartidor_disponibilidad') }}" class="m-0">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit"

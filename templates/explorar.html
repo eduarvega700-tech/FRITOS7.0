@@ -36,6 +36,7 @@
   'Arepa frita': 'arepa_frita.jpg',
   'Patacón pisao': 'patacon_pisao.jpg',
   'Hojaldras': 'hojaldras.jpg',
+  'queso frito': 'queso_frito.jpg',
   'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
   'Empanadas de cambray': 'empanadas_cambray.jpg',
   'Empanadas de yuca': 'empanadas_yuca.jpg',
@@ -69,8 +70,9 @@
       {% for p in productos %}
 
       <div class="col-12 col-sm-6 col-lg-3">
-        {% set subida = p.img and p.img.startswith('uploads/') %}
-        {% if subida or p.nombre in imagenes_nuevas %}
+        {# Busca la foto aunque cambie la ñ, la tilde, las mayúsculas o la extensión #}
+        {% set ruta = imagen_producto(p.nombre, (p.img or p.imagen or ''), imagenes_nuevas.get(p.nombre)) %}
+        {% if ruta %}
         <article class="producto h-100 explorar-con-imagen">
           <div class="producto__imagen explorar-imagen">
             <img src="{{ url_for('static', filename=(p.img if subida else 'img/' ~ imagenes_nuevas[p.nombre])) }}"
@@ -80,7 +82,7 @@
             <h3 class="producto__titulo">{{ p.nombre }}</h3>
             {% if p.vendedor is defined %}<p class="producto__vendedor">{{ p.vendedor }}</p>{% endif %}
             {% if p.precio is defined %}
-            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>c/u</span></p>
+            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>mil pesos</span></p>
             {% endif %}
             <a class="btn btn-fritos rounded-pill w-100" href="{{ url_for('explorar') }}">
               <i class="bi bi-cart3 me-1" aria-hidden="true"></i>

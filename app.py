@@ -3,7 +3,9 @@
 import hmac
 import math
 import os
+import re
 import secrets
+import unicodedata
 import uuid
 from datetime import datetime
 from functools import wraps
@@ -21,6 +23,7 @@ from flask import (
     session,
     url_for
 )
+from werkzeug.routing import BuildError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # data.py ahora solo se usa como respaldo si MySQL no responde.
@@ -133,6 +136,68 @@ def formato_cop(valor):
     return "$" + f"{valor:,.0f}".replace(",", ".")
 
 
+# 5 BIS. IMÁGENES DE LOS PRODUCTOS (static/img)
+#
+# El nombre del archivo casi nunca coincide al 100% con lo que escribimos en
+# la plantilla: una ñ o una tilde, mayúsculas, .jpg / .jpeg / .png / .webp...
+# Esta función compara los nombres SIN tildes, SIN mayúsculas y SIN extensión,
+# así "buñuelos.jpg" encuentra "Bunuelos.PNG" y viceversa.
+
+EXTENSIONES_FOTO = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif")
+_cache_imagenes = {"mtime": None, "indice": {}}
+
+
+def _clave_archivo(texto):
+    # "Carimañolas de yuca2.JPG" -> "carimanolas_de_yuca2"
+    base = os.path.splitext(str(texto))[0]
+    base = unicodedata.normalize("NFKD", base)
+    base = "".join(c for c in base if not unicodedata.combining(c)).lower()
+    return re.sub(r"[^a-z0-9]+", "_", base).strip("_")
+
+
+def _indice_imagenes():
+    # {clave: nombre real del archivo}; se vuelve a leer si la carpeta cambia.
+    carpeta = os.path.join(app.static_folder, "img")
+    try:
+        mtime = os.stat(carpeta).st_mtime
+        if _cache_imagenes["mtime"] != mtime:
+            indice = {}
+            for nombre in sorted(os.listdir(carpeta)):
+                if nombre.lower().endswith(EXTENSIONES_FOTO):
+                    indice.setdefault(_clave_archivo(nombre), nombre)
+            _cache_imagenes.update(mtime=mtime, indice=indice)
+        return _cache_imagenes["indice"]
+    except OSError:
+        return {}
+
+
+@app.template_global("imagen_producto")
+def imagen_producto(nombre, subida=None, preferida=None):
+    """
+    Devuelve la ruta (dentro de static/) de la foto de un producto,
+    o None si no existe ninguna. Orden de búsqueda:
+      1. La foto que subió el vendedor (uploads/...).
+      2. El archivo indicado en "preferida" (ej. 'buñuelos.jpg').
+      3. Un archivo con el nombre del producto (con o sin "2" al final).
+    """
+    if subida and str(subida).startswith("uploads/"):
+        return subida
+
+    indice = _indice_imagenes()
+    base = _clave_archivo(nombre or "")
+    claves = [base + "2", base]
+    if preferida:
+        pref = _clave_archivo(preferida)
+        # Si no está la versión "xxx2", se usa la normal "xxx" (y al revés).
+        alterna = pref[:-1] if pref.endswith("2") else pref + "2"
+        claves = [pref, alterna] + claves
+
+    for clave in claves:
+        if clave and clave in indice:
+            return "img/" + indice[clave]
+    return None
+
+
 # 6. SEGURIDAD: TOKEN CSRF PARA LOS FORMULARIOS
 
 def token_csrf():
@@ -161,6 +226,44 @@ def variables_globales():
         "anio": datetime.now().year,   # {{ anio }}
         "csrf_token": token_csrf       # {{ csrf_token() }}
     }
+
+
+# Opciones extra del menú superior según el rol de quien inició sesión.
+# Se leen de la tabla menu_navegacion (repartidor.sql). Si la tabla aún no
+# existe o MySQL no responde, se usa este respaldo.
+MENU_RESPALDO = {
+    "domiciliario": [
+        {"etiqueta": "Repartir", "endpoint": "repartir", "icono": "bi-bicycle"}
+    ]
+}
+
+
+@app.context_processor
+def menu_por_rol():
+    # En la plantilla: {% for it in menu_rol %} ... it.etiqueta, it.url ...
+    rol = session.get("rol")
+    if not rol:
+        return {"menu_rol": []}
+
+    if "menu_rol" not in g:
+        try:
+            filas = consultar(
+                "SELECT etiqueta, endpoint, icono FROM menu_navegacion "
+                "WHERE rol = %s AND activo = 1 ORDER BY orden, id",
+                (rol,)
+            )
+        except pymysql.MySQLError:
+            filas = MENU_RESPALDO.get(rol, [])
+
+        items = []
+        for fila in filas:
+            try:
+                items.append({**fila, "url": url_for(fila["endpoint"])})
+            except BuildError:
+                continue   # endpoint que no existe: se omite
+        g.menu_rol = items
+
+    return {"menu_rol": g.menu_rol}
 
 
 # 8. SESIÓN: PROTEGER PÁGINAS Y ELEGIR A DÓNDE IR TRAS ENTRAR
@@ -635,73 +738,53 @@ def resumen_entregas(uid, solo_hoy):
     return {"entregas": int(fila["entregas"]), "ganancias": int(fila["ganancias"])}
 
 
-@app.route("/domiciliario")
-@domiciliario_requerido
-def dashboard_domiciliario():
-    uid = session["usuario_id"]
+PERFIL_VACIO = {
+    "disponible": 0, "vehiculo": "moto", "placa": None,
+    "telefono": None, "latitud": None, "longitud": None
+}
 
-    perfil = {
-        "disponible": 0, "vehiculo": "moto", "placa": None,
-        "telefono": None, "latitud": None, "longitud": None
-    }
-    activos, disponibles, historial = [], [], []
-    hoy = {"entregas": 0, "ganancias": 0}
-    total = {"entregas": 0, "ganancias": 0}
 
-    try:
-        # Si es su primera vez, se crea su perfil de repartidor.
-        ejecutar(
-            "INSERT IGNORE INTO repartidor (usuario_id) VALUES (%s)",
-            (uid,)
+def cargar_pedidos_repartidor(uid):
+    """Perfil del repartidor, sus entregas en curso y los pedidos por tomar."""
+    # Si es su primera vez, se crea su perfil de repartidor.
+    ejecutar("INSERT IGNORE INTO repartidor (usuario_id) VALUES (%s)", (uid,))
+    perfil = consultar(
+        "SELECT disponible, vehiculo, placa, telefono, latitud, longitud "
+        "FROM repartidor WHERE usuario_id = %s",
+        (uid,),
+        uno=True
+    ) or dict(PERFIL_VACIO)
+
+    # Entregas que ya aceptó (por recoger o en camino).
+    activos = completar_pedidos(consultar(
+        SQL_PEDIDO +
+        "WHERE p.repartidor_id = %s "
+        "  AND p.estado IN ('asignado', 'en_camino') "
+        "ORDER BY FIELD(p.estado, 'en_camino', 'asignado'), p.creado_en",
+        (uid,)
+    ))
+
+    # Pedidos sin repartidor que alguien puede tomar.
+    disponibles = completar_pedidos(consultar(
+        SQL_PEDIDO +
+        "WHERE p.repartidor_id IS NULL "
+        "  AND p.estado IN ('listo', 'preparando') "
+        "ORDER BY FIELD(p.estado, 'listo', 'preparando'), p.creado_en "
+        "LIMIT 20"
+    ))
+
+    # Distancia desde la última ubicación del repartidor hasta cada local.
+    for p in disponibles:
+        p["a_local_km"] = distancia_km(
+            perfil["latitud"], perfil["longitud"],
+            p["local_lat"], p["local_lng"]
         )
-        perfil = consultar(
-            "SELECT disponible, vehiculo, placa, telefono, latitud, longitud "
-            "FROM repartidor WHERE usuario_id = %s",
-            (uid,),
-            uno=True
-        ) or perfil
 
-        # Entregas que ya aceptó (por recoger o en camino).
-        activos = completar_pedidos(consultar(
-            SQL_PEDIDO +
-            "WHERE p.repartidor_id = %s "
-            "  AND p.estado IN ('asignado', 'en_camino') "
-            "ORDER BY FIELD(p.estado, 'en_camino', 'asignado'), p.creado_en",
-            (uid,)
-        ))
+    return perfil, activos, disponibles
 
-        # Pedidos sin repartidor que alguien puede tomar.
-        disponibles = completar_pedidos(consultar(
-            SQL_PEDIDO +
-            "WHERE p.repartidor_id IS NULL "
-            "  AND p.estado IN ('listo', 'preparando') "
-            "ORDER BY FIELD(p.estado, 'listo', 'preparando'), p.creado_en "
-            "LIMIT 20"
-        ))
 
-        historial = completar_pedidos(consultar(
-            SQL_PEDIDO +
-            "WHERE p.repartidor_id = %s AND p.estado = 'entregado' "
-            "ORDER BY p.entregado_en DESC LIMIT 8",
-            (uid,)
-        ))
-
-        hoy = resumen_entregas(uid, solo_hoy=True)
-        total = resumen_entregas(uid, solo_hoy=False)
-
-    except pymysql.MySQLError as error:
-        app.logger.error("Error de MySQL: %s", error)
-        codigo = error.args[0] if error.args else 0
-        if codigo == 1146:
-            flash(
-                "Faltan las tablas del domiciliario. "
-                "Ejecuta el archivo repartidor.sql en MySQL.",
-                "danger"
-            )
-        else:
-            flash("No pudimos cargar tus entregas. Revisa la base de datos.", "danger")
-
-    # Datos para el mapa (se envían como JSON a la plantilla).
+def armar_mapa(activos, disponibles):
+    """Lista de pedidos con sus coordenadas, lista para enviar al mapa (JSON)."""
     def punto(lat, lng):
         return None if lat is None or lng is None else [lat, lng]
 
@@ -720,6 +803,61 @@ def dashboard_domiciliario():
                 "barrio": p["barrio"],
                 "destino_pos": punto(p["destino_lat"], p["destino_lng"])
             })
+    return mapa
+
+
+def avisar_error_repartidor(error):
+    app.logger.error("Error de MySQL: %s", error)
+    codigo = error.args[0] if error.args else 0
+    if codigo == 1146:
+        flash(
+            "Faltan las tablas del domiciliario. "
+            "Ejecuta el archivo repartidor.sql en MySQL.",
+            "danger"
+        )
+    else:
+        flash("No pudimos cargar tus entregas. Revisa la base de datos.", "danger")
+
+
+def volver_al_panel():
+    # Los formularios de la página Repartir envían volver=repartir
+    # para regresar allí; los del dashboard vuelven al dashboard.
+    if request.form.get("volver") == "repartir":
+        return redirect(url_for("repartir"))
+    return redirect(url_for("dashboard_domiciliario"))
+
+
+@app.route("/domiciliario")
+@domiciliario_requerido
+def dashboard_domiciliario():
+    uid = session["usuario_id"]
+
+    perfil = {
+        "disponible": 0, "vehiculo": "moto", "placa": None,
+        "telefono": None, "latitud": None, "longitud": None
+    }
+    activos, disponibles, historial = [], [], []
+    hoy = {"entregas": 0, "ganancias": 0}
+    total = {"entregas": 0, "ganancias": 0}
+
+    try:
+        perfil, activos, disponibles = cargar_pedidos_repartidor(uid)
+
+        historial = completar_pedidos(consultar(
+            SQL_PEDIDO +
+            "WHERE p.repartidor_id = %s AND p.estado = 'entregado' "
+            "ORDER BY p.entregado_en DESC LIMIT 8",
+            (uid,)
+        ))
+
+        hoy = resumen_entregas(uid, solo_hoy=True)
+        total = resumen_entregas(uid, solo_hoy=False)
+
+    except pymysql.MySQLError as error:
+        avisar_error_repartidor(error)
+
+    # Datos para el mapa (se envían como JSON a la plantilla).
+    mapa = armar_mapa(activos, disponibles)
 
     # Locales donde hay que recoger (agrupados por vendedor).
     locales = {}
@@ -755,6 +893,33 @@ def dashboard_domiciliario():
     )
 
 
+@app.route("/domiciliario/repartir")
+@domiciliario_requerido
+def repartir():
+    # Pantalla de trabajo: la ruta de hoy y los pedidos que puedes tomar.
+    perfil = dict(PERFIL_VACIO)
+    activos, disponibles = [], []
+
+    try:
+        perfil, activos, disponibles = cargar_pedidos_repartidor(
+            session["usuario_id"]
+        )
+    except pymysql.MySQLError as error:
+        avisar_error_repartidor(error)
+
+    barrios = sorted({p["barrio"] for p in disponibles if p["barrio"]})
+
+    return render_template(
+        "repartir.html",
+        perfil=perfil,
+        activos=activos,
+        disponibles=disponibles,
+        barrios=barrios,
+        mapa=armar_mapa(activos, disponibles),
+        max_activas=MAX_ENTREGAS_ACTIVAS
+    )
+
+
 @app.route("/domiciliario/disponibilidad", methods=["POST"])
 @domiciliario_requerido
 def repartidor_disponibilidad():
@@ -780,7 +945,7 @@ def repartidor_disponibilidad():
     except pymysql.MySQLError as error:
         app.logger.error("Error de MySQL: %s", error)
         flash("No pudimos cambiar tu disponibilidad.", "danger")
-    return redirect(url_for("dashboard_domiciliario"))
+    return volver_al_panel()
 
 
 @app.route("/domiciliario/pedidos/<int:pedido_id>/aceptar", methods=["POST"])
@@ -830,7 +995,7 @@ def pedido_aceptar(pedido_id):
     except pymysql.MySQLError as error:
         app.logger.error("Error de MySQL: %s", error)
         flash("No pudimos asignarte el pedido.", "danger")
-    return redirect(url_for("dashboard_domiciliario"))
+    return volver_al_panel()
 
 
 def mover_pedido(pedido_id, desde, hasta, columna_hora, mensaje):
@@ -849,7 +1014,7 @@ def mover_pedido(pedido_id, desde, hasta, columna_hora, mensaje):
     except pymysql.MySQLError as error:
         app.logger.error("Error de MySQL: %s", error)
         flash("No pudimos actualizar el pedido.", "danger")
-    return redirect(url_for("dashboard_domiciliario"))
+    return volver_al_panel()
 
 
 @app.route("/domiciliario/pedidos/<int:pedido_id>/recoger", methods=["POST"])
@@ -888,7 +1053,7 @@ def pedido_soltar(pedido_id):
     except pymysql.MySQLError as error:
         app.logger.error("Error de MySQL: %s", error)
         flash("No pudimos soltar el pedido.", "danger")
-    return redirect(url_for("dashboard_domiciliario"))
+    return volver_al_panel()
 
 
 @app.route("/domiciliario/ubicacion", methods=["POST"])

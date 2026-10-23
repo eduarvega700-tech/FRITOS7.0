@@ -64,15 +64,7 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="{{ url_for('index') }}#como-funciona"
-                        >
-                            Cómo funciona
-                        </a>
-                    </li>
-
+                    {% if session.get('rol') != 'domiciliario' %}
                     <li class="nav-item">
                         <a
                             class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
@@ -81,6 +73,19 @@
                             Vender
                         </a>
                     </li>
+                    {% endif %}
+
+                    <!-- OPCIONES SEGÚN EL ROL (tabla menu_navegacion): Repartir -->
+                    {% for it in menu_rol %}
+                    <li class="nav-item">
+                        <a
+                            class="nav-link {{ 'active' if request.endpoint == it.endpoint }}"
+                            href="{{ it.url }}"
+                        >
+                            {{ it.etiqueta }}
+                        </a>
+                    </li>
+                    {% endfor %}
 
                    <li class="nav-item">
                         <a
@@ -144,6 +149,14 @@
                     >
                         <i class="bi bi-shop me-1" aria-hidden="true"></i>
                         Mis productos
+                    </a>
+                    {% elif session.get('rol') == 'domiciliario' %}
+                    <a
+                        class="btn btn-fritos rounded-pill"
+                        href="{{ url_for('dashboard_domiciliario') }}"
+                    >
+                        <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>
+                        Mi panel
                     </a>
                     {% endif %}
 

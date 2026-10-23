@@ -8,8 +8,10 @@
 --
 --  NO borra ni modifica tus tablas actuales (usuario, categoria,
 --  producto, historial_acceso). Solo crea tablas nuevas.
---  Es seguro ejecutarlo varias veces (CREATE TABLE IF NOT EXISTS),
---  salvo la sección 6 (datos de ejemplo), que debes correr una sola vez.
+--  Es seguro ejecutarlo varias veces: las tablas usan IF NOT EXISTS, el
+--  menú usa INSERT IGNORE y los datos de ejemplo solo se cargan si aún
+--  no existen. Si ya ejecutaste la versión anterior, puedes correr este
+--  archivo completo: solo agrega lo que falta (tabla menu_navegacion).
 --
 --  ANTES DE EJECUTAR, revisa dos cosas:
 --
@@ -145,7 +147,33 @@ SELECT id FROM usuario WHERE rol = 'domiciliario';
 
 
 -- ---------------------------------------------------------------------
--- 6. DATOS DE EJEMPLO (OPCIONAL · ejecutar UNA sola vez)
+-- 6. MENU_NAVEGACION: opciones extra de la barra superior según el rol
+--    Aquí vive la sección "Repartir" que ve el domiciliario al iniciar
+--    sesión. La app lee esta tabla (context processor menu_por_rol) y
+--    la plantilla del navbar recorre la lista menu_rol.
+--      endpoint = nombre de la función de Flask a la que apunta
+--                 (en app.py: def repartir()).
+--    Para ocultar la sección sin borrarla:
+--      UPDATE menu_navegacion SET activo = 0 WHERE endpoint = 'repartir';
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS menu_navegacion (
+    id        INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    rol       VARCHAR(20)   NOT NULL,
+    etiqueta  VARCHAR(40)   NOT NULL,
+    endpoint  VARCHAR(60)   NOT NULL,
+    icono     VARCHAR(40)   NULL,
+    orden     TINYINT UNSIGNED NOT NULL DEFAULT 10,
+    activo    TINYINT(1)    NOT NULL DEFAULT 1,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_menu_rol_endpoint (rol, endpoint)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO menu_navegacion (rol, etiqueta, endpoint, icono, orden)
+VALUES ('domiciliario', 'Repartir', 'repartir', 'bi-bicycle', 10);
+
+
+-- ---------------------------------------------------------------------
+-- 7. DATOS DE EJEMPLO (OPCIONAL · solo se cargan si no existen ya)
 --    Usa el primer vendedor y el primer cliente que existan en tu
 --    base de datos. Si no hay alguno de los dos, no inserta nada.
 --    Coordenadas reales de Cartagena para probar el mapa.
@@ -155,6 +183,7 @@ SET @vendedor = (SELECT id FROM usuario WHERE rol = 'vendedor'
                  ORDER BY id LIMIT 1);
 SET @cliente  = (SELECT id FROM usuario WHERE rol = 'cliente'
                  ORDER BY id LIMIT 1);
+SET @ya_hay_demo = (SELECT COUNT(*) FROM pedido WHERE notas LIKE '[demo]%');
 
 INSERT IGNORE INTO local_vendedor
     (vendedor_id, nombre_local, direccion, barrio, telefono, latitud, longitud)
@@ -171,7 +200,7 @@ INSERT INTO pedido
 SELECT @cliente, @vendedor, 'listo', 'Carrera 2 #11-41, Edificio Marbella',
        'Bocagrande', 'Torre azul, apto 502', '3012223344',
        10.40100, -75.55700, 'efectivo', 12000, 4000, '[demo] Sin ají, por favor'
-WHERE @vendedor IS NOT NULL AND @cliente IS NOT NULL;
+WHERE @vendedor IS NOT NULL AND @cliente IS NOT NULL AND @ya_hay_demo = 0;
 SET @p1 = IF(ROW_COUNT() = 1, LAST_INSERT_ID(), 0);
 
 -- Pedido 2 · listo para recoger · Manga
@@ -182,7 +211,7 @@ INSERT INTO pedido
 SELECT @cliente, @vendedor, 'listo', 'Avenida Jiménez #23-60',
        'Manga', 'Casa esquinera de rejas verdes', '3023334455',
        10.41440, -75.53300, 'transferencia', 8000, 3500, '[demo] Tocar el timbre dos veces'
-WHERE @vendedor IS NOT NULL AND @cliente IS NOT NULL;
+WHERE @vendedor IS NOT NULL AND @cliente IS NOT NULL AND @ya_hay_demo = 0;
 SET @p2 = IF(ROW_COUNT() = 1, LAST_INSERT_ID(), 0);
 
 -- Pedido 3 · aún preparándose · El Laguito
@@ -193,7 +222,7 @@ INSERT INTO pedido
 SELECT @cliente, @vendedor, 'preparando', 'Carrera 1 #4-120, Hotel Playa',
        'El Laguito', 'Preguntar en recepción', '3034445566',
        10.39500, -75.56000, 'tarjeta', 18000, 5000, '[demo]'
-WHERE @vendedor IS NOT NULL AND @cliente IS NOT NULL;
+WHERE @vendedor IS NOT NULL AND @cliente IS NOT NULL AND @ya_hay_demo = 0;
 SET @p3 = IF(ROW_COUNT() = 1, LAST_INSERT_ID(), 0);
 
 -- Pedido 4 · listo para recoger · Crespo (el más lejano)
@@ -204,7 +233,7 @@ INSERT INTO pedido
 SELECT @cliente, @vendedor, 'listo', 'Calle 70 #1-35',
        'Crespo', 'Frente al parque', '3045556677',
        10.44000, -75.51700, 'efectivo', 15000, 4500, '[demo] Llevar cambio de $50.000'
-WHERE @vendedor IS NOT NULL AND @cliente IS NOT NULL;
+WHERE @vendedor IS NOT NULL AND @cliente IS NOT NULL AND @ya_hay_demo = 0;
 SET @p4 = IF(ROW_COUNT() = 1, LAST_INSERT_ID(), 0);
 
 -- Detalle de los pedidos de ejemplo
