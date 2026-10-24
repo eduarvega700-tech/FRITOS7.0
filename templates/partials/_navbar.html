@@ -1,22 +1,15 @@
-
 {%- from 'partials/_macros.html' import media %}
 
 <header class="ft-header sticky-top">
 
-    <nav class="navbar navbar-expand-lg navbar-dark"
-         aria-label="Navegación principal">
+    <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Navegación principal">
 
         <div class="container">
 
             <!-- LOGO Y NOMBRE DE LA MARCA -->
-            <a class="navbar-brand d-flex align-items-center gap-2"
-               href="{{ url_for('index') }}">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('index') }}">
 
-                <img
-                    class="logo"
-                    src="{{ url_for('static', filename='img/logo.png') }}"
-                    alt="Logo de Fritos Tech"
-                >
+                <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo de Fritos Tech">
 
                 <span class="lh-1">
                     <span class="marca">FRITOS TECH</span>
@@ -28,15 +21,8 @@
             </a>
 
             <!-- BOTÓN DEL MENÚ PARA MÓVILES -->
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#menuPrincipal"
-                aria-controls="menuPrincipal"
-                aria-expanded="false"
-                aria-label="Abrir menú"
-            >
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -47,46 +33,42 @@
                 <ul class="navbar-nav mx-lg-auto gap-lg-4">
 
                     <li class="nav-item">
-                        <a
-                            class="nav-link {{ 'active' if request.endpoint == 'index' }}"
-                            href="{{ url_for('index') }}"
-                        >
+                        <a class="nav-link {{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('index') }}">
                             Inicio
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a
-                            class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
-                            href="{{ url_for('explorar') }}"
-                        >
+                        <a class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
+                            href="{{ url_for('explorar') }}">
                             Explorar
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'puestos' }}"
+                            href="{{ url_for('puestos') }}">
+                            Puestos
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="{{ url_for('index') }}#como-funciona"
-                        >
+                        <a class="nav-link" href="{{ url_for('index') }}#como-funciona">
                             Cómo funciona
                         </a>
                     </li>
 
+                    {% if session.get('rol') != 'cliente' %}
                     <li class="nav-item">
-                        <a
-                            class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
-                            href="{{ url_for('mis_productos') }}"
-                        >
+                        <a class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
+                            href="{{ url_for('mis_productos') }}">
                             Vender
                         </a>
                     </li>
+                    {% endif %}
 
-                   <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="mailto:hola@fritostech.co"
-                        >
+                    <li class="nav-item">
+                        <a class="nav-link" href="mailto:hola@fritostech.co">
                             Contacto
                         </a>
                     </li>
@@ -97,28 +79,16 @@
                 <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
 
                     <!-- BUSCADOR -->
-                    <a
-                        class="btn-icono"
-                        href="{{ url_for('explorar') }}"
-                        aria-label="Buscar fritos"
-                    >
+                    <a class="btn-icono" href="{{ url_for('explorar') }}" aria-label="Buscar fritos">
                         <i class="bi bi-search" aria-hidden="true"></i>
                     </a>
 
                     <!-- CARRITO DE COMPRAS -->
-                    <button
-                        class="btn-icono position-relative"
-                        type="button"
-                        id="btn-carrito"
-                        aria-label="Carrito de compras"
-                    >
+                    <button class="btn-icono position-relative" type="button" id="btn-carrito"
+                        aria-label="Carrito de compras">
                         <i class="bi bi-cart3" aria-hidden="true"></i>
 
-                        <span
-                            id="cart-count"
-                            class="cart-count"
-                            hidden
-                        >0</span>
+                        <span id="cart-count" class="cart-count" hidden>0</span>
                     </button>
 
                     {% if session.get('usuario_id') %}
@@ -130,18 +100,12 @@
                     </span>
 
                     {% if session.get('rol') == 'administrador' %}
-                    <a
-                        class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('admin_dashboard') }}"
-                    >
+                    <a class="btn btn-fritos rounded-pill" href="{{ url_for('admin_dashboard') }}">
                         <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>
                         Dashboard
                     </a>
                     {% elif session.get('rol') == 'vendedor' %}
-                    <a
-                        class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('mis_productos') }}"
-                    >
+                    <a class="btn btn-fritos rounded-pill" href="{{ url_for('mis_productos') }}">
                         <i class="bi bi-shop me-1" aria-hidden="true"></i>
                         Mis productos
                     </a>
@@ -157,16 +121,13 @@
                     {% else %}
 
                     <!-- INICIAR SESIÓN -->
-                    <a
-                        class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('iniciar_sesion') }}"
-                    >
+                    <a class="btn btn-fritos rounded-pill" href="{{ url_for('iniciar_sesion') }}">
                         Iniciar sesión
                     </a>
 
                     {% endif %}
 
-                  
+
                     <!-- <a
                           class="btn btn-fritos rounded-pill"
                         href="{{ url_for('proximamente', pagina='registro') }}"

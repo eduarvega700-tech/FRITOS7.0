@@ -182,6 +182,17 @@ def vendedor_requerido(vista):
             return redirect(url_for("explorar"))
         return vista(*args, **kwargs)
     return interior
+def cliente_requerido(vista):
+    @wraps(vista)
+    def interior(*args, **kwargs):
+        if "usuario_id" not in session:
+            flash("Inicia sesión como cliente para continuar.", "info")
+            return redirect(url_for("acceso_rol", rol="cliente"))
+        if session.get("rol") != "cliente":
+            flash("Esta sección es solo para clientes.", "warning")
+            return redirect(url_for("explorar"))
+        return vista(*args, **kwargs)
+    return interior
 
 
 # 9. CATÁLOGO (CATEGORÍAS Y PRODUCTOS DESDE MYSQL)
@@ -248,7 +259,65 @@ def explorar():
         productos=productos,
         activa=slug
     )
+# 11.1 CATALOGO DE PUESTOS
+@app.route("/puestos")
+def puestos():
+    lista = []
+    try:
+        lista = consultar(
+            "SELECT pu.vendedor_id AS id, pu.nombre, pu.barrio, pu.ciudad, "
+            "       pu.horario, pu.abierto, pu.acepta_domicilio, "
+            "       pu.costo_domicilio, COUNT(p.id) AS n_productos "
+            "FROM puesto pu "
+            "JOIN usuario u ON u.id = pu.vendedor_id AND u.activo = 1 "
+            "LEFT JOIN producto p "
+            "       ON p.vendedor_id = pu.vendedor_id AND p.activo = 1 "
+            "GROUP BY pu.vendedor_id "
+            "ORDER BY pu.abierto DESC, pu.nombre"
+        )
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cargar los puestos. Revisa la base de datos.", "danger")
 
+    return render_template("puestos.html", puestos=lista)
+
+@app.route("/puestos/<int:puesto_id>")
+def puesto_detalle(puesto_id):
+    try:
+        puesto = consultar(
+            "SELECT pu.vendedor_id AS id, pu.nombre, pu.descripcion, "
+            "       pu.direccion, pu.barrio, pu.ciudad, pu.horario, "
+            "       pu.abierto, pu.acepta_domicilio, pu.costo_domicilio "
+            "FROM puesto pu "
+            "JOIN usuario u ON u.id = pu.vendedor_id AND u.activo = 1 "
+            "WHERE pu.vendedor_id = %s",
+            (puesto_id,),
+            uno=True
+        )
+
+        # Si el puesto no existe, mostrar error 404.
+        if puesto is None:
+            abort(404)
+
+        productos = consultar(
+            "SELECT p.id, p.nombre, p.descripcion, p.precio, p.imagen, "
+            "       p.disponible, c.nombre AS categoria "
+            "FROM producto p "
+            "JOIN categoria c ON c.id = p.categoria_id "
+            "WHERE p.vendedor_id = %s AND p.activo = 1 "
+            "ORDER BY c.id, p.nombre",
+            (puesto_id,)
+        )
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cargar ese puesto. Revisa la base de datos.", "danger")
+        return redirect(url_for("puestos"))
+
+    return render_template(
+        "puesto_detalle.html",
+        puesto=puesto,
+        productos=productos
+    )
 
 # 12. SELECCIONAR UN ROL
 
