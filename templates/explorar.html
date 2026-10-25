@@ -1,22 +1,22 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% from 'partials/_macros.html' import tarjeta_producto %}
-{% block title %}Explorar fritos · FRITOS TECH{% endblock %}
+{% block title %}Explorar fritos Â· FRITOS TECH{% endblock %}
 {% block contenido %}
 
-{# IMÁGENES NUEVAS: agrega aquí solo los fritos a los que quieras ponerles foto.
-   Nombre del producto (idéntico al de la base de datos) : archivo en static/img/
-   Los productos que NO estén aquí se muestran exactamente como antes. #}
+{# IMÃGENES NUEVAS: agrega aquÃ­ solo los fritos a los que quieras ponerles foto.
+   Nombre del producto (idÃ©ntico al de la base de datos) : archivo en static/img/
+   Los productos que NO estÃ©n aquÃ­ se muestran exactamente como antes. #}
 {% set imagenes_nuevas = {
   'Empanadas de carne': 'empanadas_de_carne2.jpg',
   'Empanada de pollo': 'empanadas_pollo2.jpg',
   'Arepa de huevo': 'arepa_huevo2.jpg',
   'Arepa de huevo especial': 'arepa_huevo_especial2.jpg',
-  'Carimañolas de yuca': 'carimañolas_de_yuca2.jpg',
+  'CarimaÃ±olas de yuca': 'carimaÃ±olas_de_yuca2.jpg',
   'Patacones con hogao': 'patacones_con_hogao2.jpg',
-  'Patacón con queso': 'patacon_con_queso2.jpg',
-  'Buñuelos': 'buñuelos.jpg',
+  'PatacÃ³n con queso': 'patacon_con_queso2.jpg',
+  'BuÃ±uelos': 'buÃ±uelos.jpg',
   'Empanadas de queso': 'empanadas_de_queso.jpg',
-  'Carimañolas de queso': 'carimanolas_de_queso.jpg',
+  'CarimaÃ±olas de queso': 'carimanolas_de_queso.jpg',
   'Arepa de huevo con carne': 'arepa_huevo_carne.jpg',
   'Arepa de huevo con queso': 'arepa_huevo_queso.jpg',
   'Papa rellena': 'papa_rellena.jpg',
@@ -26,24 +26,24 @@
   'Quibbes': 'quibbes.jpg',
   'Pastel de pollo': 'pastel_pollo.jpg',
   'Yuca frita': 'yuca_frita.jpg',
-  'Tajadas de plátano maduro': 'tajadas_platano_maduro.jpg',
+  'Tajadas de plÃ¡tano maduro': 'tajadas_platano_maduro.jpg',
   'Papas criollas fritas': 'papas_criollas_fritas.jpg',
-  'Chicharrón': 'chicharron.jpg',
-  'Empanadas de pipián': 'empanadas_pipian.jpg',
-  'Empanadas de camarón': 'empanadas_camaron.jpg',
-  'Buñuelos de frijol': 'bunuelos_frijol.jpg',
+  'ChicharrÃ³n': 'chicharron.jpg',
+  'Empanadas de pipiÃ¡n': 'empanadas_pipian.jpg',
+  'Empanadas de camarÃ³n': 'empanadas_camaron.jpg',
+  'BuÃ±uelos de frijol': 'bunuelos_frijol.jpg',
   'Pasteles de yuca': 'pasteles_yuca.jpg',
   'Arepa frita': 'arepa_frita.jpg',
-  'Patacón pisao': 'patacon_pisao.jpg',
+  'PatacÃ³n pisao': 'patacon_pisao.jpg',
   'Hojaldras': 'hojaldras.jpg',
   'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
   'Empanadas de cambray': 'empanadas_cambray.jpg',
   'Empanadas de yuca': 'empanadas_yuca.jpg',
   'Bolitas de yuca con queso': 'bolitas_yuca_queso.jpg',
   'Arepa de choclo frita': 'arepa_choclo_frita.jpg',
-  'Cazón frito': 'cazon_frito.jpg',
-  'Plátano relleno frito': 'platano_relleno_frito.jpg',
-  'Tostadas de plátano verde': 'tostadas_platano_verde.jpg',
+  'CazÃ³n frito': 'cazon_frito.jpg',
+  'PlÃ¡tano relleno frito': 'platano_relleno_frito.jpg',
+  'Tostadas de plÃ¡tano verde': 'tostadas_platano_verde.jpg',
   'Papa rellena con arroz y huevo': 'papa_rellena_arroz_huevo.jpg'
 } %}
 
@@ -53,12 +53,12 @@
 
     <h1 class="titulo-script">Explora los fritos de Cartagena</h1>
 
-    <div class="chips my-4" role="navigation" aria-label="Filtrar por categoría">
+    <div class="chips my-4" role="navigation" aria-label="Filtrar por categorÃ­a">
 
-      <a class="chip {{ 'chip--activo' if not activa }}" href="{{ url_for('explorar') }}">Todos</a>
+      <a class="chip {{ 'chip--activo' if not activa }}" href="{{ url_for('catalogo.explorar') }}">Todos</a>
       {% for c in categorias %}
 
-      <a class="chip {{ 'chip--activo' if activa == c.slug }}" href="{{ url_for('explorar', categoria=c.slug) }}">{{ c.nombre }}</a>
+      <a class="chip {{ 'chip--activo' if activa == c.slug }}" href="{{ url_for('catalogo.explorar', categoria=c.slug) }}">{{ c.nombre }}</a>
       {% endfor %}
 
     </div>
@@ -82,7 +82,7 @@
             {% if p.precio is defined %}
             <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>c/u</span></p>
             {% endif %}
-            <a class="btn btn-fritos rounded-pill w-100" href="{{ url_for('explorar') }}">
+            <a class="btn btn-fritos rounded-pill w-100" href="{{ url_for('catalogo.explorar') }}">
               <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
               {{ 'Agregar al carrito' if p.id is defined else 'Ver producto' }}
             </a>
@@ -98,9 +98,11 @@
 
     {% else %}
 
-    <p class="text-muted">Aún no hay productos en esta categoría. Vuelve pronto.</p>
+    <p class="text-muted">AÃºn no hay productos en esta categorÃ­a. Vuelve pronto.</p>
     {% endif %}
     
   </div>
 </section>
 {% endblock %}
+
+

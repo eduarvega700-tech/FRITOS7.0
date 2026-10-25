@@ -1457,6 +1457,9 @@ a {
 .ft-lema,
 .ft-list a,
 .ft-legal { color: rgba(255, 255, 255, .85); }
+ft-legal {
+    text-align: center;
+}
 
 .ft-list a:hover { color: var(--ft-brand); }
 

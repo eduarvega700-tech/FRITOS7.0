@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% from 'partials/_macros.html' import media %}
 
 {% block contenido %}
@@ -10,7 +10,7 @@
 
       <div class="col-lg-6 py-5">
         <h1 class="hero__titulo">
-          PEQUEÑOS NEGOCIOS
+          PEQUEÃ‘OS NEGOCIOS
           <span class="font-script hero__clic d-block">grandes sabores.</span>
         </h1>
 
@@ -22,7 +22,7 @@
 
         <div class="d-flex flex-wrap gap-3 mb-4">
           <a class="btn btn-fritos btn-lg rounded-pill"
-             href="{{ url_for('explorar') }}">
+             href="{{ url_for('catalogo.explorar') }}">
             Explorar fritos
             <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
           </a>
@@ -34,7 +34,7 @@
         </div>
 
         <ul class="list-unstyled d-flex flex-wrap gap-3 gap-md-4 mb-0 hero__confianza">
-          <li><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> Gastronomía local</li>
+          <li><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> GastronomÃ­a local</li>
           <li><i class="bi bi-shield-check" aria-hidden="true"></i> Seguro y confiable</li>
           <li><i class="bi bi-truck" aria-hidden="true"></i> Domicilio o recoge</li>
         </ul>
@@ -50,22 +50,22 @@
   </div>
 </section>
 
-<!-- CATEGORÍAS -->
+<!-- CATEGORÃAS -->
 <section class="seccion seccion--crema" id="categorias">
   <div class="pincelada d-none d-lg-block" aria-hidden="true"></div>
 
   <div class="container">
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
       <div>
-        <p class="rotulo">Categorías</p>
-        <h2 class="titulo-script mb-1">¿Qué se te antoja hoy?</h2>
+        <p class="rotulo">CategorÃ­as</p>
+        <h2 class="titulo-script mb-1">Â¿QuÃ© se te antoja hoy?</h2>
         <p class="mb-0">
-          Explora nuestras categorías y encuentra tus fritos favoritos.
+          Explora nuestras categorÃ­as y encuentra tus fritos favoritos.
         </p>
       </div>
 
-      <a class="enlace-naranja" href="{{ url_for('explorar') }}">
-        Ver todas las categorías
+      <a class="enlace-naranja" href="{{ url_for('catalogo.explorar') }}">
+        Ver todas las categorÃ­as
         <i class="bi bi-arrow-right" aria-hidden="true"></i>
       </a>
     </div>
@@ -73,9 +73,9 @@
     {% set imagenes = {
       'Empanadas': 'empanadas.png',
       'Arepas de huevo': 'arepas.png',
-      'Carimañolas': 'carimañola.png',
+      'CarimaÃ±olas': 'carimaÃ±ola.png',
       'Patacones': 'patacones.png',
-      'Buñuelos': 'buñuelos.png',
+      'BuÃ±uelos': 'buÃ±uelos.png',
       'Otros': 'otros.png'
     } %}
 
@@ -89,7 +89,7 @@
           loading="lazy">
 
         <a class="cat"
-           href="{{ url_for('explorar', categoria=c.slug) }}">
+           href="{{ url_for('catalogo.explorar', categoria=c.slug) }}">
           <span class="cat__nombre font-script">{{ c.nombre }}</span>
         </a>
       </li>
@@ -105,11 +105,11 @@
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
       <div>
         <p class="rotulo">Productos destacados</p>
-        <h2 class="titulo-script mb-0">Los más populares</h2>
+        <h2 class="titulo-script mb-0">Los mÃ¡s populares</h2>
       </div>
 
       <div class="chips" role="group"
-           aria-label="Filtrar productos por categoría">
+           aria-label="Filtrar productos por categorÃ­a">
 
         <button type="button"
                 class="chip chip--activo"
@@ -131,18 +131,18 @@
 
     <div class="row g-4" id="grilla-populares">
 
-  <!-- IMÁGENES DE TODOS LOS PRODUCTOS -->
+  <!-- IMÃGENES DE TODOS LOS PRODUCTOS -->
     {% set imagenes_productos = {
       'Empanadas de carne': 'empanadas_de_carne.jpg',
       'Empanada de pollo': 'empanadas_pollo.jpg',
       'Arepa de huevo': 'arepa_huevo.jpg',
       'Arepa de huevo especial': 'arepa_huevo_especial.jpg',
-      'Carimañolas de yuca': 'carimañolas_de_yuca.jpg',
+      'CarimaÃ±olas de yuca': 'carimaÃ±olas_de_yuca.jpg',
       'Patacones con hogao': 'patacones_con_hogao.jpg',
-      'Patacón con queso': 'patacon_con_queso.jpg',
-      'Buñuelos': 'bunuelos.jpg',
+      'PatacÃ³n con queso': 'patacon_con_queso.jpg',
+      'BuÃ±uelos': 'bunuelos.jpg',
       'Empanadas de queso': 'empanadas_de_queso.jpg',
-      'Carimañolas de queso': 'carimanolas_de_queso.jpg',
+      'CarimaÃ±olas de queso': 'carimanolas_de_queso.jpg',
       'Arepa de huevo con carne': 'arepa_huevo_carne.jpg',
       'Arepa de huevo con queso': 'arepa_huevo_queso.jpg',
       'Papa rellena': 'papa_rellena.jpg',
@@ -170,7 +170,7 @@
               loading="lazy">
           </div>
 
-          <!-- INFORMACIÓN DEL PRODUCTO -->
+          <!-- INFORMACIÃ“N DEL PRODUCTO -->
           <div class="producto__contenido">
 
             <h3 class="producto__titulo">
@@ -192,13 +192,13 @@
 
             {% if p.id is defined %}
             <a class="btn btn-fritos rounded-pill w-100"
-               href="{{ url_for('explorar') }}">
+               href="{{ url_for('catalogo.explorar') }}">
               <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
               Agregar al carrito
             </a>
             {% else %}
             <a class="btn btn-fritos rounded-pill w-100"
-               href="{{ url_for('explorar') }}">
+               href="{{ url_for('catalogo.explorar') }}">
               <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
               Ver producto
             </a>
@@ -212,14 +212,15 @@
     </div>
 
     <p id="sin-resultados" class="text-muted mt-3" hidden>
-      Aún no hay productos en esta categoría.
+      AÃºn no hay productos en esta categorÃ­a.
     </p>
 
   </div>
 </section>
 
-<!-- CÓMO FUNCIONA -->
+<!-- CÃ“MO FUNCIONA -->
 
 
 
 {% endblock %}
+

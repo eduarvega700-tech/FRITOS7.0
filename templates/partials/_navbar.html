@@ -1,10 +1,10 @@
-
+﻿
 {%- from 'partials/_macros.html' import media %}
 
 <header class="ft-header sticky-top">
 
     <nav class="navbar navbar-expand-lg navbar-dark"
-         aria-label="Navegación principal">
+         aria-label="NavegaciÃ³n principal">
 
         <div class="container">
 
@@ -27,7 +27,7 @@
 
             </a>
 
-            <!-- BOTÓN DEL MENÚ PARA MÓVILES -->
+            <!-- BOTÃ“N DEL MENÃš PARA MÃ“VILES -->
             <button
                 class="navbar-toggler"
                 type="button"
@@ -35,15 +35,15 @@
                 data-bs-target="#menuPrincipal"
                 aria-controls="menuPrincipal"
                 aria-expanded="false"
-                aria-label="Abrir menú"
+                aria-label="Abrir menÃº"
             >
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- CONTENIDO DEL MENÚ -->
+            <!-- CONTENIDO DEL MENÃš -->
             <div class="collapse navbar-collapse" id="menuPrincipal">
 
-                <!-- ENLACES DE NAVEGACIÓN -->
+                <!-- ENLACES DE NAVEGACIÃ“N -->
                 <ul class="navbar-nav mx-lg-auto gap-lg-4">
 
                     <li class="nav-item">
@@ -58,7 +58,7 @@
                     <li class="nav-item">
                         <a
                             class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
-                            href="{{ url_for('explorar') }}"
+                            href="{{ url_for('catalogo.explorar') }}"
                         >
                             Explorar
                         </a>
@@ -69,7 +69,7 @@
                             class="nav-link"
                             href="{{ url_for('index') }}#como-funciona"
                         >
-                            Cómo funciona
+                            Como funciona
                         </a>
                     </li>
 
@@ -99,7 +99,7 @@
                     <!-- BUSCADOR -->
                     <a
                         class="btn-icono"
-                        href="{{ url_for('explorar') }}"
+                        href="{{ url_for('catalogo.explorar') }}"
                         aria-label="Buscar fritos"
                     >
                         <i class="bi bi-search" aria-hidden="true"></i>
@@ -123,7 +123,7 @@
 
                     {% if session.get('usuario_id') %}
 
-                    <!-- SESIÓN ACTIVA: nombre, panel del vendedor y salir -->
+                    <!-- SESIÃ“N ACTIVA: nombre, panel del vendedor y salir -->
                     <span class="small text-white-50 d-none d-xl-inline">
                         <i class="bi bi-person-circle" aria-hidden="true"></i>
                         {{ session['nombre'] }}
@@ -156,12 +156,12 @@
 
                     {% else %}
 
-                    <!-- INICIAR SESIÓN -->
+                    <!-- INICIAR SESIÃ“N -->
                     <a
                         class="btn btn-fritos rounded-pill"
                         href="{{ url_for('iniciar_sesion') }}"
                     >
-                        Iniciar sesión
+                        Iniciar sesion
                     </a>
 
                     {% endif %}

@@ -30,6 +30,10 @@ from data import CATEGORIAS, PRODUCTOS
 
 app = Flask(__name__)
 
+from controllers.catalogo_controller import catalogo_bp
+
+app.register_blueprint(catalogo_bp)
+
 # Clave utilizada por Flask para proteger las sesiones y los mensajes.
 app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY",
@@ -168,7 +172,7 @@ def destino_por_rol(rol):
     # El vendedor entra a su panel; los demás a explorar.
     if rol == "vendedor":
         return url_for("mis_productos")
-    return url_for("explorar")
+    return url_for("catxplorar")
 
 
 def vendedor_requerido(vista):
@@ -179,7 +183,7 @@ def vendedor_requerido(vista):
             return redirect(url_for("acceso_rol", rol="vendedor"))
         if session.get("rol") != "vendedor":
             flash("Esta sección es solo para vendedores.", "warning")
-            return redirect(url_for("explorar"))
+            return redirect(url_for("catalogo.explorar"))
         return vista(*args, **kwargs)
     return interior
 
@@ -232,8 +236,7 @@ def index():
 
 # 11. PÁGINA PARA EXPLORAR PRODUCTOS
 
-@app.route("/explorar")
-def explorar():
+
     slug = request.args.get("categoria", "").strip()
 
     categorias, productos = cargar_catalogo(slug)
@@ -242,12 +245,7 @@ def explorar():
     if slug and not any(c["slug"] == slug for c in categorias):
         abort(404)
 
-    return render_template(
-        "explorar.html",
-        categorias=categorias,
-        productos=productos,
-        activa=slug
-    )
+   
 
 
 # 12. SELECCIONAR UN ROL
