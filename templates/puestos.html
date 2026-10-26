@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Puestos · FRITOS TECH{% endblock %}
+
+{% block contenido %}
+<section class="seccion">
+    <div class="container">
+
+        <p class="rotulo">Catálogo de vendedores</p>
+        <h1 class="titulo-script mb-1">Puestos de fritos</h1>
+        <p class="mb-4">Elige un puesto para ver sus productos y si hace domicilio.</p>
+
+        {% if puestos %}
+        <div class="row g-4">
+            {% for p in puestos %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 d-flex flex-column">
+
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                            <a class="small text-muted text-decoration-none" href="{{ url_for('mapa', puesto=p.id) }}"
+                                title="Ver {{ p.nombre }} en el mapa">
+                                <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                                {{ p.barrio or p.ciudad }}
+                            </a>
+                            {% if p.abierto %}
+                            <span class="badge text-bg-success">Abierto</span>
+                            {% else %}
+                            <span class="badge text-bg-secondary">Cerrado</span>
+                            {% endif %}
+                        </div>
+
+                        <h2 class="h5 fw-bold mb-2">{{ p.nombre }}</h2>
+
+                        <p class="small mb-1">
+                            {{ p.n_productos }} producto{{ '' if p.n_productos == 1 else 's' }}
+                        </p>
+
+                        {% if p.horario %}
+                        <p class="small mb-1">
+                            <i class="bi bi-clock" aria-hidden="true"></i> {{ p.horario }}
+                        </p>
+                        {% endif %}
+
+                        <p class="small mb-3">
+                            {% if p.acepta_domicilio %}
+                            <i class="bi bi-bicycle" aria-hidden="true"></i>
+                            Domicilio {{ p.costo_domicilio|cop }}
+                            {% else %}
+                            <i class="bi bi-bag" aria-hidden="true"></i>
+                            Solo recoger en el puesto
+                            {% endif %}
+                        </p>
+
+                        <a class="btn btn-fritos rounded-pill mt-auto"
+                            href="{{ url_for('puesto_detalle', puesto_id=p.id) }}">
+                            Ver productos
+                        </a>
+
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <p class="text-muted">Todavía no hay puestos para mostrar.</p>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
