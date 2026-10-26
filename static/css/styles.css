@@ -1456,7 +1456,19 @@ a {
 .ft-brand__tech { color: var(--ft-brand); }
 .ft-lema,
 .ft-list a,
-.ft-legal { color: rgba(255, 255, 255, .85); }
+.ft-legal { color: rgba(255, 255, 255, .85); margin-right: 200px; }
+.ft-footer__bottom {
+    text-align: center;
+    padding: 25px 0;
+    margin-top: 30px;
+    border-top: 2px solid var(--ft-brand);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 16px;
+}
+
+.ft-footer__bottom p {
+    margin: 0;
+}
 
 .ft-list a:hover { color: var(--ft-brand); }
 
@@ -1465,318 +1477,52 @@ a {
   border-color: var(--ft-brand);
   color: var(--ft-cacao-900);
 }
-
-
-/*
-   16. PANEL DE ADMINISTRACIÓN
- */
-
-.admin-dashboard {
-    padding: 2.5rem 0 4rem;
-    min-height: 70vh;
+/* ===== Redes: efecto que ilumina ===== */
+.ft-footer a.social {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow .3s ease, border-color .3s ease,
+              background-color .3s ease, color .3s ease;
 }
 
-.admin-dashboard__eyebrow {
-    font-size: .8rem;
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    color: var(--ft-naranja);
+.ft-footer a.social i {
+  display: inline-block;
+  transition: transform .3s ease, filter .3s ease, color .3s ease;
 }
 
-.admin-dashboard__title {
-    font-family: 'Times New Roman', Times, serif;
-    font-weight: 700;
-    font-size: clamp(2rem, 4.5vw, 2.8rem);
-    line-height: 1.05;
-    color: var(--ft-cacao-900);
-    margin-bottom: .4rem;
+.ft-footer a.social:hover,
+.ft-footer a.social:focus-visible {
+  border-color: #fbbf24 !important;
+  background-color: rgba(245, 158, 11, .18) !important;
+  color: #fbbf24 !important;
+  animation: brillo 1.4s ease-in-out infinite !important;
 }
 
-.admin-dashboard__subtitle {
-    color: var(--ft-suave);
+.ft-footer a.social:hover i,
+.ft-footer a.social:focus-visible i {
+  color: #fbbf24 !important;
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, .9));
 }
 
-/* Tarjetas de estadísticas */
-.admin-stat {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 8px 24px rgba(65, 39, 20, .08);
-    padding: 1.1rem 1.2rem;
-    height: 100%;
-    color: var(--ft-tinta);
+@keyframes brillo {
+  0%, 100% {
+    box-shadow: 0 0 8px  rgba(245, 158, 11, .6),
+                0 0 18px rgba(245, 158, 11, .4);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(251, 191, 36, .9),
+                0 0 30px rgba(245, 158, 11, .7),
+                0 0 48px rgba(245, 158, 11, .4);
+  }
 }
+.social[aria-label="Facebook"]:hover  { background: #1877f2; border-color: #1877f2; color: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.4); }
+.social[aria-label="Instagram"]:hover { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); border-color: transparent; color: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.4); }
+.social[aria-label="TikTok"]:hover    { background: #000; border-color: #fff; color: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.4); }
+.social[aria-label="YouTube"]:hover   { background: #ff0000; border-color: #ff0000; color: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.4); }
 
-.admin-stat--enlace {
-    transition: transform .15s, box-shadow .15s;
-}
+.ft-footer__support{
 
-.admin-stat--enlace:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 28px rgba(65, 39, 20, .14);
-    color: var(--ft-tinta);
-}
-
-.admin-stat__top {
-    margin-bottom: .6rem;
-}
-
-.admin-stat__icon {
-    display: inline-grid;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    background: #FFE3A6;
-    color: var(--ft-cacao-800);
-    font-size: 1.25rem;
-}
-
-.admin-stat__label {
-    margin: 0 0 .15rem;
-    font-size: .8rem;
-    font-weight: 500;
-    color: var(--ft-suave);
-}
-
-.admin-stat__value {
-    font-size: 1.7rem;
-    font-weight: 700;
-    line-height: 1.1;
-    color: var(--ft-cacao-900);
-}
-
-/* Paneles con tablas */
-.admin-panel {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 8px 24px rgba(65, 39, 20, .08);
-    overflow: hidden;
-}
-
-.admin-panel__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.1rem 1.3rem;
-    border-bottom: 1px solid var(--ft-arena);
-}
-
-.admin-panel__title {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--ft-cacao-900);
-}
-
-.admin-table {
-    margin: 0;
-    --bs-table-bg: transparent;
-    font-size: .9rem;
-}
-
-.admin-table thead th {
-    background: var(--ft-crema);
-    color: var(--ft-suave);
-    font-size: .72rem;
-    font-weight: 700;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--ft-arena);
-    padding: .75rem 1.3rem;
-    white-space: nowrap;
-}
-
-.admin-table tbody td {
-    padding: .85rem 1.3rem;
-    border-color: var(--ft-arena);
-    color: var(--ft-tinta);
-}
-
-.admin-table tbody tr:hover {
-    background: #FFFBF3;
-}
-
-.admin-empty {
-    text-align: center;
-    color: var(--ft-suave);
-    padding: 2rem 1rem !important;
-}
-
-/* Etiquetas de rol y estado */
-.admin-role {
-    display: inline-block;
-    padding: .2rem .65rem;
-    border-radius: 999px;
-    background: #F3E6D2;
-    color: var(--ft-cacao-800);
-    font-size: .75rem;
-    font-weight: 600;
-    text-transform: capitalize;
-}
-
-.admin-status {
-    display: inline-block;
-    padding: .2rem .65rem;
-    border-radius: 999px;
-    font-size: .75rem;
-    font-weight: 600;
-    background: #EEE7DD;
-    color: var(--ft-cacao-700);
-}
-
-.admin-status--active,
-.admin-status--entregado { background: #DDF3E3; color: #1F7A3A; }
-
-.admin-status--inactive,
-.admin-status--cancelado { background: #F9DEDF; color: var(--ft-ajiaco); }
-
-.admin-status--pendiente { background: #FFE9B8; color: #8A5A00; }
-.admin-status--preparando { background: #FFD9B8; color: #A14A00; }
-.admin-status--listo { background: #D8EAF8; color: #1B5E8C; }
-
-.admin-select {
-    min-width: 130px;
-    border-radius: 999px;
-}
-
-/* Enlace de "Acceso administrativo" en la pantalla de selección de rol */
-.admin-access-link {
-    color: rgba(255, 255, 255, .75);
-    font-size: .85rem;
-    text-decoration: none;
-}
-
-.admin-access-link:hover {
-    color: var(--ft-brand);
-}
-
-
-/*
-   17. CARRITO Y PEDIDOS
- */
-
-.carrito-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 8px 24px rgba(65, 39, 20, .08);
-    padding: .8rem;
-}
-
-.carrito-item__img {
-    width: 84px;
-    height: 84px;
-    border-radius: 14px;
-    object-fit: cover;
-    background: #ffbd4a;
-    flex-shrink: 0;
-}
-
-.carrito-item__info {
-    flex: 1;
-    min-width: 0;
-}
-
-.carrito-item__nombre {
-    font-size: 1rem;
-    font-weight: 700;
-    margin: 0;
-}
-
-.carrito-item__vendedor {
-    font-size: .8rem;
-    color: var(--ft-suave);
-    margin: 0;
-}
-
-.carrito-item__precio {
-    font-size: .85rem;
-    margin: .2rem 0 0;
-    color: var(--ft-naranja);
-    font-weight: 600;
-}
-
-.carrito-item__acciones {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: .4rem;
-    position: relative;
-}
-
-.carrito-cantidad {
-    display: inline-flex;
-    align-items: center;
-    background: var(--ft-crema);
-    border-radius: 999px;
-    padding: .15rem;
-}
-
-.carrito-cantidad button {
-    width: 30px;
-    height: 30px;
-    border: 0;
-    border-radius: 50%;
-    background: var(--ft-brand);
-    color: var(--ft-cacao-900);
-    font-weight: 700;
-    line-height: 1;
-}
-
-.carrito-cantidad button:disabled {
-    opacity: .4;
-}
-
-.carrito-cantidad span {
-    min-width: 32px;
-    text-align: center;
-    font-weight: 600;
-}
-
-.carrito-item__quitar {
-    border: 0;
-    background: none;
-    color: var(--ft-suave);
-    font-size: .8rem;
-    padding: 0;
-}
-
-.carrito-item__quitar:hover {
-    color: var(--ft-ajiaco);
-}
-
-.carrito-resumen,
-.pedido-card {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 8px 24px rgba(65, 39, 20, .08);
-    padding: 1.4rem;
-}
-
-.carrito-resumen {
-    position: sticky;
-    top: 100px;
-}
-
-.carrito-resumen legend {
-    float: none;
-    width: auto;
-    padding: 0;
-}
-
-@media (max-width: 575.98px) {
-    .carrito-item {
-        flex-wrap: wrap;
-    }
-
-    .carrito-item__acciones {
-        flex-direction: row;
-        align-items: center;
-        width: 100%;
-        justify-content: space-between;
-    }
+    flex: max-content;
 }
