@@ -280,7 +280,7 @@ def puestos():
         flash("No pudimos cargar los puestos. Revisa la base de datos.", "danger")
 
     return render_template("puestos.html", puestos=lista)
-
+ 
 @app.route("/puestos/<int:puesto_id>")
 def puesto_detalle(puesto_id):
     try:
@@ -318,6 +318,35 @@ def puesto_detalle(puesto_id):
         puesto=puesto,
         productos=productos
     )
+    
+    # 11.2 MAPA DE PUESTOS
+
+@app.route("/mapa")
+def mapa():
+    datos = []
+    try:
+        filas = consultar(
+            "SELECT pu.vendedor_id AS id, pu.nombre, pu.barrio, "
+            "       pu.latitud, pu.longitud, pu.abierto "
+            "FROM puesto pu "
+            "JOIN usuario u ON u.id = pu.vendedor_id AND u.activo = 1 "
+            "WHERE pu.latitud IS NOT NULL AND pu.longitud IS NOT NULL"
+        )
+        for f in filas:
+            datos.append({
+                "id": f["id"],
+                "nombre": f["nombre"],
+                "barrio": f["barrio"] or "",
+                "lat": float(f["latitud"]),
+                "lng": float(f["longitud"]),
+                "abierto": bool(f["abierto"]),
+                "url": url_for("puesto_detalle", puesto_id=f["id"])
+            })
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cargar el mapa. Revisa la base de datos.", "danger")
+
+    return render_template("mapa.html", puestos=datos)
 
 # 12. SELECCIONAR UN ROL
 

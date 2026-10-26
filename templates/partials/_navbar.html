@@ -44,7 +44,7 @@
                             Explorar
                         </a>
                     </li>
-                    
+
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'puestos' }}"
                             href="{{ url_for('puestos') }}">
@@ -81,6 +81,12 @@
                     <!-- BUSCADOR -->
                     <a class="btn-icono" href="{{ url_for('explorar') }}" aria-label="Buscar fritos">
                         <i class="bi bi-search" aria-hidden="true"></i>
+                    </a>
+                    
+                    <!-- MAPA DE PUESTOS -->
+                    <a class="btn-icono" href="{{ url_for('mapa') }}" aria-label="Mapa de puestos"
+                        title="Mapa de puestos">
+                        <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
                     </a>
 
                     <!-- CARRITO DE COMPRAS -->
