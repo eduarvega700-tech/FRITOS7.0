@@ -1526,3 +1526,167 @@ a {
 
     flex: max-content;
 }
+/* . */
+.ft-legal {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* */
+.ft-slogan {
+  max-width: 24ch;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+/* =========================================
+   MODO DÍA Y MODO NOCHE - FRITOS TECH
+========================================= */
+
+/* Transición suave entre los modos */
+body,
+.ft-header,
+.ft-footer,
+.seccion,
+.producto,
+.tarjeta-producto,
+.auth-card {
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
+}
+
+/* Variables del modo noche */
+body[data-theme="dark"] {
+    --ft-crema: #171717;
+    --ft-arena: #222222;
+    --ft-tinta: #F5F5F5;
+    --ft-suave: #C4C4C4;
+
+    background: var(--ft-crema);
+    color: var(--ft-tinta);
+}
+
+/* Fondos de las secciones */
+body[data-theme="dark"] .seccion--crema {
+    background: #171717;
+}
+
+body[data-theme="dark"] .seccion--arena {
+    background: #222222;
+}
+
+/* Tarjetas de productos */
+body[data-theme="dark"] .producto,
+body[data-theme="dark"] .tarjeta-producto {
+    background: #292929;
+    color: #F5F5F5;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Textos de productos */
+body[data-theme="dark"] .producto__titulo,
+body[data-theme="dark"] .producto__precio,
+body[data-theme="dark"] .tarjeta-producto__nombre,
+body[data-theme="dark"] .tarjeta-producto__precio,
+body[data-theme="dark"] .titulo-script,
+body[data-theme="dark"] .cat__nombre,
+body[data-theme="dark"] .paso__titulo {
+    color: #F5F5F5;
+}
+
+/* Descripciones */
+body[data-theme="dark"] .producto__vendedor,
+body[data-theme="dark"] .tarjeta-producto__vendedor,
+body[data-theme="dark"] .tarjeta-producto__rating span,
+body[data-theme="dark"] .paso p {
+    color: #C4C4C4;
+}
+
+/* Filtros de categorías */
+body[data-theme="dark"] .chip {
+    background: #383838;
+    color: #FFFFFF;
+}
+
+body[data-theme="dark"] .chip:hover {
+    background: #4A4A4A;
+}
+
+body[data-theme="dark"] .chip--activo {
+    background: var(--ft-brand);
+    color: #2A1810;
+}
+
+/* Categorías */
+body[data-theme="dark"] .cat__img {
+    background: #333333;
+}
+
+/* Formularios */
+body[data-theme="dark"] .auth-card {
+    background: #292929;
+    color: #FFFFFF;
+}
+
+body[data-theme="dark"] .campo .form-control {
+    background: #202020;
+    color: #FFFFFF;
+    border-color: #555555;
+}
+
+body[data-theme="dark"] .campo .form-control::placeholder {
+    color: #BDBDBD;
+}
+
+/* Roles de usuario */
+body[data-theme="dark"] .rol {
+    background: #292929;
+    color: #FFFFFF;
+    border-color: #555555;
+}
+
+body[data-theme="dark"] .rol:hover,
+body[data-theme="dark"] .rol--activo {
+    background: #383024;
+    border-color: var(--ft-brand);
+}
+
+/* Encabezado y pie de página */
+body[data-theme="dark"] .ft-header,
+body[data-theme="dark"] .ft-footer,
+body[data-theme="dark"] .vendedores {
+    background: #100D0B;
+}
+
+/* Enlaces */
+body[data-theme="dark"] a {
+    text-decoration-color: var(--ft-brand);
+}
+
+/* Botón para cambiar de tema */
+.btn-tema {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    background: transparent;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 1.15rem;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.btn-tema:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.btn-tema:focus-visible {
+    outline: 3px solid var(--ft-brand);
+    outline-offset: 3px;
+}

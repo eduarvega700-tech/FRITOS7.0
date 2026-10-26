@@ -149,6 +149,19 @@
                         <span id="cart-count" class="cart-count" hidden>0</span>
                     </a>
 
+                    <!-- BOTÓN MODO DÍA Y NOCHE -->
+<button
+    type="button"
+    class="btn-tema"
+    id="botonTema"
+    aria-label="Activar modo noche"
+    aria-pressed="false"
+    title="Activar modo noche">
+
+    <i class="bi bi-moon-stars-fill" id="iconoTema" aria-hidden="true"></i>
+
+</button>
+
                     {% if session.get('usuario_id') %}
 
                     <span class="small text-white-50 d-none d-xl-inline">
