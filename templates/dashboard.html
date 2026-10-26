@@ -1,0 +1,312 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Dashboard administrativo · FRITOS TECH{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block contenido %}
+<section class="admin-dashboard">
+    <div class="container">
+
+        <div class="mb-4 mb-lg-5">
+            <p class="admin-dashboard__eyebrow mb-1">
+                Centro de control
+            </p>
+
+            <h1 class="admin-dashboard__title">
+                Dashboard administrativo
+            </h1>
+
+            <p class="admin-dashboard__subtitle mb-0">
+                Hola, {{ session.get('nombre', 'administrador') }}.
+                Aquí tienes un resumen actualizado de FRITOS TECH.
+            </p>
+        </div>
+
+        <!-- ESTADÍSTICAS -->
+        <div class="row g-3 g-xl-4 mb-4 mb-lg-5">
+            {% set tarjetas = [
+                ('bi-people', 'Usuarios registrados', estadisticas.usuarios, 'admin_usuarios'),
+                ('bi-shop', 'Vendedores activos', estadisticas.vendedores, 'admin_usuarios'),
+                ('bi-basket2', 'Productos registrados', estadisticas.productos, 'admin_productos'),
+                ('bi-check2-circle', 'Productos visibles', estadisticas.productos_activos, 'admin_productos'),
+                ('bi-grid', 'Categorías', estadisticas.categorias, 'admin_categorias'),
+                ('bi-receipt', 'Pedidos totales', estadisticas.pedidos, 'admin_pedidos'),
+                ('bi-hourglass-split', 'Pedidos pendientes', estadisticas.pendientes, 'admin_pedidos'),
+                ('bi-cash-coin', 'Ventas (sin cancelados)', estadisticas.ventas|cop, 'admin_pedidos')
+            ] %}
+
+            {% for icono, etiqueta, valor, destino in tarjetas %}
+            <div class="col-6 col-xl-3">
+                <a
+                    class="admin-stat admin-stat--enlace d-block text-decoration-none"
+                    href="{{ url_for(destino) }}"
+                >
+                    <div class="admin-stat__top">
+                        <span class="admin-stat__icon">
+                            <i
+                                class="bi {{ icono }}"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+                    </div>
+
+                    <p class="admin-stat__label">
+                        {{ etiqueta }}
+                    </p>
+
+                    <p class="admin-stat__value mb-0">
+                        {{ valor }}
+                    </p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="row g-4">
+
+            <!-- PEDIDOS RECIENTES -->
+            <div class="col-12">
+                <section class="admin-panel">
+                    <div class="admin-panel__header">
+                        <div>
+                            <h2 class="admin-panel__title">
+                                Pedidos recientes
+                            </h2>
+
+                            <p class="text-secondary small mb-0 mt-1">
+                                Últimos pedidos hechos por los clientes
+                            </p>
+                        </div>
+
+                        <a
+                            class="small fw-semibold text-decoration-none enlace-naranja"
+                            href="{{ url_for('admin_pedidos') }}"
+                        >
+                            Gestionar pedidos
+                            <i
+                                class="bi bi-arrow-right"
+                                aria-hidden="true"
+                            ></i>
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Pedido</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for p in pedidos_recientes %}
+                                <tr>
+                                    <td class="fw-semibold">
+                                        #{{ p.id }}
+                                    </td>
+
+                                    <td>
+                                        {{ p.cliente }}
+                                    </td>
+
+                                    <td class="fw-semibold">
+                                        {{ p.total|cop }}
+                                    </td>
+
+                                    <td>
+                                        <span class="admin-status admin-status--{{ p.estado }}">
+                                            {{ p.estado|capitalize }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {{ p.creado_en.strftime('%d/%m/%Y %H:%M') }}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="admin-empty">
+                                        Todavía no hay pedidos.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- USUARIOS RECIENTES -->
+            <div class="col-12 col-xl-6">
+                <section class="admin-panel h-100">
+                    <div class="admin-panel__header">
+                        <div>
+                            <h2 class="admin-panel__title">
+                                Usuarios recientes
+                            </h2>
+
+                            <p class="text-secondary small mb-0 mt-1">
+                                Últimas cuentas creadas
+                            </p>
+                        </div>
+
+                        <a
+                            class="small fw-semibold text-decoration-none enlace-naranja"
+                            href="{{ url_for('admin_usuarios') }}"
+                        >
+                            Ver todos
+                            <i
+                                class="bi bi-arrow-right"
+                                aria-hidden="true"
+                            ></i>
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Registro</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for u in usuarios_recientes %}
+                                <tr>
+                                    <td>
+                                        <span class="fw-semibold">
+                                            {{ u.nombre }}
+                                        </span>
+                                        <br>
+
+                                        <span class="small text-secondary">
+                                            {{ u.correo }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="admin-role">
+                                            {{ u.rol }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="admin-status {{ 'admin-status--active' if u.activo else 'admin-status--inactive' }}">
+                                            {{ 'Activo' if u.activo else 'Inactivo' }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {{ u.creado_en.strftime('%d/%m/%Y') if u.creado_en else '—' }}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="admin-empty">
+                                        Todavía no hay usuarios para mostrar.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- PRODUCTOS RECIENTES -->
+            <div class="col-12 col-xl-6">
+                <section class="admin-panel h-100">
+                    <div class="admin-panel__header">
+                        <div>
+                            <h2 class="admin-panel__title">
+                                Productos recientes
+                            </h2>
+
+                            <p class="text-secondary small mb-0 mt-1">
+                                Actividad reciente del catálogo
+                            </p>
+                        </div>
+
+                        <a
+                            class="small fw-semibold text-decoration-none enlace-naranja"
+                            href="{{ url_for('admin_productos') }}"
+                        >
+                            Ver todos
+                            <i
+                                class="bi bi-arrow-right"
+                                aria-hidden="true"
+                            ></i>
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Vendedor</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for p in productos_recientes %}
+                                <tr>
+                                    <td class="fw-semibold">
+                                        {{ p.nombre }}
+                                        <br>
+
+                                        <span class="small text-secondary fw-normal">
+                                            {{ p.categoria }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {{ p.vendedor }}
+                                    </td>
+
+                                    <td class="fw-semibold">
+                                        {{ p.precio|cop }}
+                                    </td>
+
+                                    <td>
+                                        <span class="admin-status {{ 'admin-status--active' if p.activo else 'admin-status--inactive' }}">
+                                            {{ 'Visible' if p.activo else 'Oculto' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="admin-empty">
+                                        Todavía no hay productos para mostrar.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+
+        <p class="text-secondary small mt-4 mb-0">
+            <i
+                class="bi bi-shield-check me-1"
+                aria-hidden="true"
+            ></i>
+            Esta sección está restringida a cuentas con rol de administrador.
+        </p>
+
+    </div>
+</section>
+{% endblock %}

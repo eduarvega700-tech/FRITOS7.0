@@ -1,0 +1,166 @@
+
+{% extends 'base.html' %}
+{% block title %}Pedidos · Administración · FRITOS TECH{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block contenido %}
+<section class="admin-dashboard">
+    <div class="container">
+
+        <div class="mb-4">
+            <p class="admin-dashboard__eyebrow mb-1">Administración</p>
+            <h1 class="admin-dashboard__title">Pedidos</h1>
+            <p class="admin-dashboard__subtitle mb-0">
+                Sigue cada pedido y cambia su estado a medida que avanza.
+            </p>
+        </div>
+
+        <div class="chips mb-4" role="navigation" aria-label="Filtrar por estado">
+            <a
+                class="chip {{ 'chip--activo' if not estado_activo }}"
+                href="{{ url_for('admin_pedidos') }}"
+            >
+                Todos
+            </a>
+
+            {% for e in estados %}
+            <a
+                class="chip {{ 'chip--activo' if estado_activo == e }}"
+                href="{{ url_for('admin_pedidos', estado=e) }}"
+            >
+                {{ e|capitalize }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <section class="admin-panel">
+            <div class="admin-panel__header">
+                <h2 class="admin-panel__title">Listado</h2>
+                <span class="badge text-bg-light">
+                    {{ pedidos|length }} pedidos
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Detalle</th>
+                            <th>Entrega</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for p in pedidos %}
+                        <tr>
+                            <td class="fw-semibold">
+                                #{{ p.id }}<br>
+                                <span class="small text-secondary fw-normal">
+                                    {{ p.creado_en.strftime('%d/%m/%Y %H:%M') }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ p.cliente }}<br>
+                                <span class="small text-secondary">
+                                    {{ p.correo }}
+                                </span>
+                            </td>
+
+                            <td class="small">
+                                {% for it in items.get(p.id, []) %}
+                                    {{ it.cantidad }} × {{ it.nombre }}
+                                    {% if not loop.last %}<br>{% endif %}
+                                {% endfor %}
+
+                                {% if p.notas %}
+                                <br>
+                                <em class="text-secondary">
+                                    “{{ p.notas }}”
+                                </em>
+                                {% endif %}
+                            </td>
+
+                            <td class="small">
+                                {% if p.tipo_entrega == 'domicilio' %}
+                                    <i
+                                        class="bi bi-truck me-1"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Domicilio<br>
+                                    <span class="text-secondary">
+                                        {{ p.direccion }}
+                                    </span>
+                                {% else %}
+                                    <i
+                                        class="bi bi-bag-check me-1"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Recoger
+                                {% endif %}
+                            </td>
+
+                            <td class="fw-semibold">
+                                {{ p.total|cop }}
+                            </td>
+
+                            <td>
+                                <form
+                                    method="post"
+                                    class="d-flex gap-2 align-items-center m-0"
+                                    action="{{ url_for('admin_pedido_estado', pedido_id=p.id) }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="filtro"
+                                        value="{{ estado_activo }}"
+                                    >
+
+                                    <select
+                                        class="form-select form-select-sm admin-select"
+                                        name="estado"
+                                        aria-label="Estado del pedido {{ p.id }}"
+                                    >
+                                        {% for e in estados %}
+                                        <option
+                                            value="{{ e }}"
+                                            {{ 'selected' if e == p.estado }}
+                                        >
+                                            {{ e|capitalize }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+
+                                    <button
+                                        class="btn btn-fritos btn-sm rounded-pill"
+                                        type="submit"
+                                    >
+                                        Guardar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="admin-empty">
+                                No hay pedidos con este filtro.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}

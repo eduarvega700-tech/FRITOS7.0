@@ -1,8 +1,11 @@
 # 1. IMPORTACIONES
 
 import hmac
+import json
 import os
+import re
 import secrets
+import unicodedata
 import uuid
 from datetime import datetime
 from functools import wraps
@@ -14,6 +17,7 @@ from flask import (
     abort,
     flash,
     g,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -115,8 +119,26 @@ ROLES_REGISTRO = [
 ]
 
 
+# El administrador puede iniciar sesión, pero NO registrarse desde la web.
+ROL_ADMIN = {
+    "slug": "administrador",
+    "nombre": "Administrador",
+    "desc": "Gestiona la plataforma",
+    "icono": "bi-shield-lock",
+    "rf": "RF-01.7"
+}
+
+
 def buscar_rol(slug):
+    """Roles que pueden crear cuenta desde la web (registro)."""
     return next((r for r in ROLES_REGISTRO if r["slug"] == slug), None)
+
+
+def buscar_rol_acceso(slug):
+    """Roles que pueden iniciar sesión (incluye al administrador)."""
+    if slug == ROL_ADMIN["slug"]:
+        return ROL_ADMIN
+    return buscar_rol(slug)
 
 
 # 5. FILTRO PARA FORMATEAR PRECIOS EN PESOS COLOMBIANOS
@@ -144,7 +166,10 @@ def token_csrf():
 def verificar_csrf():
     # Todo formulario POST debe traer el token oculto csrf_token.
     if request.method == "POST":
-        enviado = request.form.get("csrf_token", "")
+        enviado = (
+            request.form.get("csrf_token", "")
+            or request.headers.get("X-CSRF-Token", "")
+        )
         esperado = session.get("csrf", "")
         if not esperado or not hmac.compare_digest(
             enviado.encode(), esperado.encode()
@@ -165,7 +190,9 @@ def variables_globales():
 # 8. SESIÓN: PROTEGER PÁGINAS Y ELEGIR A DÓNDE IR TRAS ENTRAR
 
 def destino_por_rol(rol):
-    # El vendedor entra a su panel; los demás a explorar.
+    # El administrador y el vendedor entran a su panel; los demás a explorar.
+    if rol == "administrador":
+        return url_for("admin_dashboard")
     if rol == "vendedor":
         return url_for("mis_productos")
     return url_for("explorar")
@@ -191,6 +218,32 @@ def cliente_requerido(vista):
         if session.get("rol") != "cliente":
             flash("Esta sección es solo para clientes.", "warning")
             return redirect(url_for("explorar"))
+        return vista(*args, **kwargs)
+    return interior
+
+
+def admin_requerido(vista):
+    @wraps(vista)
+    def interior(*args, **kwargs):
+        if "usuario_id" not in session:
+            flash("Inicia sesión como administrador.", "info")
+            return redirect(url_for("acceso_rol", rol="administrador"))
+        if session.get("rol") != "administrador":
+            flash("Esta sección es solo para administradores.", "warning")
+            return redirect(url_for("index"))
+        return vista(*args, **kwargs)
+    return interior
+
+
+def cliente_requerido(vista):
+    @wraps(vista)
+    def interior(*args, **kwargs):
+        if "usuario_id" not in session:
+            flash("Inicia sesión como cliente para continuar con tu pedido.", "info")
+            return redirect(url_for("acceso_rol", rol="cliente"))
+        if session.get("rol") != "cliente":
+            flash("Solo las cuentas de cliente pueden hacer pedidos.", "warning")
+            return redirect(url_for("index"))
         return vista(*args, **kwargs)
     return interior
 
@@ -363,7 +416,7 @@ def iniciar_sesion():
 @app.route("/acceso/<rol>", methods=["GET", "POST"])
 def acceso_rol(rol):
 
-    rol_actual = buscar_rol(rol)
+    rol_actual = buscar_rol_acceso(rol)
     if rol_actual is None:
         abort(404)
 
@@ -639,7 +692,458 @@ def producto_eliminar(producto_id):
     return redirect(url_for("mis_productos"))
 
 
-# 17. PÁGINAS QUE TODAVÍA ESTÁN PENDIENTES
+# 17. CARRITO Y PEDIDOS
+
+# Fotos de los productos de ejemplo (las mismas que usan index.html y explorar.html).
+IMAGENES_PRODUCTOS = {
+    "Empanadas de carne": "empanadas_de_carne.jpg",
+    "Empanada de pollo": "empanadas_pollo.jpg",
+    "Arepa de huevo": "arepa_huevo.jpg",
+    "Arepa de huevo especial": "arepa_huevo_especial.jpg",
+    "Carimañolas de yuca": "carimañolas_de_yuca.jpg",
+    "Patacones con hogao": "patacones_con_hogao.jpg",
+    "Patacón con queso": "patacon_con_queso.jpg",
+    "Buñuelos": "bunuelos.jpg",
+    "Empanadas de queso": "empanadas_de_queso.jpg",
+    "Carimañolas de queso": "carimanolas_de_queso.jpg",
+    "Arepa de huevo con carne": "arepa_huevo_carne.jpg",
+    "Arepa de huevo con queso": "arepa_huevo_queso.jpg",
+    "Papa rellena": "papa_rellena.jpg",
+    "Deditos de queso": "deditos_queso.jpg",
+    "Marranitas": "marranitas.jpg",
+    "Aborrajados": "aborrajados.jpg",
+    "Quibbes": "quibbes.jpg",
+    "Pastel de pollo": "pastel_pollo.jpg",
+    "Yuca frita": "yuca_frita.jpg",
+    "Tajadas de plátano maduro": "tajadas_platano_maduro.jpg",
+    "Papas criollas fritas": "papas_criollas_fritas.jpg",
+    "Chicharrón": "chicharron.jpg",
+    "Empanadas de pipián": "empanadas_pipian.jpg",
+    "Empanadas de camarón": "empanadas_camaron.jpg",
+    "Buñuelos de frijol": "bunuelos_frijol.jpg",
+    "Pasteles de yuca": "pasteles_yuca.jpg",
+    "Arepa frita": "arepa_frita.jpg",
+    "Patacón pisao": "patacon_pisao.jpg",
+    "Hojaldras": "hojaldras.jpg",
+    "Empanadas vallecaucanas": "empanadas_vallecaucanas.jpg",
+    "Empanadas de cambray": "empanadas_cambray.jpg",
+    "Empanadas de yuca": "empanadas_yuca.jpg",
+    "Bolitas de yuca con queso": "bolitas_yuca_queso.jpg",
+    "Arepa de choclo frita": "arepa_choclo_frita.jpg",
+    "Cazón frito": "cazon_frito.jpg",
+    "Plátano relleno frito": "platano_relleno_frito.jpg",
+    "Tostadas de plátano verde": "tostadas_platano_verde.jpg",
+    "Papa rellena con arroz y huevo": "papa_rellena_arroz_huevo.jpg",
+}
+
+MAX_UNIDADES = 50          # máximo por producto en un pedido
+ESTADOS_PEDIDO = ["pendiente", "preparando", "listo", "entregado", "cancelado"]
+TIPOS_ENTREGA = ["recoger", "domicilio"]
+
+
+def ruta_imagen(nombre, imagen):
+    """Ruta relativa a /static de la foto de un producto."""
+    if imagen and imagen.startswith("uploads/"):
+        return imagen
+    return "img/" + IMAGENES_PRODUCTOS.get(nombre, "logito.png")
+
+
+def leer_items(texto):
+    """Convierte {"id": cantidad} (JSON) en {id:int -> cantidad:int} validado."""
+    try:
+        bruto = json.loads(texto or "{}")
+    except (TypeError, ValueError):
+        return {}
+    if not isinstance(bruto, dict):
+        return {}
+    items = {}
+    for clave, cantidad in bruto.items():
+        try:
+            producto_id, cantidad = int(clave), int(cantidad)
+        except (TypeError, ValueError):
+            continue
+        if producto_id > 0 and cantidad > 0:
+            items[producto_id] = min(cantidad, MAX_UNIDADES)
+    return items
+
+
+def productos_por_ids(ids):
+    """Productos visibles (de MySQL) para los ids dados."""
+    if not ids:
+        return []
+    marcas = ",".join(["%s"] * len(ids))
+    return consultar(
+        "SELECT id, nombre, vendedor, precio, img "
+        "FROM v_productos_activos WHERE id IN (" + marcas + ")",
+        tuple(ids)
+    )
+
+
+@app.route("/carrito")
+def carrito():
+    # El contenido del carrito vive en el navegador; main.js lo dibuja
+    # pidiendo los datos reales (precios, fotos) a /api/carrito.
+    if session.get("rol") == "administrador":
+        return redirect(url_for("admin_dashboard"))
+    return render_template("carrito.html", max_unidades=MAX_UNIDADES)
+
+
+@app.route("/api/carrito", methods=["POST"])
+def api_carrito():
+    # Devuelve los datos actuales de los productos del carrito.
+    datos = request.get_json(silent=True) or {}
+    items = leer_items(json.dumps(datos.get("items", {})))
+    try:
+        filas = productos_por_ids(list(items))
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        return jsonify({"error": "db"}), 503
+
+    productos = [{
+        "id": f["id"],
+        "nombre": f["nombre"],
+        "vendedor": f["vendedor"],
+        "precio": int(f["precio"]),
+        "cantidad": items[f["id"]],
+        "img": url_for("static", filename=ruta_imagen(f["nombre"], f["img"]))
+    } for f in filas]
+    return jsonify({"productos": productos})
+
+
+@app.route("/pedido", methods=["POST"])
+@cliente_requerido
+def pedido_nuevo():
+    items = leer_items(request.form.get("items", ""))
+    tipo = request.form.get("tipo_entrega", "")
+    direccion = request.form.get("direccion", "").strip()
+    notas = request.form.get("notas", "").strip()
+
+    if not items:
+        flash("Tu carrito está vacío.", "warning")
+        return redirect(url_for("carrito"))
+    if tipo not in TIPOS_ENTREGA:
+        flash("Elige si quieres recoger o recibir a domicilio.", "danger")
+        return redirect(url_for("carrito"))
+    if tipo == "domicilio" and len(direccion) < 6:
+        flash("Escribe la dirección de entrega.", "danger")
+        return redirect(url_for("carrito"))
+    if len(direccion) > 200 or len(notas) > 255:
+        flash("La dirección o las notas son demasiado largas.", "danger")
+        return redirect(url_for("carrito"))
+
+    try:
+        db = get_db()
+        filas = productos_por_ids(list(items))
+        # Los precios SIEMPRE se toman de la base de datos, nunca del navegador.
+        if len(filas) != len(items):
+            flash(
+                "Algún producto ya no está disponible. "
+                "Revisa tu carrito.", "warning"
+            )
+            return redirect(url_for("carrito"))
+
+        total = sum(int(f["precio"]) * items[f["id"]] for f in filas)
+
+        db.begin()
+        with db.cursor() as cur:
+            cur.execute(
+                "INSERT INTO pedido "
+                "(cliente_id, tipo_entrega, direccion, notas, total) "
+                "VALUES (%s, %s, %s, %s, %s)",
+                (
+                    session["usuario_id"], tipo,
+                    direccion if tipo == "domicilio" else None,
+                    notas or None, total
+                )
+            )
+            pedido_id = cur.lastrowid
+            for f in filas:
+                cur.execute(
+                    "INSERT INTO pedido_item "
+                    "(pedido_id, producto_id, nombre, precio_unitario, cantidad) "
+                    "VALUES (%s, %s, %s, %s, %s)",
+                    (pedido_id, f["id"], f["nombre"],
+                     int(f["precio"]), items[f["id"]])
+                )
+        db.commit()
+
+    except pymysql.MySQLError as error:
+        if "db" in g:
+            try:
+                g.db.rollback()
+            except pymysql.MySQLError:
+                pass
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos registrar tu pedido. Inténtalo de nuevo.", "danger")
+        return redirect(url_for("carrito"))
+
+    flash(f"¡Pedido #{pedido_id} recibido! Te avisaremos cuando avance.", "success")
+    # vaciar=1 le dice a main.js que limpie el carrito del navegador.
+    return redirect(url_for("mis_pedidos", vaciar=1))
+
+
+@app.route("/mis-pedidos")
+@cliente_requerido
+def mis_pedidos():
+    pedidos, items = [], {}
+    try:
+        pedidos = consultar(
+            "SELECT id, tipo_entrega, direccion, notas, total, estado, creado_en "
+            "FROM pedido WHERE cliente_id = %s ORDER BY id DESC",
+            (session["usuario_id"],)
+        )
+        for it in consultar(
+            "SELECT i.pedido_id, i.nombre, i.precio_unitario, i.cantidad "
+            "FROM pedido_item i JOIN pedido p ON p.id = i.pedido_id "
+            "WHERE p.cliente_id = %s ORDER BY i.id",
+            (session["usuario_id"],)
+        ):
+            items.setdefault(it["pedido_id"], []).append(it)
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cargar tus pedidos.", "danger")
+    return render_template(
+        "mis_pedidos.html", pedidos=pedidos, items=items,
+        vaciar=request.args.get("vaciar") == "1"
+    )
+
+
+# 18. PANEL DEL ADMINISTRADOR
+
+@app.route("/admin")
+@admin_requerido
+def admin_dashboard():
+    estadisticas = {
+        "usuarios": 0, "vendedores": 0, "productos": 0,
+        "productos_activos": 0, "categorias": 0,
+        "pedidos": 0, "pendientes": 0, "ventas": 0
+    }
+    usuarios_recientes, productos_recientes, pedidos_recientes = [], [], []
+    try:
+        estadisticas = consultar(
+            "SELECT "
+            " (SELECT COUNT(*) FROM usuario) AS usuarios,"
+            " (SELECT COUNT(*) FROM usuario WHERE rol='vendedor' AND activo=1) AS vendedores,"
+            " (SELECT COUNT(*) FROM producto) AS productos,"
+            " (SELECT COUNT(*) FROM producto WHERE activo=1) AS productos_activos,"
+            " (SELECT COUNT(*) FROM categoria) AS categorias,"
+            " (SELECT COUNT(*) FROM pedido) AS pedidos,"
+            " (SELECT COUNT(*) FROM pedido WHERE estado='pendiente') AS pendientes,"
+            " (SELECT COALESCE(SUM(total),0) FROM pedido WHERE estado<>'cancelado') AS ventas",
+            uno=True
+        )
+        usuarios_recientes = consultar(
+            "SELECT nombre, correo, rol, activo, creado_en "
+            "FROM usuario ORDER BY id DESC LIMIT 6"
+        )
+        productos_recientes = consultar(
+            "SELECT p.nombre, u.nombre AS vendedor, c.nombre AS categoria, "
+            "       p.precio, p.activo "
+            "FROM producto p "
+            "JOIN usuario u ON u.id = p.vendedor_id "
+            "JOIN categoria c ON c.id = p.categoria_id "
+            "ORDER BY p.id DESC LIMIT 6"
+        )
+        pedidos_recientes = consultar(
+            "SELECT p.id, u.nombre AS cliente, p.total, p.estado, p.creado_en "
+            "FROM pedido p JOIN usuario u ON u.id = p.cliente_id "
+            "ORDER BY p.id DESC LIMIT 6"
+        )
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cargar todos los datos del panel.", "danger")
+
+    return render_template(
+        "dashboard.html",
+        estadisticas=estadisticas,
+        usuarios_recientes=usuarios_recientes,
+        productos_recientes=productos_recientes,
+        pedidos_recientes=pedidos_recientes
+    )
+
+
+@app.route("/admin/usuarios")
+@admin_requerido
+def admin_usuarios():
+    rol = request.args.get("rol", "").strip()
+    usuarios = []
+    try:
+        if rol in ("cliente", "vendedor", "domiciliario", "administrador"):
+            usuarios = consultar(
+                "SELECT id, nombre, correo, rol, activo, creado_en, ultimo_acceso "
+                "FROM usuario WHERE rol = %s ORDER BY id DESC", (rol,)
+            )
+        else:
+            rol = ""
+            usuarios = consultar(
+                "SELECT id, nombre, correo, rol, activo, creado_en, ultimo_acceso "
+                "FROM usuario ORDER BY id DESC"
+            )
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cargar los usuarios.", "danger")
+    return render_template("admin_usuarios.html", usuarios=usuarios, rol_activo=rol)
+
+
+@app.route("/admin/usuarios/<int:usuario_id>/estado", methods=["POST"])
+@admin_requerido
+def admin_usuario_estado(usuario_id):
+    if usuario_id == session["usuario_id"]:
+        flash("No puedes desactivar tu propia cuenta.", "warning")
+        return redirect(request.referrer or url_for("admin_usuarios"))
+    filas = ejecutar(
+        "UPDATE usuario SET activo = 1 - activo WHERE id = %s", (usuario_id,)
+    )
+    if filas == 0:
+        abort(404)
+    flash("Actualizamos el estado de la cuenta.", "success")
+    return redirect(url_for("admin_usuarios", rol=request.form.get("rol", "")))
+
+
+@app.route("/admin/productos")
+@admin_requerido
+def admin_productos():
+    productos = []
+    try:
+        productos = consultar(
+            "SELECT p.id, p.nombre, p.precio, p.activo, p.imagen, p.creado_en, "
+            "       u.nombre AS vendedor, c.nombre AS categoria "
+            "FROM producto p "
+            "JOIN usuario u ON u.id = p.vendedor_id "
+            "JOIN categoria c ON c.id = p.categoria_id "
+            "ORDER BY p.id DESC"
+        )
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cargar los productos.", "danger")
+    return render_template("admin_productos.html", productos=productos)
+
+
+@app.route("/admin/productos/<int:producto_id>/estado", methods=["POST"])
+@admin_requerido
+def admin_producto_estado(producto_id):
+    if ejecutar(
+        "UPDATE producto SET activo = 1 - activo WHERE id = %s", (producto_id,)
+    ) == 0:
+        abort(404)
+    flash("Actualizamos la visibilidad del producto.", "success")
+    return redirect(url_for("admin_productos"))
+
+
+@app.route("/admin/productos/<int:producto_id>/eliminar", methods=["POST"])
+@admin_requerido
+def admin_producto_eliminar(producto_id):
+    producto = consultar(
+        "SELECT imagen FROM producto WHERE id = %s", (producto_id,), uno=True
+    )
+    if producto is None:
+        abort(404)
+    ejecutar("DELETE FROM producto WHERE id = %s", (producto_id,))
+    quitar_imagen(producto["imagen"])
+    flash("Producto eliminado.", "success")
+    return redirect(url_for("admin_productos"))
+
+
+def crear_slug(texto):
+    base = unicodedata.normalize("NFKD", texto.lower())
+    base = "".join(c for c in base if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", "-", base).strip("-")
+
+
+@app.route("/admin/categorias", methods=["GET", "POST"])
+@admin_requerido
+def admin_categorias():
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        slug = crear_slug(nombre)
+        if not nombre or not slug or len(nombre) > 60:
+            flash("Escribe un nombre válido (máximo 60 caracteres).", "danger")
+        else:
+            try:
+                ejecutar(
+                    "INSERT INTO categoria (nombre, slug) VALUES (%s, %s)",
+                    (nombre, slug)
+                )
+                flash(f"Categoría «{nombre}» creada.", "success")
+            except pymysql.IntegrityError:
+                flash("Ya existe una categoría con ese nombre.", "danger")
+            except pymysql.MySQLError as error:
+                app.logger.error("Error de MySQL: %s", error)
+                flash("No pudimos crear la categoría.", "danger")
+        return redirect(url_for("admin_categorias"))
+
+    categorias = []
+    try:
+        categorias = consultar(
+            "SELECT c.id, c.nombre, c.slug, COUNT(p.id) AS productos "
+            "FROM categoria c LEFT JOIN producto p ON p.categoria_id = c.id "
+            "GROUP BY c.id, c.nombre, c.slug ORDER BY c.id"
+        )
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cargar las categorías.", "danger")
+    return render_template("admin_categorias.html", categorias=categorias)
+
+
+@app.route("/admin/categorias/<int:categoria_id>/eliminar", methods=["POST"])
+@admin_requerido
+def admin_categoria_eliminar(categoria_id):
+    try:
+        if ejecutar("DELETE FROM categoria WHERE id = %s", (categoria_id,)) == 0:
+            abort(404)
+        flash("Categoría eliminada.", "success")
+    except pymysql.IntegrityError:
+        flash("No se puede eliminar: todavía tiene productos.", "danger")
+    return redirect(url_for("admin_categorias"))
+
+
+@app.route("/admin/pedidos")
+@admin_requerido
+def admin_pedidos():
+    estado = request.args.get("estado", "").strip()
+    pedidos, items = [], {}
+    try:
+        base = (
+            "SELECT p.id, p.tipo_entrega, p.direccion, p.notas, p.total, "
+            "       p.estado, p.creado_en, u.nombre AS cliente, u.correo "
+            "FROM pedido p JOIN usuario u ON u.id = p.cliente_id "
+        )
+        if estado in ESTADOS_PEDIDO:
+            pedidos = consultar(base + "WHERE p.estado = %s ORDER BY p.id DESC", (estado,))
+        else:
+            estado = ""
+            pedidos = consultar(base + "ORDER BY p.id DESC")
+        for it in consultar(
+            "SELECT pedido_id, nombre, precio_unitario, cantidad "
+            "FROM pedido_item ORDER BY id"
+        ):
+            items.setdefault(it["pedido_id"], []).append(it)
+    except pymysql.MySQLError as error:
+        app.logger.error("Error de MySQL: %s", error)
+        flash("No pudimos cargar los pedidos.", "danger")
+    return render_template(
+        "admin_pedidos.html", pedidos=pedidos, items=items,
+        estados=ESTADOS_PEDIDO, estado_activo=estado
+    )
+
+
+@app.route("/admin/pedidos/<int:pedido_id>/estado", methods=["POST"])
+@admin_requerido
+def admin_pedido_estado(pedido_id):
+    estado = request.form.get("estado", "")
+    if estado not in ESTADOS_PEDIDO:
+        abort(400)
+    if ejecutar(
+        "UPDATE pedido SET estado = %s WHERE id = %s", (estado, pedido_id)
+    ) == 0:
+        # rowcount 0 también ocurre si el estado ya era el mismo.
+        if consultar("SELECT id FROM pedido WHERE id = %s", (pedido_id,), uno=True) is None:
+            abort(404)
+    flash(f"Pedido #{pedido_id} actualizado a «{estado}».", "success")
+    return redirect(url_for("admin_pedidos", estado=request.form.get("filtro", "")))
+
+
+# 19. PÁGINAS QUE TODAVÍA ESTÁN PENDIENTES
 
 PROXIMAMENTE = {
     "vender": (
@@ -668,7 +1172,7 @@ def proximamente(pagina):
     )
 
 
-# 18. MANEJO DE ERRORES
+# 20. MANEJO DE ERRORES
 
 @app.errorhandler(404)
 def no_encontrada(_):
@@ -695,7 +1199,7 @@ def archivo_muy_grande(_):
     return redirect(url_for("mis_productos"))
 
 
-# 19. EJECUTAR LA APLICACIÓN
+# 21. EJECUTAR LA APLICACIÓN
 
 if __name__ == "__main__":
     app.run(debug=True)

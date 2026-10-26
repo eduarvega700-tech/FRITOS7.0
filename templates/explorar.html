@@ -1,106 +1,163 @@
+
 {% extends 'base.html' %}
 {% from 'partials/_macros.html' import tarjeta_producto %}
+
 {% block title %}Explorar fritos · FRITOS TECH{% endblock %}
+
 {% block contenido %}
 
 {# IMÁGENES NUEVAS: agrega aquí solo los fritos a los que quieras ponerles foto.
    Nombre del producto (idéntico al de la base de datos) : archivo en static/img/
    Los productos que NO estén aquí se muestran exactamente como antes. #}
 {% set imagenes_nuevas = {
-  'Empanadas de carne': 'empanadas_de_carne2.jpg',
-  'Empanada de pollo': 'empanadas_pollo2.jpg',
-  'Arepa de huevo': 'arepa_huevo2.jpg',
-  'Arepa de huevo especial': 'arepa_huevo_especial2.jpg',
-  'Carimañolas de yuca': 'carimañolas_de_yuca2.jpg',
-  'Patacones con hogao': 'patacones_con_hogao2.jpg',
-  'Patacón con queso': 'patacon_con_queso2.jpg',
-  'Buñuelos': 'buñuelos.jpg',
-  'Empanadas de queso': 'empanadas_de_queso.jpg',
-  'Carimañolas de queso': 'carimanolas_de_queso.jpg',
-  'Arepa de huevo con carne': 'arepa_huevo_carne.jpg',
-  'Arepa de huevo con queso': 'arepa_huevo_queso.jpg',
-  'Papa rellena': 'papa_rellena.jpg',
-  'Deditos de queso': 'deditos_queso.jpg',
-  'Marranitas': 'marranitas.jpg',
-  'Aborrajados': 'aborrajados.jpg',
-  'Quibbes': 'quibbes.jpg',
-  'Pastel de pollo': 'pastel_pollo.jpg',
-  'Yuca frita': 'yuca_frita.jpg',
-  'Tajadas de plátano maduro': 'tajadas_platano_maduro.jpg',
-  'Papas criollas fritas': 'papas_criollas_fritas.jpg',
-  'Chicharrón': 'chicharron.jpg',
-  'Empanadas de pipián': 'empanadas_pipian.jpg',
-  'Empanadas de camarón': 'empanadas_camaron.jpg',
-  'Buñuelos de frijol': 'bunuelos_frijol.jpg',
-  'Pasteles de yuca': 'pasteles_yuca.jpg',
-  'Arepa frita': 'arepa_frita.jpg',
-  'Patacón pisao': 'patacon_pisao.jpg',
-  'Hojaldras': 'hojaldras.jpg',
-  'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
-  'Empanadas de cambray': 'empanadas_cambray.jpg',
-  'Empanadas de yuca': 'empanadas_yuca.jpg',
-  'Bolitas de yuca con queso': 'bolitas_yuca_queso.jpg',
-  'Arepa de choclo frita': 'arepa_choclo_frita.jpg',
-  'Cazón frito': 'cazon_frito.jpg',
-  'Plátano relleno frito': 'platano_relleno_frito.jpg',
-  'Tostadas de plátano verde': 'tostadas_platano_verde.jpg',
-  'Papa rellena con arroz y huevo': 'papa_rellena_arroz_huevo.jpg'
+    'Empanadas de carne': 'empanadas_de_carne2.jpg',
+    'Empanada de pollo': 'empanadas_pollo2.jpg',
+    'Arepa de huevo': 'arepa_huevo2.jpg',
+    'Arepa de huevo especial': 'arepa_huevo_especial2.jpg',
+    'Carimañolas de yuca': 'carimañolas_de_yuca2.jpg',
+    'Patacones con hogao': 'patacones_con_hogao2.jpg',
+    'Patacón con queso': 'patacon_con_queso2.jpg',
+    'Buñuelos': 'buñuelos.jpg',
+    'Empanadas de queso': 'empanadas_de_queso.jpg',
+    'Carimañolas de queso': 'carimanolas_de_queso.jpg',
+    'Arepa de huevo con carne': 'arepa_huevo_carne.jpg',
+    'Arepa de huevo con queso': 'arepa_huevo_queso.jpg',
+    'Papa rellena': 'papa_rellena.jpg',
+    'Deditos de queso': 'deditos_queso.jpg',
+    'Marranitas': 'marranitas.jpg',
+    'Aborrajados': 'aborrajados.jpg',
+    'Quibbes': 'quibbes.jpg',
+    'Pastel de pollo': 'pastel_pollo.jpg',
+    'Yuca frita': 'yuca_frita.jpg',
+    'Tajadas de plátano maduro': 'tajadas_platano_maduro.jpg',
+    'Papas criollas fritas': 'papas_criollas_fritas.jpg',
+    'Chicharrón': 'chicharron.jpg',
+    'Empanadas de pipián': 'empanadas_pipian.jpg',
+    'Empanadas de camarón': 'empanadas_camaron.jpg',
+    'Buñuelos de frijol': 'bunuelos_frijol.jpg',
+    'Pasteles de yuca': 'pasteles_yuca.jpg',
+    'Arepa frita': 'arepa_frita.jpg',
+    'Patacón pisao': 'patacon_pisao.jpg',
+    'Hojaldras': 'hojaldras.jpg',
+    'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
+    'Empanadas de cambray': 'empanadas_cambray.jpg',
+    'Empanadas de yuca': 'empanadas_yuca.jpg',
+    'Bolitas de yuca con queso': 'bolitas_yuca_queso.jpg',
+    'Arepa de choclo frita': 'arepa_choclo_frita.jpg',
+    'Cazón frito': 'cazon_frito.jpg',
+    'Plátano relleno frito': 'platano_relleno_frito.jpg',
+    'Tostadas de plátano verde': 'tostadas_platano_verde.jpg',
+    'Papa rellena con arroz y huevo': 'papa_rellena_arroz_huevo.jpg'
 } %}
 
 <section class="seccion">
+    <div class="container">
 
-  <div class="container">
+        <h1 class="titulo-script">
+            Explora los fritos de Cartagena
+        </h1>
 
-    <h1 class="titulo-script">Explora los fritos de Cartagena</h1>
-
-    <div class="chips my-4" role="navigation" aria-label="Filtrar por categoría">
-
-      <a class="chip {{ 'chip--activo' if not activa }}" href="{{ url_for('explorar') }}">Todos</a>
-      {% for c in categorias %}
-
-      <a class="chip {{ 'chip--activo' if activa == c.slug }}" href="{{ url_for('explorar', categoria=c.slug) }}">{{ c.nombre }}</a>
-      {% endfor %}
-
-    </div>
-
-    {% if productos or not activa %}
-    <div class="row g-4">
-
-      {% for p in productos %}
-
-      <div class="col-12 col-sm-6 col-lg-3">
-        {% set subida = p.img and p.img.startswith('uploads/') %}
-        {% if subida or p.nombre in imagenes_nuevas %}
-        <article class="producto h-100 explorar-con-imagen">
-          <div class="producto__imagen explorar-imagen">
-            <img src="{{ url_for('static', filename=(p.img if subida else 'img/' ~ imagenes_nuevas[p.nombre])) }}"
-                 alt="{{ p.nombre }}" loading="lazy">
-          </div>
-          <div class="producto__contenido">
-            <h3 class="producto__titulo">{{ p.nombre }}</h3>
-            {% if p.vendedor is defined %}<p class="producto__vendedor">{{ p.vendedor }}</p>{% endif %}
-            {% if p.precio is defined %}
-            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>c/u</span></p>
-            {% endif %}
-            <a class="btn btn-fritos rounded-pill w-100" href="{{ url_for('explorar') }}">
-              <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
-              {{ 'Agregar al carrito' if p.id is defined else 'Ver producto' }}
+        <div
+            class="chips my-4"
+            role="navigation"
+            aria-label="Filtrar por categoría"
+        >
+            <a
+                class="chip {{ 'chip--activo' if not activa }}"
+                href="{{ url_for('explorar') }}"
+            >
+                Todos
             </a>
-          </div>
-        </article>
+
+            {% for c in categorias %}
+            <a
+                class="chip {{ 'chip--activo' if activa == c.slug }}"
+                href="{{ url_for('explorar', categoria=c.slug) }}"
+            >
+                {{ c.nombre }}
+            </a>
+            {% endfor %}
+        </div>
+
+        {% if productos or not activa %}
+        <div class="row g-4">
+
+            {% for p in productos %}
+            <div class="col-12 col-sm-6 col-lg-3">
+
+                {% set subida = p.img and p.img.startswith('uploads/') %}
+
+                {% if subida or p.nombre in imagenes_nuevas %}
+                <article class="producto h-100 explorar-con-imagen">
+
+                    <div class="producto__imagen explorar-imagen">
+                        <img
+                            src="{{ url_for('static', filename=(p.img if subida else 'img/' ~ imagenes_nuevas[p.nombre])) }}"
+                            alt="{{ p.nombre }}"
+                            loading="lazy"
+                        >
+                    </div>
+
+                    <div class="producto__contenido">
+                        <h3 class="producto__titulo">
+                            {{ p.nombre }}
+                        </h3>
+
+                        {% if p.vendedor is defined %}
+                        <p class="producto__vendedor">
+                            {{ p.vendedor }}
+                        </p>
+                        {% endif %}
+
+                        {% if p.precio is defined %}
+                        <p class="producto__precio">
+                            ${{ "{:,.0f}".format(p.precio).replace(",", ".") }}
+                            <span>c/u</span>
+                        </p>
+                        {% endif %}
+
+                        {% if p.id is defined %}
+                        <button
+                            class="btn btn-fritos rounded-pill w-100"
+                            type="button"
+                            data-add="{{ p.id }}"
+                            data-nombre="{{ p.nombre }}"
+                        >
+                            <i
+                                class="bi bi-cart3 me-1"
+                                aria-hidden="true"
+                            ></i>
+                            Agregar al carrito
+                        </button>
+                        {% else %}
+                        <a
+                            class="btn btn-fritos rounded-pill w-100"
+                            href="{{ url_for('explorar') }}"
+                        >
+                            <i
+                                class="bi bi-cart3 me-1"
+                                aria-hidden="true"
+                            ></i>
+                            Ver producto
+                        </a>
+                        {% endif %}
+                    </div>
+                </article>
+                {% else %}
+                {{ tarjeta_producto(p) }}
+                {% endif %}
+
+            </div>
+            {% endfor %}
+
+        </div>
+
         {% else %}
-        {{ tarjeta_producto(p) }}
+        <p class="text-muted">
+            Aún no hay productos en esta categoría. Vuelve pronto.
+        </p>
         {% endif %}
-      </div>
-      {% endfor %}
 
     </div>
-
-    {% else %}
-
-    <p class="text-muted">Aún no hay productos en esta categoría. Vuelve pronto.</p>
-    {% endif %}
-    
-  </div>
 </section>
 {% endblock %}

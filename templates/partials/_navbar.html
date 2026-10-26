@@ -1,152 +1,195 @@
+
 {%- from 'partials/_macros.html' import media %}
+{%- set es_admin = session.get('rol') == 'administrador' %}
 
 <header class="ft-header sticky-top">
-
-    <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Navegación principal">
-
+    <nav class="navbar navbar-expand-lg navbar-dark"
+         aria-label="{{ 'Navegación del panel de administración' if es_admin else 'Navegación principal' }}">
         <div class="container">
 
             <!-- LOGO Y NOMBRE DE LA MARCA -->
-            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('index') }}">
-
-                <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo de Fritos Tech">
-
+            <a class="navbar-brand d-flex align-items-center gap-2"
+               href="{{ url_for('admin_dashboard') if es_admin else url_for('index') }}">
+                <img class="logo"
+                     src="{{ url_for('static', filename='img/logo.png') }}"
+                     alt="Logo de Fritos Tech">
                 <span class="lh-1">
                     <span class="marca">FRITOS TECH</span>
-                    <span class="lema font-script d-block">
-                        El sabor local, conectado.
-                    </span>
+                    {% if es_admin %}
+                        <span class="lema font-script d-block">Panel de administración</span>
+                    {% else %}
+                        <span class="lema font-script d-block">El sabor local, conectado.</span>
+                    {% endif %}
                 </span>
-
             </a>
 
             <!-- BOTÓN DEL MENÚ PARA MÓVILES -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
-                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menuPrincipal"
+                    aria-controls="menuPrincipal"
+                    aria-expanded="false"
+                    aria-label="Abrir menú">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <!-- CONTENIDO DEL MENÚ -->
             <div class="collapse navbar-collapse" id="menuPrincipal">
 
-                <!-- ENLACES DE NAVEGACIÓN -->
-                <ul class="navbar-nav mx-lg-auto gap-lg-4">
+                {% if es_admin %}
+                    <!-- NAVEGACIÓN DEL ADMINISTRADOR -->
+                    <ul class="navbar-nav mx-lg-auto gap-lg-3">
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'admin_dashboard' }}"
+                               href="{{ url_for('admin_dashboard') }}">
+                                <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'admin_usuarios' }}"
+                               href="{{ url_for('admin_usuarios') }}">
+                                <i class="bi bi-people me-1" aria-hidden="true"></i>
+                                Usuarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'admin_productos' }}"
+                               href="{{ url_for('admin_productos') }}">
+                                <i class="bi bi-basket2 me-1" aria-hidden="true"></i>
+                                Productos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'admin_categorias' }}"
+                               href="{{ url_for('admin_categorias') }}">
+                                <i class="bi bi-grid me-1" aria-hidden="true"></i>
+                                Categorías
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'admin_pedidos' }}"
+                               href="{{ url_for('admin_pedidos') }}">
+                                <i class="bi bi-receipt me-1" aria-hidden="true"></i>
+                                Pedidos
+                            </a>
+                        </li>
+                    </ul>
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('index') }}">
-                            Inicio
+                    <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+                        <span class="small text-white-50 d-none d-xl-inline">
+                            <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                            {{ session['nombre'] }}
+                        </span>
+                        <a class="btn btn-contorno-claro rounded-pill"
+                           href="{{ url_for('index') }}">
+                            <i class="bi bi-arrow-up-right-square me-1" aria-hidden="true"></i>
+                            Ver tienda
                         </a>
-                    </li>
+                        <form method="post" action="{{ url_for('salir') }}" class="m-0">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-outline-light rounded-pill" type="submit">
+                                Salir
+                            </button>
+                        </form>
+                    </div>
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
-                            href="{{ url_for('explorar') }}">
-                            Explorar
+                {% else %}
+                    <!-- NAVEGACIÓN DE LA TIENDA -->
+                    <ul class="navbar-nav mx-lg-auto gap-lg-4">
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'index' }}"
+                               href="{{ url_for('index') }}">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
+                               href="{{ url_for('explorar') }}">Explorar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'puestos' }}"
+                               href="{{ url_for('puestos') }}">Puestos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('index') }}#como-funciona">
+                                Cómo funciona
+                            </a>
+                        </li>
+
+                        {% if session.get('rol') != 'cliente' %}
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
+                               href="{{ url_for('mis_productos') }}">Vender</a>
+                        </li>
+                        {% endif %}
+
+                        {% if session.get('rol') == 'cliente' %}
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'mis_pedidos' }}"
+                               href="{{ url_for('mis_pedidos') }}">Mis pedidos</a>
+                        </li>
+                        {% endif %}
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="mailto:hola@fritostech.co">
+                                Contacto
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- BOTONES Y ACCIONES -->
+                    <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+
+                        <!-- BUSCADOR -->
+                        <a class="btn-icono" href="{{ url_for('explorar') }}"
+                           aria-label="Buscar fritos">
+                            <i class="bi bi-search" aria-hidden="true"></i>
                         </a>
-                    </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'puestos' }}"
-                            href="{{ url_for('puestos') }}">
-                            Puestos
+                        <!-- MAPA DE PUESTOS -->
+                        <a class="btn-icono" href="{{ url_for('mapa') }}"
+                           aria-label="Mapa de puestos" title="Mapa de puestos">
+                            <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
                         </a>
-                    </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}#como-funciona">
-                            Cómo funciona
+                        <!-- CARRITO DE COMPRAS -->
+                        <a class="btn-icono position-relative"
+                           href="{{ url_for('carrito') }}"
+                           id="btn-carrito"
+                           aria-label="Ver carrito de compras">
+                            <i class="bi bi-cart3" aria-hidden="true"></i>
+                            <span id="cart-count" class="cart-count" hidden>0</span>
                         </a>
-                    </li>
 
-                    {% if session.get('rol') != 'cliente' %}
-                    <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
-                            href="{{ url_for('mis_productos') }}">
-                            Vender
-                        </a>
-                    </li>
-                    {% endif %}
+                        {% if session.get('usuario_id') %}
+                            <span class="small text-white-50 d-none d-xl-inline">
+                                <i class="bi bi-person-circle" aria-hidden="true"></i>
+                                {{ session['nombre'] }}
+                            </span>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="mailto:hola@fritostech.co">
-                            Contacto
-                        </a>
-                    </li>
+                            {% if session.get('rol') == 'vendedor' %}
+                                <a class="btn btn-fritos rounded-pill"
+                                   href="{{ url_for('mis_productos') }}">
+                                    <i class="bi bi-shop me-1" aria-hidden="true"></i>
+                                    Mis productos
+                                </a>
+                            {% endif %}
 
-                </ul>
-
-                <!-- BOTONES Y ACCIONES -->
-                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
-
-                    <!-- BUSCADOR -->
-                    <a class="btn-icono" href="{{ url_for('explorar') }}" aria-label="Buscar fritos">
-                        <i class="bi bi-search" aria-hidden="true"></i>
-                    </a>
-                    
-                    <!-- MAPA DE PUESTOS -->
-                    <a class="btn-icono" href="{{ url_for('mapa') }}" aria-label="Mapa de puestos"
-                        title="Mapa de puestos">
-                        <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
-                    </a>
-
-                    <!-- CARRITO DE COMPRAS -->
-                    <button class="btn-icono position-relative" type="button" id="btn-carrito"
-                        aria-label="Carrito de compras">
-                        <i class="bi bi-cart3" aria-hidden="true"></i>
-
-                        <span id="cart-count" class="cart-count" hidden>0</span>
-                    </button>
-
-                    {% if session.get('usuario_id') %}
-
-                    <!-- SESIÓN ACTIVA: nombre, panel del vendedor y salir -->
-                    <span class="small text-white-50 d-none d-xl-inline">
-                        <i class="bi bi-person-circle" aria-hidden="true"></i>
-                        {{ session['nombre'] }}
-                    </span>
-
-                    {% if session.get('rol') == 'administrador' %}
-                    <a class="btn btn-fritos rounded-pill" href="{{ url_for('admin_dashboard') }}">
-                        <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>
-                        Dashboard
-                    </a>
-                    {% elif session.get('rol') == 'vendedor' %}
-                    <a class="btn btn-fritos rounded-pill" href="{{ url_for('mis_productos') }}">
-                        <i class="bi bi-shop me-1" aria-hidden="true"></i>
-                        Mis productos
-                    </a>
-                    {% endif %}
-
-                    <form method="post" action="{{ url_for('salir') }}" class="m-0">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button class="btn btn-outline-light rounded-pill" type="submit">
-                            Salir
-                        </button>
-                    </form>
-
-                    {% else %}
-
-                    <!-- INICIAR SESIÓN -->
-                    <a class="btn btn-fritos rounded-pill" href="{{ url_for('iniciar_sesion') }}">
-                        Iniciar sesión
-                    </a>
-
-                    {% endif %}
-
-
-                    <!-- <a
-                          class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('proximamente', pagina='registro') }}"
-                    >
-                      
-                    </a> -->
-
-                </div>
+                            <form method="post" action="{{ url_for('salir') }}" class="m-0">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-outline-light rounded-pill" type="submit">
+                                    Salir
+                                </button>
+                            </form>
+                        {% else %}
+                            <a class="btn btn-fritos rounded-pill"
+                               href="{{ url_for('iniciar_sesion') }}">
+                                Iniciar sesión
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
 
             </div>
-
         </div>
-
     </nav>
-
 </header>

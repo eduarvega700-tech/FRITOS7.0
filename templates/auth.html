@@ -8,178 +8,211 @@
 
 {% block contenido %}
 <section class="auth">
-  <div class="container">
-    <div class="row align-items-center g-5 auth__fila">
+    <div class="container">
+        <div class="row align-items-center g-5 auth__fila">
 
-      <!-- Presentación de FRITOS TECH -->
-      <div class="col-lg-5 auth__izq">
-        <p class="font-script auth__hola">Bienvenido a</p>
+            <!-- Presentación de FRITOS TECH -->
+            <div class="col-lg-5 auth__izq">
+                <p class="font-script auth__hola">
+                    Bienvenido a
+                </p>
 
-        <h1 class="auth__marca">
-          <span>FRITOS</span>
-          <span class="auth__marca-tech">TECH</span>
-        </h1>
+                <h1 class="auth__marca">
+                    <span>FRITOS</span>
+                    <span class="auth__marca-tech">TECH</span>
+                </h1>
 
-        <p class="font-script auth__lema">
-          El sabor local, conectado.
-        </p>
+                <p class="font-script auth__lema">
+                    El sabor local, conectado.
+                </p>
 
-        <p class="auth__texto">
-          Descubre los mejores fritos tradicionales y disfruta
-          de una experiencia fácil y deliciosa.
-        </p>
+                <p class="auth__texto">
+                    Descubre los mejores fritos tradicionales y disfruta
+                    de una experiencia fácil y deliciosa.
+                </p>
 
-        <p class="auth__lugar d-none d-lg-flex">
-          <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
-          <span>
-            <strong>Cartagena, Bolívar</strong>
-            <br>
-            <small>Nuestra primera parada... ¡y vamos por más!</small>
-          </span>
-        </p>
-      </div>
+                <p class="auth__lugar d-none d-lg-flex">
+                    <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                    <span>
+                        <strong>Cartagena, Bolívar</strong>
+                        <br>
+                        <small>
+                            Nuestra primera parada... ¡y vamos por más!
+                        </small>
+                    </span>
+                </p>
+            </div>
 
-      <!-- Formulario de inicio de sesión -->
-      <div class="col-lg-7">
-        <div class="auth-card auth-card--solo">
-          <div class="auth-card__col" id="iniciar-sesion">
+            <!-- Formulario de inicio de sesión -->
+            <div class="col-lg-7">
+                <div class="auth-card auth-card--solo">
+            <div class="auth-card__col" id="iniciar-sesion">
 
-            <span class="auth-card__icono" aria-hidden="true">
-              <i class="bi bi-person"></i>
-            </span>
+                <span class="auth-card__icono" aria-hidden="true">
+                    <i class="bi bi-person"></i>
+                </span>
 
-            <h2 class="auth-card__titulo">Iniciar sesión</h2>
+                <h2 class="auth-card__titulo">
+                    Iniciar sesión
+                </h2>
 
-            <p class="auth-card__sub">
-              Ingresa a tu cuenta para continuar.
-            </p>
+                <p class="auth-card__sub">
+                    Ingresa a tu cuenta para continuar.
+                </p>
 
-            <p class="small mb-3">
-              Has seleccionado:
-              <strong>{{ rol.nombre }}</strong>
-            </p>
+                <p class="small mb-3">
+                    Has seleccionado:
+                    <strong>{{ rol.nombre }}</strong>
+                </p>
 
-            <!-- Mensajes de Flask -->
-            {% with mensajes = get_flashed_messages(with_categories=true) %}
-              {% for categoria, texto in mensajes %}
-                <div
-                  class="alert alert-{{ categoria }} py-2 small"
-                  role="alert"
+                <!-- Mensajes de Flask -->
+                {% with mensajes = get_flashed_messages(with_categories=true) %}
+                    {% for categoria, texto in mensajes %}
+                    <div
+                        class="alert alert-{{ categoria }} py-2 small"
+                        role="alert"
+                    >
+                        {{ texto }}
+                    </div>
+                    {% endfor %}
+                {% endwith %}
+
+                <form
+                    method="post"
+                    action="{{ url_for('acceso_rol', rol=rol.slug) }}"
                 >
-                  {{ texto }}
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <label
+                        class="campo-etiqueta"
+                        for="correo-login"
+                    >
+                        Correo electrónico
+                    </label>
+
+                    <div class="campo">
+                        <i
+                            class="bi bi-envelope"
+                            aria-hidden="true"
+                        ></i>
+
+                        <input
+                            class="form-control"
+                            id="correo-login"
+                            name="correo"
+                            type="email"
+                            placeholder="ejemplo@correo.com"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+                    <label
+                        class="campo-etiqueta"
+                        for="clave-login"
+                    >
+                        Contraseña
+                    </label>
+
+                    <div class="campo">
+                        <i
+                            class="bi bi-lock"
+                            aria-hidden="true"
+                        ></i>
+
+                        <input
+                            class="form-control"
+                            id="clave-login"
+                            name="clave"
+                            type="password"
+                            placeholder="Ingresa tu contraseña"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                                <button
+                                    class="campo__ver"
+                                    type="button"
+                                    data-ver-clave="clave-login"
+                                    aria-label="Mostrar contraseña"
+                                    aria-pressed="false"
+                                >
+                                    <i
+                                        class="bi bi-eye-slash"
+                                        aria-hidden="true"
+                                    ></i>
+                                </button>
+                            </div>
+
+                            <div class="text-end my-3 small">
+                                <a
+                                    class="enlace-naranja"
+                                    href="{{ url_for(
+                                        'proximamente',
+                                        pagina='recuperar-contrasena'
+                                    ) }}"
+                                >
+                                    ¿Olvidaste tu contraseña?
+                                </a>
+                            </div>
+
+                            <!-- Botón 1: iniciar sesión -->
+                            <button
+                                class="btn btn-fritos btn-lg rounded-pill w-100"
+                                type="submit"
+                            >
+                                Iniciar sesión
+                                <i
+                                    class="bi bi-arrow-right ms-1"
+                                    aria-hidden="true"
+                                ></i>
+                            </button>
+                        </form>
+
+                        {% if rol.slug != 'administrador' %}
+                        <div class="separador">
+                            <span>¿Aún no tienes cuenta?</span>
+                        </div>
+
+                        <!-- El administrador se crea desde la herramienta local crear_admin.py. -->
+                        <a
+                            class="btn btn-contorno-naranja btn-lg rounded-pill w-100"
+                            href="{{ url_for('registro_rol', rol=rol.slug) }}"
+                        >
+                            Registrarme
+                            <i
+                                class="bi bi-person-plus ms-1"
+                                aria-hidden="true"
+                            ></i>
+                        </a>
+                        {% else %}
+                        <p class="small text-secondary text-center mt-3 mb-0">
+                            El acceso administrativo se habilita por el responsable del sistema.
+                        </p>
+                        {% endif %}
+
+                        <div class="text-center mt-4">
+                            <a
+                                class="enlace-naranja"
+                                href="{{ url_for('iniciar_sesion') }}"
+                            >
+                                <i
+                                    class="bi bi-arrow-left"
+                                    aria-hidden="true"
+                                ></i>
+                                Cambiar de rol
+                            </a>
+                        </div>
+
+                    </div>
                 </div>
-              {% endfor %}
-            {% endwith %}
-
-            <form
-              method="post"
-              action="{{ url_for('acceso_rol', rol=rol.slug) }}"
-            >
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-              <label class="campo-etiqueta" for="correo-login">
-                Correo electrónico
-              </label>
-
-              <div class="campo">
-                <i class="bi bi-envelope" aria-hidden="true"></i>
-
-                <input
-                  class="form-control"
-                  id="correo-login"
-                  name="correo"
-                  type="email"
-                  placeholder="ejemplo@correo.com"
-                  autocomplete="email"
-                  required
-                >
-              </div>
-
-              <label class="campo-etiqueta" for="clave-login">
-                Contraseña
-              </label>
-
-              <div class="campo">
-                <i class="bi bi-lock" aria-hidden="true"></i>
-
-                <input
-                  class="form-control"
-                  id="clave-login"
-                  name="clave"
-                  type="password"
-                  placeholder="Ingresa tu contraseña"
-                  autocomplete="current-password"
-                  required
-                >
-
-                <button
-                  class="campo__ver"
-                  type="button"
-                  data-ver-clave="clave-login"
-                  aria-label="Mostrar contraseña"
-                  aria-pressed="false"
-                >
-                  <i class="bi bi-eye-slash" aria-hidden="true"></i>
-                </button>
-              </div>
-
-              <div class="text-end my-3 small">
-                <a
-                  class="enlace-naranja"
-                  href="{{ url_for(
-                    'proximamente',
-                    pagina='recuperar-contrasena'
-                  ) }}"
-                >
-                  ¿Olvidaste tu contraseña?
-                </a>
-              </div>
-
-              <!-- Botón 1: iniciar sesión -->
-              <button
-                class="btn btn-fritos btn-lg rounded-pill w-100"
-                type="submit"
-              >
-                Iniciar sesión
-                <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
-              </button>
-
-            </form>
-
-            {% if rol.slug != 'administrador' %}
-            <div class="separador">
-              <span>¿Aún no tienes cuenta?</span>
             </div>
 
-            <!-- El administrador se crea desde la herramienta local crear_admin.py. -->
-            <a
-              class="btn btn-contorno-naranja btn-lg rounded-pill w-100"
-              href="{{ url_for('registro_rol', rol=rol.slug) }}"
-            >
-              Registrarme
-              <i class="bi bi-person-plus ms-1" aria-hidden="true"></i>
-            </a>
-            {% else %}
-            <p class="small text-secondary text-center mt-3 mb-0">
-              El acceso administrativo se habilita por el responsable del sistema.
-            </p>
-            {% endif %}
-
-            <div class="text-center mt-4">
-              <a
-                class="enlace-naranja"
-                href="{{ url_for('iniciar_sesion') }}"
-              >
-                <i class="bi bi-arrow-left" aria-hidden="true"></i>
-                Cambiar de rol
-              </a>
-            </div>
-
-          </div>
         </div>
-      </div>
-
     </div>
-  </div>
 </section>
 {% endblock %}
