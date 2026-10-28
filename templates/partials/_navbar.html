@@ -95,20 +95,25 @@
                     </div>
 
                 {% else %}
-                <!-- ============ NAVEGACIÓN DE LA TIENDA ============ -->
-                <ul class="navbar-nav mx-lg-auto gap-lg-4">
-
-                    <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'index' }}"
-                           href="{{ url_for('index') }}">Inicio</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
-                           href="{{ url_for('explorar') }}">Explorar</a>
-                    </li>
-
-                    
+                    <!-- NAVEGACIÓN DE LA TIENDA -->
+                    <ul class="navbar-nav mx-lg-auto gap-lg-4">
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'index' }}"
+                               href="{{ url_for('index') }}">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
+                               href="{{ url_for('explorar') }}">Explorar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'puestos' }}"
+                               href="{{ url_for('puestos') }}">Puestos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('index') }}#como-funciona">
+                                Cómo funciona
+                            </a>
+                        </li>
 
                         {% if session.get('rol') != 'cliente' %}
                         <li class="nav-item">
