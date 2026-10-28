@@ -510,26 +510,16 @@
     pintarContador();
 
 })();
-// =========================================
-// MODO DÍA Y MODO NOCHE - FRITOS TECH
-// =========================================
 
 const botonTema = document.getElementById("botonTema");
-const iconoTema = document.getElementById("iconoTema");
 
-// Recuperar el tema guardado
 const temaGuardado = localStorage.getItem("tema-fritos") || "light";
 
-// Aplicar el tema
 function aplicarTema(tema) {
     document.body.setAttribute("data-theme", tema);
 
-    const modoNoche = tema === "dark";
-
-    if (botonTema && iconoTema) {
-        iconoTema.className = modoNoche
-            ? "bi bi-sun-fill"
-            : "bi bi-moon-stars-fill";
+    if (botonTema) {
+        const modoNoche = tema === "dark";
 
         botonTema.setAttribute(
             "aria-label",
@@ -537,13 +527,9 @@ function aplicarTema(tema) {
         );
 
         botonTema.setAttribute("aria-pressed", String(modoNoche));
-        botonTema.title = modoNoche
-            ? "Activar modo día"
-            : "Activar modo noche";
     }
 }
 
-// Configurar el botón
 if (botonTema) {
     botonTema.addEventListener("click", function () {
         const temaActual = document.body.getAttribute("data-theme");
@@ -556,5 +542,4 @@ if (botonTema) {
     });
 }
 
-// Activar el tema guardado al cargar la página
 aplicarTema(temaGuardado);

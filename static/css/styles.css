@@ -1538,155 +1538,211 @@ a {
   text-wrap: balance;
 }
 
-/* =========================================
-   MODO DÍA Y MODO NOCHE - FRITOS TECH
-========================================= */
-
-/* Transición suave entre los modos */
-body,
-.ft-header,
-.ft-footer,
-.seccion,
-.producto,
-.tarjeta-producto,
-.auth-card {
-    transition:
-        background-color 0.3s ease,
-        color 0.3s ease,
-        border-color 0.3s ease;
+/* CONTENEDOR DEL SELECTOR */
+.selector-tema {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 22px;
+margin: 10px 0;
 }
 
-/* Variables del modo noche */
-body[data-theme="dark"] {
-    --ft-crema: #171717;
-    --ft-arena: #222222;
-    --ft-tinta: #F5F5F5;
-    --ft-suave: #C4C4C4;
-
-    background: var(--ft-crema);
-    color: var(--ft-tinta);
+/* TEXTOS LIGHT MODE Y DARK MODE */
+.selector-tema__texto {
+font-size: 16px;
+font-weight: 800;
+line-height: 1.5;
+text-align: center;
+transition: color 0.3s ease;
 }
 
-/* Fondos de las secciones */
-body[data-theme="dark"] .seccion--crema {
-    background: #171717;
+/* TEXTO DEL MODO DÍA */
+.selector-tema__texto--claro {
+color: #FF683D;
 }
 
-body[data-theme="dark"] .seccion--arena {
-    background: #222222;
+/* TEXTO DEL MODO NOCHE */
+.selector-tema__texto--oscuro {
+color: #7B4A3A;
 }
 
-/* Tarjetas de productos */
-body[data-theme="dark"] .producto,
-body[data-theme="dark"] .tarjeta-producto {
-    background: #292929;
-    color: #F5F5F5;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+/* BOTÓN PRINCIPAL */
+.selector-tema__boton {
+position: relative;
+width: 110px;
+height: 56px;
+flex-shrink: 0;
+padding: 0;
+border: 4px solid #FF683D;
+border-radius: 50px;
+background: transparent;
+cursor: pointer;
+transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-/* Textos de productos */
-body[data-theme="dark"] .producto__titulo,
-body[data-theme="dark"] .producto__precio,
-body[data-theme="dark"] .tarjeta-producto__nombre,
-body[data-theme="dark"] .tarjeta-producto__precio,
-body[data-theme="dark"] .titulo-script,
-body[data-theme="dark"] .cat__nombre,
-body[data-theme="dark"] .paso__titulo {
-    color: #F5F5F5;
+/* CÍRCULO NARANJA */
+.selector-tema__circulo {
+position: absolute;
+top: 4px;
+left: 4px;
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background: #FF683D;
+transition: transform 0.35s ease, background 0.3s ease;
 }
 
-/* Descripciones */
-body[data-theme="dark"] .producto__vendedor,
-body[data-theme="dark"] .tarjeta-producto__vendedor,
-body[data-theme="dark"] .tarjeta-producto__rating span,
-body[data-theme="dark"] .paso p {
-    color: #C4C4C4;
+/* MODO NOCHE ACTIVADO */
+body[data-theme="dark"] .selector-tema__boton {
+background: #262626;
 }
 
-/* Filtros de categorías */
-body[data-theme="dark"] .chip {
-    background: #383838;
-    color: #FFFFFF;
+body[data-theme="dark"] .selector-tema__circulo {
+transform: translateX(50px);
 }
 
-body[data-theme="dark"] .chip:hover {
-    background: #4A4A4A;
+/* COLOR DE LOS TEXTOS SEGÚN EL TEMA */
+body[data-theme="light"] .selector-tema__texto--claro {
+color: #FF683D;
 }
 
-body[data-theme="dark"] .chip--activo {
-    background: var(--ft-brand);
-    color: #2A1810;
+body[data-theme="light"] .selector-tema__texto--oscuro {
+color: #7B4A3A;
 }
 
-/* Categorías */
-body[data-theme="dark"] .cat__img {
-    background: #333333;
+body[data-theme="dark"] .selector-tema__texto--claro {
+color: #7B4A3A;
 }
 
-/* Formularios */
-body[data-theme="dark"] .auth-card {
-    background: #292929;
-    color: #FFFFFF;
+body[data-theme="dark"] .selector-tema__texto--oscuro {
+color: #FF683D;
 }
 
-body[data-theme="dark"] .campo .form-control {
-    background: #202020;
-    color: #FFFFFF;
-    border-color: #555555;
+/* EFECTO AL PASAR EL RATÓN */
+.selector-tema__boton:hover {
+box-shadow: 0 0 12px rgba(255, 104, 61, 0.35);
 }
 
-body[data-theme="dark"] .campo .form-control::placeholder {
-    color: #BDBDBD;
+/* ACCESIBILIDAD */
+.selector-tema__boton:focus-visible {
+outline: 3px solid #FF683D;
+outline-offset: 4px;
 }
 
-/* Roles de usuario */
-body[data-theme="dark"] .rol {
-    background: #292929;
-    color: #FFFFFF;
-    border-color: #555555;
+/* ADAPTACIÓN A PANTALLAS PEQUEÑAS */
+@media (max-width: 480px) {
+.selector-tema {
+gap: 10px;
 }
 
-body[data-theme="dark"] .rol:hover,
-body[data-theme="dark"] .rol--activo {
-    background: #383024;
-    border-color: var(--ft-brand);
+
+.selector-tema__texto {
+    font-size: 12px;
 }
 
-/* Encabezado y pie de página */
-body[data-theme="dark"] .ft-header,
-body[data-theme="dark"] .ft-footer,
-body[data-theme="dark"] .vendedores {
-    background: #100D0B;
+.selector-tema__boton {
+    width: 88px;
+    height: 48px;
 }
 
-/* Enlaces */
-body[data-theme="dark"] a {
-    text-decoration-color: var(--ft-brand);
+.selector-tema__circulo {
+    width: 32px;
+    height: 32px;
 }
 
-/* Botón para cambiar de tema */
-.btn-tema {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 50%;
-    background: transparent;
-    color: #FFFFFF;
-    cursor: pointer;
-    font-size: 1.15rem;
-    transition: background-color 0.2s ease,
-                transform 0.2s ease;
+body[data-theme="dark"] .selector-tema__circulo {
+    transform: translateX(40px);
 }
 
-.btn-tema:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: scale(1.05);
+
+}
+/* ===== Selector de tema (pequeño) ===== */
+.selector-tema { display: flex; align-items: center; gap: .5rem; }
+
+.selector-tema__texto {
+  font-size: .55rem; line-height: 1.1; font-weight: 700;
+  letter-spacing: .04em; text-align: center;
+  opacity: .5; transition: opacity .25s;
 }
 
-.btn-tema:focus-visible {
-    outline: 3px solid var(--ft-brand);
-    outline-offset: 3px;
+.selector-tema__boton {
+  position: relative; width: 46px; height: 24px; padding: 0;
+  border: 2px solid #ff6b3d; border-radius: 999px;
+  background: transparent; cursor: pointer; flex-shrink: 0;
 }
+
+.selector-tema__circulo {
+  position: absolute; top: 50%; left: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #ff6b3d; transform: translateY(-50%);
+  transition: left .25s ease;
+}
+
+.selector-tema__boton[aria-pressed="true"] .selector-tema__circulo {
+  left: calc(100% - 17px);
+}
+
+.selector-tema__boton:focus-visible { outline: 3px solid #ff6b3d; outline-offset: 4px; }
+
+body:not(.modo-noche) .selector-tema__texto--claro,
+body.modo-noche .selector-tema__texto--oscuro { opacity: 1; color: #ff6b3d; }
+
+
+/* ===== MODO NOCHE ===== */
+body.modo-noche {
+  --ft-crema: #18100c;
+  --ft-arena: #20140e;
+  --ft-tinta: #f6ebde;
+  --ft-suave: #c2b2a3;
+  color-scheme: dark;
+}
+
+/* tarjetas y cajas que tenían fondo blanco fijo */
+body.modo-noche .tarjeta-producto,
+body.modo-noche .producto,
+body.modo-noche .rol,
+body.modo-noche .btn-fav,
+body.modo-noche .telefono__item,
+body.modo-noche .telefono__buscar { background: #2b1a11; }
+
+body.modo-noche .rol:hover,
+body.modo-noche .rol--activo { background: #3b2416; }
+
+body.modo-noche .telefono__pantalla,
+body.modo-noche .auth-card { background: #20140e; }
+
+/* textos con color fijo */
+body.modo-noche .producto__titulo,
+body.modo-noche .producto__precio { color: #f6ebde; }
+body.modo-noche .producto__vendedor { color: #c2b2a3; }
+
+/* chips y círculos de categorías */
+body.modo-noche .chip { background: #3b2416; color: #f6ebde; }
+body.modo-noche .chip:hover { background: #4a2f1e; color: #fff; }
+body.modo-noche .chip--activo { background: var(--ft-brand); color: #2A1810; }
+body.modo-noche .cat__img,
+body.modo-noche .auth-card__icono,
+body.modo-noche .rol__icono { background: #3b2416; }
+
+/* formularios */
+body.modo-noche .campo .form-control {
+  background: #2b1a11; color: #f6ebde; border-color: rgba(255, 255, 255, .15);
+}
+body.modo-noche .campo .form-control::placeholder { color: #a8978a; }
+body.modo-noche .separador::before,
+body.modo-noche .separador::after { background: rgba(255, 255, 255, .15); }
+
+/* anula las reglas viejas del botón */
+body[data-theme="dark"] .selector-tema__boton {
+  background: transparent;
+}
+
+body[data-theme="dark"] .selector-tema__circulo {
+  transform: translateY(-50%);
+}
+
+body[data-theme] .selector-tema__texto--claro,
+body[data-theme] .selector-tema__texto--oscuro {
+  color: inherit;
+}
+
