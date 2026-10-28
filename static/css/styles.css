@@ -1737,7 +1737,7 @@ color: #FF683D;
 
 /* TEXTO DEL MODO NOCHE */
 .selector-tema__texto--oscuro {
-color: #7B4A3A;
+color: #7f5d51;
 }
 
 /* BOTÓN PRINCIPAL */
@@ -1781,11 +1781,11 @@ color: #FF683D;
 }
 
 body[data-theme="light"] .selector-tema__texto--oscuro {
-color: #7B4A3A;
+color: #fcf7f6;
 }
 
 body[data-theme="dark"] .selector-tema__texto--claro {
-color: #7B4A3A;
+color: #e0d7d4;
 }
 
 body[data-theme="dark"] .selector-tema__texto--oscuro {
@@ -1920,3 +1920,13 @@ body[data-theme] .selector-tema__texto--oscuro {
   color: inherit;
 }
 
+.selector-tema .selector-tema__texto {
+  color: rgba(255, 255, 255, .65) !important;
+  opacity: 1;
+  font-size: .62rem;
+}
+
+body:not(.modo-noche) .selector-tema .selector-tema__texto--claro,
+body.modo-noche .selector-tema .selector-tema__texto--oscuro {
+  color: #ff6b3d !important;
+}

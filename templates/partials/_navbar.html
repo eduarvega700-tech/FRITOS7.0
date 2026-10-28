@@ -153,7 +153,7 @@
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button class="btn btn-contorno-claro btn-sm rounded-pill text-nowrap" type="submit">Salir</button>
                     </form>
-                    {% else %}
+                 {% else %}
                     <a class="btn btn-fritos btn-sm rounded-pill px-3 text-nowrap" href="{{ url_for('iniciar_sesion') }}">
                        Iniciar sesión
                     </a>
