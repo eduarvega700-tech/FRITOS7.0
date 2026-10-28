@@ -141,7 +141,7 @@
                         <i class="bi bi-search" aria-hidden="true"></i>
                     </a>
 
-                    <!-- CARRITO DE COMPRAS -->
+                                       <!-- CARRITO DE COMPRAS -->
                     <a class="btn-icono position-relative"
                        href="{{ url_for('carrito') }}"
                        id="btn-carrito"
@@ -149,6 +149,19 @@
                         <i class="bi bi-cart3" aria-hidden="true"></i>
                         <span id="cart-count" class="cart-count" hidden>0</span>
                     </a>
+
+                    <!-- INICIAR SESIÓN / SALIR -->
+                    {% if session.get('rol') %}
+                    <form method="post" action="{{ url_for('salir') }}" class="m-0">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-contorno-claro btn-sm rounded-pill text-nowrap" type="submit">Salir</button>
+                    </form>
+                    {% else %}
+                    <a class="btn btn-fritos btn-sm rounded-pill px-3 text-nowrap" href="{{ url_for('iniciar_sesion') }}">
+                       Iniciar sesión
+                    </a>
+                    {% endif %}
+
                     <!-- SELECTOR DE MODO DÍA Y NOCHE -->
                     <div class="selector-tema">
 
