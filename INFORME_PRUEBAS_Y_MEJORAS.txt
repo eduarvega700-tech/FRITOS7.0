@@ -1,0 +1,309 @@
+==============================================================================
+              FRITOS TECH - INFORME DE PRUEBAS UNITARIAS Y MEJORAS
+==============================================================================
+Fecha:      27 de octubre de 2026
+Proyecto:   FRITOS7.0 (Flask + MySQL)
+Revisado:   app.py, data.py, crear_admin.py, sql/, templates/, static/,
+            requirements.txt, README.md y archivos versionados en git.
+
+
+------------------------------------------------------------------------------
+1. RESUMEN
+------------------------------------------------------------------------------
+
+  Pruebas ejecutadas:  49
+  Pasaron:             41
+  Fallaron:             8   (1 fallo + 7 errores)
+
+  Las 8 pruebas que fallan NO son errores de las pruebas: muestran errores
+  reales del proyecto. 7 de ellas tienen la misma causa (falta la plantilla
+  proximamente.html) y la otra se debe a una imagen que no existe.
+
+  Cómo ejecutar las pruebas (con el venv activado):
+
+      python -m unittest discover -s tests -v
+
+  Las pruebas están en tests/test_app.py. No usan la base de datos real:
+  consultar() y ejecutar() se reemplazan por simulaciones (unittest.mock),
+  así que se pueden correr aunque MySQL esté apagado.
+
+
+------------------------------------------------------------------------------
+2. QUÉ SE PROBÓ
+------------------------------------------------------------------------------
+
+  Grupo                         Pruebas   Resultado
+  ----------------------------  -------   ---------------------------------
+  Formato de precios (COP)          4     Todas pasan
+  Roles (registro / acceso)         4     Todas pasan
+  Creación de slugs                 3     Todas pasan
+  Lectura del carrito (JSON)        5     Todas pasan
+  Imágenes de productos             4     1 falla (falta bunuelos.jpg)
+  Páginas públicas                  8     3 fallan (proximamente.html)
+  Protección CSRF                   2     1 falla  (proximamente.html)
+  Permisos por rol                  6     1 falla  (proximamente.html)
+  Inicio de sesión                  4     1 falla  (proximamente.html)
+  Registro de usuarios              5     1 falla  (proximamente.html)
+  Carrito y pedidos                 4     Todas pasan
+
+  Pruebas que fallan:
+    - test_todas_las_imagenes_existen
+    - test_post_sin_token_es_rechazado
+    - test_login_rol_inexistente_da_404
+    - test_explorar_categoria_inexistente_da_404
+    - test_pagina_inexistente_da_404
+    - test_pagina_proximamente_recuperar_contrasena
+    - test_vendedor_no_cambia_producto_ajeno
+    - test_no_se_puede_registrar_administrador
+
+
+------------------------------------------------------------------------------
+3. FELICITACIONES: LO QUE ESTÁ MUY BIEN HECHO
+------------------------------------------------------------------------------
+
+  ¡Felicitaciones al equipo! El proyecto tiene una base sólida y muestra
+  buenas prácticas que muchos proyectos profesionales olvidan:
+
+  [+] Contraseñas seguras. Nunca se guardan en texto plano: se usan
+      generate_password_hash y check_password_hash de Werkzeug. Una prueba
+      lo confirma.
+
+  [+] Protección CSRF hecha a mano y bien hecha. Todo POST exige un token,
+      y se compara con hmac.compare_digest, que evita ataques por tiempo.
+      Hasta el fetch de main.js envía el token en la cabecera X-CSRF-Token.
+
+  [+] Sin inyección SQL. Todas las consultas usan parámetros (%s), incluso
+      la consulta con IN (...) del carrito, que es la más difícil de hacer
+      bien.
+
+  [+] Los precios siempre salen de la base de datos y nunca del navegador.
+      Así nadie puede cambiar el precio desde las herramientas del
+      navegador. ¡Excelente decisión!
+
+  [+] Los pedidos se guardan en una transacción (begin / commit /
+      rollback): o se guarda el pedido completo o no se guarda nada.
+
+  [+] Cada vendedor solo puede tocar sus propios productos: los UPDATE y
+      DELETE filtran por vendedor_id. Una prueba lo confirma.
+
+  [+] El administrador no se puede registrar desde la web y no se puede
+      desactivar a sí mismo.
+
+  [+] Al iniciar sesión se ejecuta session.clear(), lo que evita la
+      fijación de sesión. El correo se normaliza (minúsculas, sin
+      espacios).
+
+  [+] Las fotos que suben los vendedores se guardan con nombres aleatorios
+      (uuid4), con extensiones permitidas y un límite de 2 MB.
+
+  [+] Si MySQL se cae, la portada y explorar siguen funcionando con los
+      datos de data.py y muestran un aviso. Una prueba lo confirma.
+
+  [+] leer_items() es muy defensiva: ignora JSON roto, cantidades negativas
+      o en cero e IDs inválidos, y limita a 50 unidades por producto.
+
+  [+] El código es muy fácil de leer: está dividido en secciones numeradas,
+      tiene comentarios en español y nombres claros (consultar, ejecutar,
+      vendedor_requerido...).
+
+  [+] Los scripts SQL indican el orden de ejecución y casi todos se pueden
+      ejecutar varias veces sin duplicar datos (INSERT IGNORE, IF NOT
+      EXISTS).
+
+  [+] Hay buenas llaves foráneas: ON DELETE SET NULL en pedido_item hace
+      que borrar un producto no borre el historial de pedidos.
+
+  [+] La configuración de MySQL se lee de variables de entorno, con valores
+      por defecto cómodos para desarrollo.
+
+  [+] Hay un script crear_admin.py que pide la contraseña sin mostrarla en
+      pantalla (getpass).
+
+
+------------------------------------------------------------------------------
+4. LO QUE HAY QUE MEJORAR
+------------------------------------------------------------------------------
+
+  Prioridad:  [ALTA]  = la aplicación falla o hay riesgo de seguridad
+              [MEDIA] = funciona, pero con errores o comportamiento confuso
+              [BAJA]  = orden, mantenimiento y buenas prácticas
+
+
+  ---------- PRIORIDAD ALTA ----------
+
+  1. [ALTA] Falta la plantilla templates/proximamente.html
+     Dónde:   app.py, líneas 1160-1193
+     Qué pasa: proximamente(), el manejador de 404 y el de 400 usan esa
+              plantilla, pero no existe. Por eso:
+              - Cualquier página que no existe da ERROR 500 en vez de 404.
+              - Si el token CSRF vence, sale ERROR 500 en vez de
+                "Recarga la página e inténtalo de nuevo".
+              - El enlace "Recuperar contraseña" de auth.html da ERROR 500.
+              - /vender da ERROR 500.
+     Solución: crear templates/proximamente.html que extienda base.html y
+              muestre {{ titulo }} y, si existe, {{ rf }}.
+     Pruebas: 7 de las 8 que fallan pasarían con este solo arreglo.
+
+  2. [ALTA] SECRET_KEY por defecto y modo debug
+     Dónde:   app.py línea 37 ("cambiar-en-produccion") y línea 1205
+              (debug=True).
+     Riesgo:  si se publica así, cualquiera que lea el código puede
+              falsificar sesiones (por ejemplo, hacerse pasar por
+              administrador). El modo debug permite ejecutar código desde
+              el navegador cuando ocurre un error.
+     Solución: que la app no arranque sin SECRET_KEY fuera de desarrollo,
+              y activar debug solo con una variable de entorno
+              (FLASK_DEBUG=1).
+
+  3. [ALTA] Una cuenta desactivada sigue con la sesión abierta
+     Dónde:   vendedor_requerido, cliente_requerido y admin_requerido.
+     Qué pasa: el campo activo solo se revisa al iniciar sesión. Si el
+              administrador desactiva a un vendedor, ese vendedor puede
+              seguir publicando hasta que cierre sesión.
+     Solución: en cada petición protegida, consultar si el usuario sigue
+              activo (o guardar una "versión" de sesión y comparar).
+
+  4. [ALTA] No hay límite de intentos de inicio de sesión
+     Dónde:   acceso_rol(), app.py línea 416.
+     Riesgo:  se pueden probar miles de contraseñas (fuerza bruta).
+     Solución: usar Flask-Limiter o contar los intentos fallidos en
+              historial_acceso y bloquear unos minutos.
+
+
+  ---------- PRIORIDAD MEDIA ----------
+
+  5. [MEDIA] Imagen que no existe: bunuelos.jpg
+     Dónde:   app.py línea 706 y templates/index.html línea 143.
+     Qué pasa: el archivo real se llama buñuelos.jpg (con ñ). En el carrito,
+              los "Buñuelos" salen sin foto.
+     También: data.py línea 138 usa "prod-buñuelos.jpg", que tampoco
+              existe.
+     Prueba:  test_todas_las_imagenes_existen.
+
+  6. [MEDIA] La función cliente_requerido está definida DOS veces
+     Dónde:   app.py líneas 212 y 238.
+     Qué pasa: Python se queda con la segunda, así que la primera (con
+              otros mensajes y otra redirección) nunca se usa. Esto
+              confunde a quien lea el código.
+     Solución: borrar una de las dos.
+
+  7. [MEDIA] Se pueden pedir productos "agotados"
+     Dónde:   vista v_productos_activos (sql/explorar.sql) y
+              productos_por_ids().
+     Qué pasa: la vista filtra por activo, pero no por disponible. Aunque
+              el puesto muestre "No disponible", si el producto ya estaba
+              en el carrito el pedido se acepta. Tampoco se revisa si el
+              puesto está abierto.
+     Solución: añadir "AND p.disponible = 1" al validar el pedido.
+
+  8. [MEDIA] Los vendedores nuevos no tienen puesto
+     Dónde:   registro_rol(), app.py línea 498.
+     Qué pasa: los puestos solo se crean desde sql/puesto.sql para los
+              vendedores de ejemplo. Un vendedor que se registra en la web
+              nunca aparece en /puestos ni en /mapa.
+     Solución: crear el puesto al registrar al vendedor, o agregar una
+              pantalla "Mi puesto".
+
+  9. [MEDIA] Errores de MySQL sin capturar en algunas rutas
+     Dónde:   producto_estado, producto_eliminar, admin_producto_estado,
+              admin_producto_eliminar, admin_usuario_estado,
+              admin_pedido_estado.
+     Qué pasa: si MySQL falla, el usuario ve un error 500 en vez de un
+              mensaje amable, como sí ocurre en las demás rutas.
+
+  10. [MEDIA] sql/puesto.sql no se puede ejecutar dos veces
+     Qué pasa: "ALTER TABLE producto ADD COLUMN disponible" falla si la
+              columna ya existe. Además, es el único script que no dice en
+              qué orden ejecutarlo (va de SÉPTIMO).
+
+  11. [MEDIA] La validación del archivo subido solo mira la extensión
+     Dónde:   producto_nuevo(), app.py línea 619.
+     Riesgo:  se puede subir cualquier archivo renombrado a .jpg.
+     Solución: verificar que el contenido sea realmente una imagen (por
+              ejemplo, abriéndola con Pillow).
+
+  12. [MEDIA] El error 413 (archivo muy grande) siempre manda a
+     /mis-productos, aunque quien suba no sea vendedor.
+
+  13. [MEDIA] Validación de correo muy simple
+     Dónde:   registro_rol(), app.py línea 515.
+     Qué pasa: basta con que tenga "@": "a@" se acepta como correo.
+
+
+  ---------- PRIORIDAD BAJA ----------
+
+  14. [BAJA] __pycache__ está subido a git
+     Qué pasa: en .gitignore dice "_pycache_/" (un guion bajo a cada lado)
+              en vez de "__pycache__/" (dos). Por eso se subieron los
+              archivos .pyc.
+     Solución: corregir .gitignore y ejecutar
+              git rm -r --cached __pycache__
+
+  15. [BAJA] La carpeta FRITOS7.0/ dentro del proyecto está rota en git
+     Qué pasa: git la registra como un submódulo (otro repositorio), pero
+              no hay archivo .gitmodules. Al clonar, aparece vacía. Al
+              parecer se copió por error una carpeta con su propio .git.
+     Solución: git rm --cached FRITOS7.0 y borrar la carpeta si no se
+              usa.
+
+  16. [BAJA] requirements.txt está guardado en UTF-16
+     Qué pasa: pip lo lee, pero GitHub y otros programas lo muestran con
+              caracteres raros. Pasa cuando se genera con
+              "pip freeze > requirements.txt" en PowerShell 5.
+     Solución: guardarlo como UTF-8 (en VS Code: abajo a la derecha,
+              cambiar la codificación a UTF-8).
+
+  17. [BAJA] El README está desactualizado
+     Qué pasa: dice "Iteración 0", menciona proximamente.html, no explica
+              cómo crear la base de datos (el orden de los scripts SQL),
+              ni crear_admin.py, ni cómo correr las pruebas.
+
+  18. [BAJA] El diccionario de imágenes está repetido en 3 lugares
+     Dónde:   app.py (IMAGENES_PRODUCTOS), templates/index.html y
+              templates/explorar.html.
+     Qué pasa: al agregar un producto hay que acordarse de editar los 3
+              (así nació el error de bunuelos.jpg).
+     Solución: guardar el nombre de la imagen en la columna producto.imagen
+              de la base de datos, o dejar un solo diccionario en app.py.
+
+  19. [BAJA] app.py tiene más de 1.200 líneas
+     Solución: dividirlo con Blueprints de Flask (auth, catalogo,
+              vendedor, carrito, admin) y separar la conexión a MySQL en
+              db.py.
+
+  20. [BAJA] El panel de pedidos carga TODOS los items
+     Dónde:   admin_pedidos(), app.py línea 1116.
+     Qué pasa: aunque filtre por estado, trae los items de todos los
+              pedidos. Con muchos pedidos será lento. Tampoco hay
+              paginación en usuarios, productos ni pedidos.
+
+  21. [BAJA] Conexión a MySQL como root sin contraseña
+     Solución: crear un usuario de MySQL solo para la app, con permisos
+              únicamente sobre fritos_tech.
+
+  22. [BAJA] Detalles de formato
+     - Faltan líneas en blanco entre algunas funciones (app.py líneas 211,
+       315 y 374) y el comentario "11.2 MAPA DE PUESTOS" está indentado
+       dentro de la función anterior.
+     - Se recomienda usar flake8 o ruff para revisar el estilo
+       automáticamente.
+
+
+------------------------------------------------------------------------------
+5. ORDEN RECOMENDADO DE TRABAJO
+------------------------------------------------------------------------------
+
+  1. Crear templates/proximamente.html                      (punto 1)
+  2. Corregir el nombre de bunuelos.jpg                     (punto 5)
+     -> Con estos dos arreglos, las 49 pruebas deberían pasar.
+  3. Borrar el cliente_requerido duplicado                  (punto 6)
+  4. Corregir .gitignore y quitar FRITOS7.0/ de git         (puntos 14, 15)
+  5. SECRET_KEY y debug con variables de entorno            (punto 2)
+  6. Revisar si el usuario está activo en cada petición     (punto 3)
+  7. Validar "disponible" al hacer un pedido                (punto 7)
+  8. Actualizar el README                                   (punto 17)
+  9. Lo demás, según el tiempo del equipo.
+
+==============================================================================
+                                Fin del informe
+==============================================================================
