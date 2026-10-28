@@ -510,3 +510,36 @@
     pintarContador();
 
 })();
+
+const botonTema = document.getElementById("botonTema");
+
+const temaGuardado = localStorage.getItem("tema-fritos") || "light";
+
+function aplicarTema(tema) {
+    document.body.setAttribute("data-theme", tema);
+
+    if (botonTema) {
+        const modoNoche = tema === "dark";
+
+        botonTema.setAttribute(
+            "aria-label",
+            modoNoche ? "Activar modo día" : "Activar modo noche"
+        );
+
+        botonTema.setAttribute("aria-pressed", String(modoNoche));
+    }
+}
+
+if (botonTema) {
+    botonTema.addEventListener("click", function () {
+        const temaActual = document.body.getAttribute("data-theme");
+
+        const nuevoTema = temaActual === "dark" ? "light" : "dark";
+
+        aplicarTema(nuevoTema);
+
+        localStorage.setItem("tema-fritos", nuevoTema);
+    });
+}
+
+aplicarTema(temaGuardado);
