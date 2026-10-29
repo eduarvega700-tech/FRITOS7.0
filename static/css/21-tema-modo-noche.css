@@ -190,7 +190,7 @@ body.modo-noche .rol__icono { background: #3b2416; }
 
 /* formularios */
 body.modo-noche .campo .form-control {
-  background: #2b1a11; color: #0a0908; border-color: rgba(255, 255, 255, .15);
+  background: #2b1a11; color: #fffdfb; border-color: rgba(255, 255, 255, .15);
 }
 body.modo-noche .campo .form-control::placeholder { color: #a8978a; }
 body.modo-noche .separador::before,
