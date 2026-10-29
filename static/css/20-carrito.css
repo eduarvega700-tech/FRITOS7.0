@@ -59,7 +59,7 @@
 
 .carrito-item__vendedor {
     font-size: .8rem;
-    color: var(--ft-suave);
+    color: black;
     margin: 0 0 .4rem;
 }
 
@@ -161,6 +161,68 @@
 .carrito-resumen .form-control:focus {
     border-color: var(--ft-brand);
     box-shadow: 0 0 0 .2rem rgba(249, 168, 38, .25);
+}
+/* ===== CARRITO · MODO OSCURO ===== */
+/* Cambia el selector si tu modo oscuro usa otro (ej: body.dark, .dark-mode) */
+[data-bs-theme="dark"] {
+  --carrito-naranja: #f26a1b;
+  --carrito-texto: #111111;
+  --carrito-numero: #111111; /* ver nota abajo */
+}
+
+/* --- Productos: nombre, precio c/u y subtotal en naranja --- */
+[data-bs-theme="dark"] #carrito-lista li h2,
+[data-bs-theme="dark"] #carrito-lista li h3,
+[data-bs-theme="dark"] #carrito-lista li h4,
+[data-bs-theme="dark"] #carrito-lista li .fw-bold,
+[data-bs-theme="dark"] #carrito-lista li .fw-semibold,
+[data-bs-theme="dark"] #carrito-lista li [class*="precio"],
+[data-bs-theme="dark"] #carrito-lista li [class*="subtotal"],
+[data-bs-theme="dark"] #carrito-lista li [class*="nombre"] {
+  color: var(--carrito-naranja) !important;
+}
+
+/* Nombre del puesto (La Matrona, etc.) en gris oscuro legible */
+[data-bs-theme="dark"] #carrito-lista li .text-muted,
+[data-bs-theme="dark"] #carrito-lista li small {
+  color: #555 !important;
+}
+
+/* --- Selector de cantidad: fondo blanco, borde negro --- */
+[data-bs-theme="dark"] #carrito-lista li [class*="cant"] {
+  background: #fff !important;
+  border: 2px solid #000 !important;
+  color: var(--carrito-numero) !important;
+}
+
+[data-bs-theme="dark"] #carrito-lista li [class*="cant"] button,
+[data-bs-theme="dark"] #carrito-lista li [class*="cant"] span,
+[data-bs-theme="dark"] #carrito-lista li [class*="cant"] i {
+  color: #000 !important;
+  background: transparent !important;
+}
+
+/* --- Resumen: todas las letras negras --- */
+[data-bs-theme="dark"] .carrito-resumen,
+[data-bs-theme="dark"] .carrito-resumen h2,
+[data-bs-theme="dark"] .carrito-resumen legend,
+[data-bs-theme="dark"] .carrito-resumen label,
+[data-bs-theme="dark"] .carrito-resumen .campo-etiqueta,
+[data-bs-theme="dark"] .carrito-resumen .form-check-label,
+[data-bs-theme="dark"] .carrito-resumen .text-muted,
+[data-bs-theme="dark"] .carrito-resumen #carrito-unidades,
+[data-bs-theme="dark"] .carrito-resumen #carrito-total {
+  color: #111 !important;
+}
+
+/* Campos de texto del resumen */
+[data-bs-theme="dark"] .carrito-resumen .form-control {
+  background: #fff;
+  color: #111;
+  border: 1px solid #000;
+}
+[data-bs-theme="dark"] .carrito-resumen .form-control::placeholder {
+  color: #666;
 }
 
 @media (min-width: 992px) {
