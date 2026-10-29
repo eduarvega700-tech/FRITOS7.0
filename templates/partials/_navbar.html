@@ -4,19 +4,15 @@
 <header class="ft-header sticky-top">
 
     <nav class="navbar navbar-expand-lg navbar-dark"
-         aria-label="{{ 'Navegación del panel de administración' if es_admin else 'Navegación principal' }}">
+        aria-label="{{ 'Navegación del panel de administración' if es_admin else 'Navegación principal' }}">
 
         <div class="container">
 
             <!-- LOGO Y NOMBRE DE LA MARCA -->
             <a class="navbar-brand d-flex align-items-center gap-2"
-               href="{{ url_for('admin_dashboard') if es_admin else url_for('index') }}">
+                href="{{ url_for('admin_dashboard') if es_admin else url_for('index') }}">
 
-                <img
-                    class="logo"
-                    src="{{ url_for('static', filename='img/logo.png') }}"
-                    alt="Logo de Fritos Tech"
-                >
+                <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo de Fritos Tech">
 
                 <span class="lh-1">
                     <span class="marca">FRITOS TECH</span>
@@ -30,15 +26,8 @@
             </a>
 
             <!-- BOTÓN DEL MENÚ PARA MÓVILES -->
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#menuPrincipal"
-                aria-controls="menuPrincipal"
-                aria-expanded="false"
-                aria-label="Abrir menú"
-            >
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -50,31 +39,31 @@
                 <ul class="navbar-nav mx-lg-auto gap-lg-3">
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'admin_dashboard' }}"
-                           href="{{ url_for('admin_dashboard') }}">
+                            href="{{ url_for('admin_dashboard') }}">
                             <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'admin_usuarios' }}"
-                           href="{{ url_for('admin_usuarios') }}">
+                            href="{{ url_for('admin_usuarios') }}">
                             <i class="bi bi-people me-1" aria-hidden="true"></i>Usuarios
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'admin_productos' }}"
-                           href="{{ url_for('admin_productos') }}">
+                            href="{{ url_for('admin_productos') }}">
                             <i class="bi bi-basket2 me-1" aria-hidden="true"></i>Productos
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'admin_categorias' }}"
-                           href="{{ url_for('admin_categorias') }}">
+                            href="{{ url_for('admin_categorias') }}">
                             <i class="bi bi-grid me-1" aria-hidden="true"></i>Categorías
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'admin_pedidos' }}"
-                           href="{{ url_for('admin_pedidos') }}">
+                            href="{{ url_for('admin_pedidos') }}">
                             <i class="bi bi-receipt me-1" aria-hidden="true"></i>Pedidos
                         </a>
                     </li>
@@ -97,33 +86,33 @@
                 </div>
 
                 {% else %}
-                    <!-- NAVEGACIÓN DE LA TIENDA -->
-                    <ul class="navbar-nav mx-lg-auto gap-lg-4">
-                        <li class="nav-item">
-                            <a class="nav-link {{ 'active' if request.endpoint == 'index' }}"
-                               href="{{ url_for('index') }}">Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
-                               href="{{ url_for('explorar') }}">Explorar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ 'active' if request.endpoint == 'puestos' }}"
-                               href="{{ url_for('puestos') }}">Puestos</a>
-                        </li>
-                        
+                <!-- NAVEGACIÓN DE LA TIENDA -->
+                <ul class="navbar-nav mx-lg-auto gap-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'index' }}"
+                            href="{{ url_for('index') }}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
+                            href="{{ url_for('explorar') }}">Explorar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'puestos' }}"
+                            href="{{ url_for('puestos') }}">Puestos</a>
+                    </li>
 
-                        {% if session.get('rol') != 'cliente' %}
-                        <li class="nav-item">
-                            <a class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
-                               href="{{ url_for('mis_productos') }}">Vender</a>
-                        </li>
-                        {% endif %}
+
+                    {% if session.get('rol') != 'cliente' %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
+                            href="{{ url_for('mis_productos') }}">Vender</a>
+                    </li>
+                    {% endif %}
 
                     {% if session.get('rol') == 'cliente' %}
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'mis_pedidos' }}"
-                           href="{{ url_for('mis_pedidos') }}">Mis pedidos</a>
+                            href="{{ url_for('mis_pedidos') }}">Mis pedidos</a>
                     </li>
                     {% endif %}
 
@@ -137,12 +126,16 @@
                     <a class="btn-icono" href="{{ url_for('explorar') }}" aria-label="Buscar fritos">
                         <i class="bi bi-search" aria-hidden="true"></i>
                     </a>
+                    
+                    <!-- MAPA DE PUESTOS -->
+                    <a class="btn-icono" href="{{ url_for('mapa') }}" aria-label="Mapa de puestos"
+                        title="Mapa de puestos">
+                        <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                    </a>
 
-                                       <!-- CARRITO DE COMPRAS -->
-                    <a class="btn-icono position-relative"
-                       href="{{ url_for('carrito') }}"
-                       id="btn-carrito"
-                       aria-label="Ver carrito de compras">
+                    <!-- CARRITO DE COMPRAS -->
+                    <a class="btn-icono position-relative" href="{{ url_for('carrito') }}" id="btn-carrito"
+                        aria-label="Ver carrito de compras">
                         <i class="bi bi-cart3" aria-hidden="true"></i>
                         <span id="cart-count" class="cart-count" hidden>0</span>
                     </a>
@@ -151,11 +144,13 @@
                     {% if session.get('rol') %}
                     <form method="post" action="{{ url_for('salir') }}" class="m-0">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button class="btn btn-contorno-claro btn-sm rounded-pill text-nowrap" type="submit">Salir</button>
+                        <button class="btn btn-contorno-claro btn-sm rounded-pill text-nowrap"
+                            type="submit">Salir</button>
                     </form>
-                 {% else %}
-                    <a class="btn btn-fritos btn-sm rounded-pill px-3 text-nowrap" href="{{ url_for('iniciar_sesion') }}">
-                       Iniciar sesión
+                    {% else %}
+                    <a class="btn btn-fritos btn-sm rounded-pill px-3 text-nowrap"
+                        href="{{ url_for('iniciar_sesion') }}">
+                        Iniciar sesión
                     </a>
                     {% endif %}
 
@@ -166,13 +161,8 @@
                             LIGHT<br>MODE
                         </span>
 
-                        <button
-                            type="button"
-                            class="selector-tema__boton"
-                            id="botonTema"
-                            aria-label="Activar modo noche"
-                            aria-pressed="false"
-                            title="Cambiar tema">
+                        <button type="button" class="selector-tema__boton" id="botonTema"
+                            aria-label="Activar modo noche" aria-pressed="false" title="Cambiar tema">
 
                             <span class="selector-tema__circulo"></span>
 
@@ -184,13 +174,13 @@
 
                     </div>
 
-                </div>   <!-- cierra los botones y acciones -->
+                </div> <!-- cierra los botones y acciones -->
 
-                {% endif %}   <!-- cierra el if es_admin / else -->
+                {% endif %} <!-- cierra el if es_admin / else -->
 
-            </div>   <!-- cierra el collapse -->
+            </div> <!-- cierra el collapse -->
 
-        </div>   <!-- cierra el container -->
+        </div> <!-- cierra el container -->
 
     </nav>
 
