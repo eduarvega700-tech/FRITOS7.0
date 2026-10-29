@@ -1,0 +1,105 @@
+/* ==========================================
+   BOTONES E ICONOS
+   ========================================== */
+
+/* 
+   3. BOTONES E ICONOS
+ */
+
+/* Botón principal */
+.btn-fritos {
+    --bs-btn-color: var(--ft-cacao-900);
+    --bs-btn-bg: var(--ft-brand);
+    --bs-btn-border-color: var(--ft-brand);
+
+    --bs-btn-hover-color: var(--ft-cacao-900);
+    --bs-btn-hover-bg: #FFB93E;
+    --bs-btn-hover-border-color: #FFB93E;
+
+    --bs-btn-active-color: var(--ft-cacao-900);
+    --bs-btn-active-bg: var(--ft-brand-dark);
+    --bs-btn-active-border-color: var(--ft-brand-dark);
+
+    font-weight: 600;
+}
+
+/* Botón con contorno claro */
+.btn-contorno-claro {
+    --bs-btn-color: #fff;
+    --bs-btn-border-color: rgba(255, 255, 255, .75);
+
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: rgba(255, 255, 255, .12);
+    --bs-btn-hover-border-color: #fff;
+
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: rgba(255, 255, 255, .2);
+    --bs-btn-active-border-color: #fff;
+
+    font-weight: 500;
+}
+
+/* Botón con contorno naranja */
+.btn-contorno-naranja {
+    --bs-btn-color: var(--ft-brand-dark);
+    --bs-btn-border-color: var(--ft-brand);
+
+    --bs-btn-hover-color: var(--ft-cacao-900);
+    --bs-btn-hover-bg: var(--ft-brand);
+    --bs-btn-hover-border-color: var(--ft-brand);
+
+    --bs-btn-active-bg: var(--ft-brand-dark);
+    --bs-btn-active-border-color: var(--ft-brand-dark);
+
+    font-weight: 600;
+}
+
+/* Botones de acceso social */
+.btn-social {
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    padding: .6rem 1rem;
+}
+
+.btn-social--google {
+    --bs-btn-bg: #fff;
+    --bs-btn-color: var(--ft-tinta);
+    --bs-btn-border-color: #e4d9c8;
+
+    --bs-btn-hover-bg: #fff8ea;
+    --bs-btn-hover-color: var(--ft-tinta);
+    --bs-btn-hover-border-color: var(--ft-brand);
+}
+
+.btn-social--facebook {
+    --bs-btn-bg: #0f1b2d;
+    --bs-btn-color: #fff;
+    --bs-btn-border-color: #0f1b2d;
+
+    --bs-btn-hover-bg: #1b2d47;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-border-color: #1b2d47;
+}
+
+/* Botones de iconos */
+.btn-icono {
+    background: none;
+    border: 0;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-grid;
+    place-items: center;
+    font-size: 1.15rem;
+    text-decoration: none;
+}
+
+.btn-icono:hover {
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+}
+

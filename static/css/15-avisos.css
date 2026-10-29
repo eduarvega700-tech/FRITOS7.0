@@ -1,0 +1,29 @@
+/* AVISOS Y NOTIFICACIONES */
+
+/*
+    14. AVISOS Y NOTIFICACIONES
+ */
+
+.aviso {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translate(-50%, 20px);
+    opacity: 0;
+    pointer-events: none;
+    background: var(--ft-cacao-900);
+    color: #fff;
+    padding: .7rem 1.2rem;
+    border-radius: 999px;
+    font-size: .9rem;
+    z-index: 2000;
+    transition: opacity .2s, transform .2s;
+}
+
+/* Aviso visible */
+.aviso--visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+
