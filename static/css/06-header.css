@@ -1,0 +1,81 @@
+/* ==========================================
+   ENCABEZADO Y NAVEGACIÓN
+   ========================================== */
+
+/* 
+   5. ENCABEZADO Y NAVEGACIÓN
+ */
+
+.ft-header {
+    background: var(--ft-cacao-900);
+    z-index: 1030;
+}
+
+.ft-header .navbar {
+    padding: .6rem 0;
+}
+
+/* Nombre de la marca */
+.marca {
+    display: block;
+    font-weight: 800;
+    font-size: 1.45rem;
+    letter-spacing: .02em;
+    color: #fff;
+    line-height: 1;
+}
+
+/* Eslogan */
+.lema {
+    font-size: 1.05rem;
+    color: #fff;
+    opacity: .92;
+    margin-top: 2px;
+}
+
+/* Símbolo del logo */
+.logo-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--ft-brand);
+    flex: 0 0 auto;
+}
+
+/* Enlaces del menú */
+.ft-header .nav-link {
+    color: rgba(255, 255, 255, .88);
+    font-weight: 500;
+    font-size: .95rem;
+    position: relative;
+    padding-bottom: .4rem;
+}
+
+.ft-header .nav-link:hover {
+    color: #fff;
+}
+
+/* Enlace activo */
+.ft-header .nav-link.active {
+    color: var(--ft-brand);
+}
+
+.ft-header .nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: .5rem;
+    right: .5rem;
+    bottom: 0;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--ft-brand);
+}
+
+/* Navegación en tabletas y móviles */
+@media (max-width: 991.98px) {
+    .ft-header .nav-link.active::after {
+        display: none;
+    }
+}
+
+

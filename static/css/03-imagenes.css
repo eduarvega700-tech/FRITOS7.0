@@ -1,0 +1,38 @@
+/* ==========================================
+   IMÁGENES SUELTAS (VENDEDOR, LOGOS)
+   ========================================== */
+
+.vendedor{
+    width: 290px;
+  height: 225px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+  display: block;
+}
+.logo{
+    width: 70px;
+    height: 60px;
+    border-radius: 100%;
+}
+.logito{
+     width: 600px;
+  height: 400px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+  display: block;
+}
+.logo1{
+  width: 310px;
+  height: 290px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+  display: block;
+}
+.nose{
+    border-radius: 100%;
+    height: 130px;
+    width: 150px;
+}

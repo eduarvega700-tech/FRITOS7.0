@@ -1,0 +1,188 @@
+/* ==========================================
+   INICIO DE SESIÓN, REGISTRO Y TARJETAS DE AUTENTICACIÓN
+   ========================================== */
+
+/* 
+   15. INICIO DE SESIÓN Y REGISTRO
+ */
+
+/* Fondo de autenticación */
+.auth {
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(20, 10, 5, .9) 0%,
+            rgba(20, 10, 5, .55) 55%,
+            rgba(20, 10, 5, .82) 100%
+        ),
+        url("../img/auth-fondo.jpg") center / cover no-repeat,
+        radial-gradient(
+            circle at 20% 85%,
+            #7a3b12 0%,
+            #1a0e08 62%
+        );
+}
+
+/* Distribución principal */
+.auth__fila {
+    min-height: calc(100vh - 150px);
+    padding: 2.5rem 0;
+}
+
+/* Saludo */
+.auth__hola {
+    font-size: 2.2rem;
+    margin: 0;
+    line-height: 1;
+}
+
+/* Marca principal */
+.auth__marca {
+    font-weight: 800;
+    font-style: italic;
+    text-transform: uppercase;
+    line-height: .95;
+    letter-spacing: -.03em;
+    font-size: clamp(3rem, 8vw, 5.6rem);
+    margin: .1rem 0 .4rem;
+}
+
+.auth__marca-tech {
+    color: var(--ft-brand);
+}
+
+/* Eslogan y descripción */
+.auth__lema {
+    font-size: 2.2rem;
+    line-height: 1;
+    margin: 0 0 1rem;
+}
+
+.auth__texto {
+    max-width: 30rem;
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, .92);
+}
+
+/* Ventajas */
+.auth__ventajas {
+    margin-top: 1.5rem !important;
+    max-width: 34rem;
+}
+
+.auth__ventajas li {
+    text-align: center;
+    font-size: .85rem;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.auth__ventajas i {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto .5rem;
+    border-radius: 50%;
+    background: var(--ft-brand);
+    color: var(--ft-cacao-900);
+    font-size: 1.5rem;
+}
+
+/* Ubicación */
+.auth__lugar {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+    margin-top: 2.5rem;
+    font-size: .9rem;
+}
+
+.auth__lugar i {
+    color: var(--ft-brand);
+    font-size: 1.6rem;
+}
+
+.auth__lugar small {
+    opacity: .85;
+}
+
+
+/* 
+   16. TARJETAS DE AUTENTICACIÓN
+ */
+
+.auth-card {
+    background: var(--ft-crema);
+    color: var(--ft-tinta);
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+    overflow: hidden;
+}
+
+/* Columnas de acceso y registro */
+.auth-card__col {
+    padding: 2rem 1.75rem;
+    text-align: center;
+}
+
+.auth-card__col form,
+.auth-card__col .campo-etiqueta {
+    text-align: left;
+}
+
+/* Separación en pantallas medianas */
+@media (min-width: 768px) {
+    .auth-card__col--registro {
+        border-left: 1px solid rgba(59, 36, 22, .12);
+    }
+}
+
+/* Separación en móviles */
+@media (max-width: 767.98px) {
+    .auth-card__col--registro {
+        border-top: 1px solid rgba(59, 36, 22, .12);
+    }
+}
+
+/* Icono de la tarjeta */
+.auth-card__icono {
+    display: inline-grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #FFE3A6;
+    color: var(--ft-brand-dark);
+    font-size: 1.7rem;
+}
+
+/* Título y subtítulo */
+.auth-card__titulo {
+    font-weight: 800;
+    font-size: 1.8rem;
+    margin: .9rem 0 .4rem;
+}
+
+.auth-card__sub {
+    font-size: .9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Nota decorativa */
+.auth-card__nota {
+    font-size: 1.5rem;
+    line-height: 1;
+    margin: 1.8rem 0 0;
+    transform: rotate(-6deg);
+}
+
+.auth-card__nota i {
+    color: var(--ft-brand-dark);
+}
+
+

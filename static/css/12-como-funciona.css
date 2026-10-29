@@ -1,0 +1,146 @@
+/* ==========================================
+   CÓMO FUNCIONA (PASOS Y TELÉFONO)
+   ========================================== */
+
+/* 
+   11. CÓMO FUNCIONA
+ */
+
+.paso {
+    position: relative;
+}
+
+/* Separación entre pasos en pantallas medianas */
+@media (min-width: 768px) {
+    .paso + .paso {
+        border-left: 1px solid rgba(59, 36, 22, .2);
+        padding-left: 1.75rem;
+    }
+}
+
+/* Número del paso */
+.paso__num {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ft-brand);
+    color: #fff;
+    font-weight: 700;
+    font-size: .85rem;
+    margin-right: .5rem;
+}
+
+/* Icono del paso */
+.paso__icono {
+    font-size: 2.2rem;
+    color: var(--ft-brand-dark);
+    vertical-align: middle;
+}
+
+/* Título y descripción */
+.paso__titulo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: .5rem 0 .1rem;
+}
+
+.paso p {
+    font-size: .85rem;
+    color: var(--ft-suave);
+    margin: 0;
+}
+
+/* Nota decorativa del teléfono */
+.nota-telefono {
+    font-size: 1.5rem;
+    line-height: 1.05;
+    text-align: right;
+    margin: 0;
+    transform: rotate(-6deg);
+}
+
+/* Representación del teléfono */
+.telefono {
+    width: 180px;
+    flex: 0 0 auto;
+    aspect-ratio: 9 / 18;
+    background: #1b120d;
+    border-radius: 28px;
+    padding: 8px;
+    transform: rotate(-5deg);
+    box-shadow: 0 18px 40px rgba(59, 36, 22, .35);
+}
+
+/* Pantalla del teléfono */
+.telefono__pantalla {
+    height: 100%;
+    background: var(--ft-crema);
+    border-radius: 22px;
+    overflow: hidden;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Barra superior */
+.telefono__barra {
+    background: var(--ft-cacao-900);
+    color: var(--ft-brand);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 2px 0;
+}
+
+/* Buscador simulado */
+.telefono__buscar {
+    height: 16px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #eadfcc;
+}
+
+/* Fila de categorías simuladas */
+.telefono__fila {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.3rem;
+}
+
+.telefono__fila span {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #FFE3A6;
+    display: grid;
+    place-items: center;
+}
+
+/* Elementos de productos simulados */
+.telefono__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 6px;
+    font-size: 1.4rem;
+}
+
+.telefono__item i {
+    flex: 1;
+    height: 30px;
+    border-radius: 6px;
+    background: linear-gradient(
+        #F3E6D2 0 8px,
+        transparent 8px 16px,
+        #F3E6D2 16px 24px,
+        transparent 24px
+    );
+}
+
+
