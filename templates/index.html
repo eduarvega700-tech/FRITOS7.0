@@ -42,7 +42,7 @@
 
       <div class="col-lg-6">
         <img class="logito"
-             src="{{ url_for('static', filename='img/logito.png') }}"
+             src="{{ url_for('static', filename='img/default.png') }}"
              alt="Logo de FRITOS TECH">
       </div>
 
@@ -149,6 +149,11 @@
       'Deditos de queso': 'deditos_queso.jpg',
       'Marranitas': 'marranitas.jpg',
       'Aborrajados': 'aborrajados.jpg',
+      'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
+      'Empanadas de cambray': 'empanadas_cambray.jpg',
+      'Empanadas de yuca': 'empanadas_yuca.jpg',
+      'Patacón pisao': 'patacon_pisao.jpg',
+      'Empanadas de camarón': 'empanadas_camaron.jpg',
       'Quibbes': 'quibbes.jpg',
       'Pastel de pollo': 'pastel_pollo.jpg'
     } %}
@@ -164,7 +169,7 @@
               src="{{ url_for(
                 'static',
                 filename=(p.img if (p.img and p.img.startswith('uploads/'))
-                          else 'img/' ~ imagenes_productos.get(p.nombre, 'logito.png'))
+                          else 'img/' ~ imagenes_productos.get(p.nombre, 'default.png'))
               ) }}"
               alt="{{ p.nombre }}"
               loading="lazy">
