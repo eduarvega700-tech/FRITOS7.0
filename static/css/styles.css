@@ -152,6 +152,64 @@ a {
   color: #f47721;
   font-size: 0.9rem;
 }
+/* ===== CARRITO · MODO OSCURO ===== */
+/* Cambia el selector si tu modo oscuro usa otro (ej: body.dark, .dark-mode) */
+[data-bs-theme="dark"] {
+  --carrito-naranja:#9b4512 ;
+  --carrito-texto: #111111;
+  --carrito-numero: #111111; /* ver nota abajo */
+}
+
+[data-bs-theme="dark"] #carrito-lista li h2,
+[data-bs-theme="dark"] #carrito-lista li h3,
+[data-bs-theme="dark"] #carrito-lista li h4,
+[data-bs-theme="dark"] #carrito-lista li .fw-bold,
+[data-bs-theme="dark"] #carrito-lista li .fw-semibold,
+[data-bs-theme="dark"] #carrito-lista li [class*="precio"],
+[data-bs-theme="dark"] #carrito-lista li [class*="subtotal"],
+[data-bs-theme="dark"] #carrito-lista li [class*="nombre"] {
+  color: var(--carrito-naranja) !important;
+}
+
+[data-bs-theme="dark"] #carrito-lista li .text-muted,
+[data-bs-theme="dark"] #carrito-lista li small {
+  color: #000000 !important;
+}
+
+[data-bs-theme="dark"] #carrito-lista li [class*="cant"] {
+  background: #fff !important;
+  border: 2px solid #000 !important;
+  color: var(--carrito-numero) !important;
+}
+
+[data-bs-theme="dark"] #carrito-lista li [class*="cant"] button,
+[data-bs-theme="dark"] #carrito-lista li [class*="cant"] span,
+[data-bs-theme="dark"] #carrito-lista li [class*="cant"] i {
+  color: #000 !important;
+  background: transparent !important;
+}
+
+[data-bs-theme="dark"] .carrito-resumen,
+[data-bs-theme="dark"] .carrito-resumen h2,
+[data-bs-theme="dark"] .carrito-resumen legend,
+[data-bs-theme="dark"] .carrito-resumen label,
+[data-bs-theme="dark"] .carrito-resumen .campo-etiqueta,
+[data-bs-theme="dark"] .carrito-resumen .form-check-label,
+[data-bs-theme="dark"] .carrito-resumen .text-muted,
+[data-bs-theme="dark"] .carrito-resumen #carrito-unidades,
+[data-bs-theme="dark"] .carrito-resumen #carrito-total {
+  color: #111 !important;
+}
+
+/* Campos de texto del resumen */
+[data-bs-theme="dark"] .carrito-resumen .form-control {
+  background: #fff;
+  color: #111;
+  border: 1px solid #000;
+}
+[data-bs-theme="dark"] .carrito-resumen .form-control::placeholder {
+  color: #010101;
+}
 .explorar-imagen { height: 220px; }
 /* Respeto por la preferencia de movimiento reducido */
 @media (prefers-reduced-motion: reduce) {
@@ -1558,16 +1616,9 @@ a {
     min-width: 0;
 }
 
-.carrito-item__nombre {
-    font-size: 1rem;
-    font-weight: 700;
-    margin: 0 0 .15rem;
-    color: var(--ft-tinta);
-}
-
 .carrito-item__vendedor {
     font-size: .8rem;
-    color: var(--ft-suave);
+    color: black;
     margin: 0 0 .4rem;
 }
 
