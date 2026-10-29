@@ -1,0 +1,143 @@
+
+{% extends 'base.html' %}
+{% block title %}Categorías · Administración · FRITOS TECH{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block contenido %}
+<section class="admin-dashboard">
+    <div class="container">
+
+  <div class="mb-4">
+      <p class="admin-dashboard__eyebrow mb-1">Administración</p>
+      <h1 class="admin-dashboard__title">Categorías</h1>
+      <p class="admin-dashboard__subtitle mb-0">
+          Las categorías aparecen como filtros en Inicio y Explorar.
+      </p>
+  </div>
+
+  <div class="row g-4">
+      <div class="col-lg-4">
+          <section class="admin-panel">
+              <div class="admin-panel__header">
+                  <h2 class="admin-panel__title">Nueva categoría</h2>
+              </div>
+
+              <form
+                  method="post"
+                  class="p-3 p-lg-4"
+                  action="{{ url_for('admin_categorias') }}"
+              >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <label class="campo-etiqueta" for="c-nombre">
+                            Nombre
+                        </label>
+
+                         <input
+                            class="form-control mb-3"
+                            id="c-nombre"
+                            name="nombre"
+                            type="text"
+                            maxlength="60"
+                            placeholder="Ej: Dulces fritos"
+                            required
+                        >
+
+                        <button
+                            class="btn btn-fritos rounded-pill w-100"
+                            type="submit"
+                        >
+                            <i
+                                class="bi bi-plus-circle me-1"
+                                aria-hidden="true"
+                            ></i>
+                            Crear categoría
+                        </button>
+                    </form>
+                </section>
+            </div>
+
+            <div class="col-lg-8">
+                <section class="admin-panel">
+                    <div class="admin-panel__header">
+                        <h2 class="admin-panel__title">Listado</h2>
+                        <span class="badge text-bg-light">
+                            {{ categorias|length }} categorías
+                        </span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table admin-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Slug</th>
+                                    <th>Productos</th>
+                                    <th class="text-end">Acción</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for c in categorias %}
+                                <tr>
+                                    <td class="fw-semibold">
+                                        {{ c.nombre }}
+                                    </td>
+
+                                    <td class="text-secondary">
+                                        {{ c.slug }}
+                                    </td>
+
+                                    <td>
+                                        {{ c.productos }}
+                                    </td>
+
+                                    <td class="text-end">
+                                        {% if c.productos == 0 %}
+                                        <form
+                                            method="post"
+                                            class="d-inline m-0"
+                                            action="{{ url_for('admin_categoria_eliminar', categoria_id=c.id) }}"
+                                            onsubmit="return confirm('¿Eliminar la categoría «{{ c.nombre }}»?');"
+                                        >
+                                            <input
+                                          type="hidden"
+                                          name="csrf_token"
+                                          value="{{ csrf_token() }}"
+                                          
+                                      <button
+                                          class="btn btn-outline-danger btn-sm rounded-pill"
+                                                type="submit"
+                                          aria-label="Eliminar {{ c.nombre }}"
+                                      >
+                                          <i
+                                              class="bi bi-trash"
+                                              aria-hidden="true"
+                                          ></i>
+                                            </butto                                        </form>
+                                  {% else %}
+                                  <span class="small text-secondary">
+                                            En u                                        </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="admin-empty">
+                                        Todavía no hay categorías.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

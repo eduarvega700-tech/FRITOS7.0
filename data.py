@@ -66,6 +66,7 @@ PRODUCTOS = [
         "etiqueta": "Más vendido",
         "destacado": True,
         "categoria": "empanadas",
+        "descripcion": "Empanadas crujientes de maíz rellenas de carne molida bien sazonada.",
         "emoji": "",
         "img": "prod-empanadas.jpg"
     },
@@ -83,6 +84,7 @@ PRODUCTOS = [
         "etiqueta": "Nuevo",
         "destacado": True,
         "categoria": "arepas-de-huevo",
+        "descripcion": "Arepa de maíz frita con un huevo entero en el centro, el clásico de la costa.",
         "emoji": "",
         "img": "prod-arepa.jpg"
     },
@@ -100,6 +102,7 @@ PRODUCTOS = [
         "etiqueta": "Más vendido",
         "destacado": True,
         "categoria": "carimañola",
+        "descripcion": "Masa de yuca en forma de torpedo, rellena de carne y frita hasta dorar.",
         "emoji": "",
         "img": "prod-carimañola.jpg"
     },
@@ -117,11 +120,12 @@ PRODUCTOS = [
         "etiqueta": "Popular",
         "destacado": True,
         "categoria": "patacones",
+        "descripcion": "Plátano verde frito y aplastado, acompañado de hogao casero de tomate y cebolla.",
         "emoji": "",
         "img": "prod-patacones.jpg"
     },
 
-    # PRODUCTO 5: BUÑUELOS DE FRÍJOL
+    # PRODUCTO 5: BUÑUELOS
 
     {
         "id": 5,
@@ -134,6 +138,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "buñuelos",
+        "descripcion": "Bolitas de masa fritas, doradas por fuera y suaves por dentro.",
         "emoji": "",
         "img": "prod-buñuelos.jpg"
     },
@@ -151,6 +156,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "empanadas",
+        "descripcion": "Empanada dorada rellena de pollo desmechado con un toque criollo.",
         "emoji": "",
         "img": "prod-empanada-pollo.jpg"
     },
@@ -168,6 +174,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "arepas-de-huevo",
+        "descripcion": "Arepa de huevo con relleno extra, más grande y llena de sabor.",
         "emoji": "",
         "img": "prod-arepa-especial.jpg"
     },
@@ -185,6 +192,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "patacones",
+        "descripcion": "Patacón crocante cubierto con queso costeño rallado.",
         "emoji": "",
         "img": "prod-patacon-queso.jpg"
     },
@@ -346,6 +354,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "carimañola",
+        "descripcion": "Masa de yuca frita rellena de queso suave que se derrite al morder.",
         "emoji": "",
         "img": "carimanolas_de_queso.jpg"
     },
@@ -363,6 +372,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "patacones",
+        "descripcion": "Plátano verde aplastado y frito dos veces, crocante y con sal justa.",
         "emoji": "",
         "img": "patacon_pisao.jpg"
     },
@@ -434,6 +444,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Plátano maduro frito relleno de chicharrón, dulce y salado a la vez.",
         "emoji": "",
         "img": "marranitas.jpg"
     },
@@ -451,6 +462,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Plátano maduro con queso, apanado y frito hasta quedar crujiente.",
         "emoji": "",
         "img": "aborrajados.jpg"
     },
@@ -468,6 +480,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Croquetas de trigo y carne con especias, herencia árabe del Caribe.",
         "emoji": "",
         "img": "quibbes.jpg"
     },
@@ -485,6 +498,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Pastel hojaldrado y dorado relleno de pollo guisado con verduras.",
         "emoji": "",
         "img": "pastel_pollo.jpg"
     },
@@ -502,6 +516,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Bastones de yuca fritos, crujientes por fuera y suaves por dentro.",
         "emoji": "",
         "img": "yuca_frita.jpg"
     },
@@ -519,6 +534,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Rodajas de plátano maduro fritas, caramelizadas y dulces.",
         "emoji": "",
         "img": "tajadas_platano_maduro.jpg"
     },
@@ -536,6 +552,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Papitas criollas amarillas fritas enteras, doradas y con sal.",
         "emoji": "",
         "img": "papas_criollas_fritas.jpg"
     },
@@ -553,6 +570,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Trozos de cerdo fritos, bien crocantes por fuera y jugosos por dentro.",
         "emoji": "",
         "img": "chicharron.jpg"
     },
@@ -570,6 +588,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Pasteles de masa de yuca rellenos de carne o queso, fritos al momento.",
         "emoji": "",
         "img": "pasteles_yuca.jpg"
     },
@@ -587,6 +606,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Arepa de maíz frita, inflada y dorada, perfecta para acompañar.",
         "emoji": "",
         "img": "arepa_frita.jpg"
     },
@@ -604,6 +624,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Masa de trigo frita, aireada y ligera, ideal para el desayuno.",
         "emoji": "",
         "img": "hojaldras.jpg"
     },
@@ -621,6 +642,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Bolitas de yuca rellenas de queso, crujientes y bien suaves por dentro.",
         "emoji": "",
         "img": "bolitas_yuca_queso.jpg"
     },
@@ -638,6 +660,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Arepa de maíz tierno frita, ligeramente dulce y con queso.",
         "emoji": "",
         "img": "arepa_choclo_frita.jpg"
     },
@@ -655,6 +678,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Trozos de cazón apanados y fritos, frescos del mar Caribe.",
         "emoji": "",
         "img": "cazon_frito.jpg"
     },
@@ -672,6 +696,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Plátano frito relleno de carne o queso, dulce por fuera y sabroso por dentro.",
         "emoji": "",
         "img": "platano_relleno_frito.jpg"
     },
@@ -689,6 +714,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Láminas finas de plátano verde fritas, crocantes y saladas.",
         "emoji": "",
         "img": "tostadas_platano_verde.jpg"
     },
@@ -706,6 +732,7 @@ PRODUCTOS = [
         "etiqueta": None,
         "destacado": False,
         "categoria": "otros",
+        "descripcion": "Papa rellena con carne, arroz y huevo cocido, una versión más contundente.",
         "emoji": "",
         "img": "papa_rellena_arroz_huevo.jpg"
     }

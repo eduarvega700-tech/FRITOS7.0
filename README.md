@@ -38,3 +38,8 @@ static/img/             tus imágenes (ver LEEME.txt)
 ## Siguiente paso sugerido (Iteración 1 del documento)
 
 Base de datos con SQLAlchemy, registro e inicio de sesión (RF-01.1 a RF-01.3) y roles.
+
+#documento de fritostech
+
+https://docs.google.com/document/d/1SXiBhyZGA23ZRbKBrWygoWokSMSrzmpu/edit?usp=sharing&ouid=105921561939046892503&rtpof=true&sd=true
+

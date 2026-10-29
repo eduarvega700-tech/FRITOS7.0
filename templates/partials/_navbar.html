@@ -1,91 +1,71 @@
-
 {%- from 'partials/_macros.html' import media %}
+{%- set es_admin = session.get('rol') == 'administrador' %}
 
 <header class="ft-header sticky-top">
 
     <nav class="navbar navbar-expand-lg navbar-dark"
-         aria-label="Navegación principal">
+        aria-label="{{ 'Navegación del panel de administración' if es_admin else 'Navegación principal' }}">
 
         <div class="container">
 
             <!-- LOGO Y NOMBRE DE LA MARCA -->
             <a class="navbar-brand d-flex align-items-center gap-2"
-               href="{{ url_for('index') }}">
+                href="{{ url_for('admin_dashboard') if es_admin else url_for('index') }}">
 
-                <img
-                    class="logo"
-                    src="{{ url_for('static', filename='img/logo.png') }}"
-                    alt="Logo de Fritos Tech"
-                >
+                <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo de Fritos Tech">
 
                 <span class="lh-1">
                     <span class="marca">FRITOS TECH</span>
+                    {% if es_admin %}
+                    <span class="lema font-script d-block">Panel de administración</span>
+                    {% else %}
                     <span class="lema font-script d-block">
-                        <i>El sabor local, conectado.</i>
+                        El sabor local, conectado.
                     </span>
                 </span>
 
             </a>
 
             <!-- BOTÓN DEL MENÚ PARA MÓVILES -->
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#menuPrincipal"
-                aria-controls="menuPrincipal"
-                aria-expanded="false"
-                aria-label="Abrir menú"
-            >
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <!-- CONTENIDO DEL MENÚ -->
             <div class="collapse navbar-collapse" id="menuPrincipal">
 
-                <!-- ENLACES DE NAVEGACIÓN -->
-                <ul class="navbar-nav mx-lg-auto gap-lg-4">
-
+                {% if es_admin %}
+                <!-- ============ NAVEGACIÓN DEL ADMINISTRADOR ============ -->
+                <ul class="navbar-nav mx-lg-auto gap-lg-3">
                     <li class="nav-item">
-                        <a
-                            class="nav-link {{ 'active' if request.endpoint == 'index' }}"
-                            href="{{ url_for('index') }}"
-                        >
-                            Inicio
+                        <a class="nav-link {{ 'active' if request.endpoint == 'admin_dashboard' }}"
+                            href="{{ url_for('admin_dashboard') }}">
+                            <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'admin_usuarios' }}"
+                            href="{{ url_for('admin_usuarios') }}">
+                            <i class="bi bi-people me-1" aria-hidden="true"></i>Usuarios
                         </a>
                     </li>
 
                     <li class="nav-item">
                         <a
-                            class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
-                            href="{{ url_for('explorar') }}"
+                            class="nav-link"
+                            href="{{ url_for('index') }}#como-funciona"
                         >
-                            Explorar
+                            Cómo funciona
                         </a>
                     </li>
 
-                    {% if session.get('rol') != 'domiciliario' %}
                     <li class="nav-item">
-                        <a
-                            class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
-                            href="{{ url_for('mis_productos') }}"
-                        >
-                            Vender
+                        <a class="nav-link {{ 'active' if request.endpoint == 'admin_categorias' }}"
+                            href="{{ url_for('admin_categorias') }}">
+                            <i class="bi bi-grid me-1" aria-hidden="true"></i>Categorías
                         </a>
                     </li>
-                    {% endif %}
-
-                    <!-- OPCIONES SEGÚN EL ROL (tabla menu_navegacion): Repartir -->
-                    {% for it in menu_rol %}
-                    <li class="nav-item">
-                        <a
-                            class="nav-link {{ 'active' if request.endpoint == it.endpoint }}"
-                            href="{{ it.url }}"
-                        >
-                            {{ it.etiqueta }}
-                        </a>
-                    </li>
-                    {% endfor %}
 
                    <li class="nav-item">
                         <a
@@ -95,6 +75,55 @@
                             Contacto
                         </a>
                     </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+                    <span class="small text-white-50 d-none d-xl-inline">
+                        <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                        {{ session['nombre'] }}
+                    </span>
+
+                    <a class="btn btn-contorno-claro rounded-pill" href="{{ url_for('index') }}">
+                        <i class="bi bi-arrow-up-right-square me-1" aria-hidden="true"></i>Ver tienda
+                    </a>
+
+                    <form method="post" action="{{ url_for('salir') }}" class="m-0">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-outline-light rounded-pill" type="submit">Salir</button>
+                    </form>
+                </div>
+
+                {% else %}
+                <!-- NAVEGACIÓN DE LA TIENDA -->
+                <ul class="navbar-nav mx-lg-auto gap-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'index' }}"
+                            href="{{ url_for('index') }}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'explorar' }}"
+                            href="{{ url_for('explorar') }}">Explorar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'puestos' }}"
+                            href="{{ url_for('puestos') }}">Puestos</a>
+                    </li>
+
+
+                    {% if session.get('rol') != 'cliente' %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
+                            href="{{ url_for('mis_productos') }}">Vender</a>
+                    </li>
+                    {% endif %}
+
+                    {% if session.get('rol') == 'cliente' %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'mis_pedidos' }}"
+                            href="{{ url_for('mis_pedidos') }}">Mis pedidos</a>
+                    </li>
+                    {% endif %}
+
 
                 </ul>
 
@@ -102,21 +131,19 @@
                 <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
 
                     <!-- BUSCADOR -->
-                    <a
-                        class="btn-icono"
-                        href="{{ url_for('explorar') }}"
-                        aria-label="Buscar fritos"
-                    >
+                    <a class="btn-icono" href="{{ url_for('explorar') }}" aria-label="Buscar fritos">
                         <i class="bi bi-search" aria-hidden="true"></i>
+                    </a>
+                    
+                    <!-- MAPA DE PUESTOS -->
+                    <a class="btn-icono" href="{{ url_for('mapa') }}" aria-label="Mapa de puestos"
+                        title="Mapa de puestos">
+                        <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
                     </a>
 
                     <!-- CARRITO DE COMPRAS -->
-                    <button
-                        class="btn-icono position-relative"
-                        type="button"
-                        id="btn-carrito"
-                        aria-label="Carrito de compras"
-                    >
+                    <a class="btn-icono position-relative" href="{{ url_for('carrito') }}" id="btn-carrito"
+                        aria-label="Ver carrito de compras">
                         <i class="bi bi-cart3" aria-hidden="true"></i>
 
                         <span
@@ -150,48 +177,47 @@
                         <i class="bi bi-shop me-1" aria-hidden="true"></i>
                         Mis productos
                     </a>
-                    {% elif session.get('rol') == 'domiciliario' %}
-                    <a
-                        class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('dashboard_domiciliario') }}"
-                    >
-                        <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>
-                        Mi panel
-                    </a>
                     {% endif %}
 
                     <form method="post" action="{{ url_for('salir') }}" class="m-0">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button class="btn btn-outline-light rounded-pill" type="submit">
-                            Salir
-                        </button>
+                        <button class="btn btn-contorno-claro btn-sm rounded-pill text-nowrap"
+                            type="submit">Salir</button>
                     </form>
-
                     {% else %}
-
-                    <!-- INICIAR SESIÓN -->
-                    <a
-                        class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('iniciar_sesion') }}"
-                    >
+                    <a class="btn btn-fritos btn-sm rounded-pill px-3 text-nowrap"
+                        href="{{ url_for('iniciar_sesion') }}">
                         Iniciar sesión
                     </a>
-
                     {% endif %}
 
-                  
-                    <!-- <a
-                          class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('proximamente', pagina='registro') }}"
-                    >
-                      
-                    </a> -->
+                    <!-- SELECTOR DE MODO DÍA Y NOCHE -->
+                    <div class="selector-tema">
 
-                </div>
+                        <span class="selector-tema__texto selector-tema__texto--claro">
+                            LIGHT<br>MODE
+                        </span>
 
-            </div>
+                        <button type="button" class="selector-tema__boton" id="botonTema"
+                            aria-label="Activar modo noche" aria-pressed="false" title="Cambiar tema">
 
-        </div>
+                            <span class="selector-tema__circulo"></span>
+
+                        </button>
+
+                        <span class="selector-tema__texto selector-tema__texto--oscuro">
+                            DARK<br>MODE
+                        </span>
+
+                    </div>
+
+                </div> <!-- cierra los botones y acciones -->
+
+                {% endif %} <!-- cierra el if es_admin / else -->
+
+            </div> <!-- cierra el collapse -->
+
+        </div> <!-- cierra el container -->
 
     </nav>
 

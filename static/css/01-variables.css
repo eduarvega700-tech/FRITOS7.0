@@ -1,0 +1,33 @@
+/* ==========================================
+   VARIABLES, COLORES Y TIPOGRAFÍAS
+   ========================================== */
+
+
+/* 
+   1. VARIABLES, COLORES Y TIPOGRAFÍAS
+ */
+
+:root {
+    /* Tonos de cacao */
+    --ft-cacao-900: #2A1810;
+    --ft-cacao-800: #3B2416;
+    --ft-cacao-700: #5A3A26;
+
+    /* Colores principales */
+    --ft-brand: #F9A826;
+    --ft-brand-dark: #E8920F;
+    --ft-naranja: #E8731A;
+    --ft-ajiaco: #C0282D;
+
+    /* Fondos y textos */
+    --ft-crema: #FDF7EE;
+    --ft-arena: #F8EBD7;
+    --ft-tinta: #3B2416;
+    --ft-suave: #7B6A5E;
+
+    /* Tipografías */
+    --fuente-titulo: "Poppins", system-ui, sans-serif;
+    --fuente-script: "Caveat", cursive;
+}
+
+

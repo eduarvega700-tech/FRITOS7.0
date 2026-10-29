@@ -1,0 +1,45 @@
+/* ==========================================
+   CATEGORÍAS
+   ========================================== */
+
+/*
+   8. CATEGORÍAS
+*/
+
+.cat {
+    display: block;
+    text-decoration: none;
+}
+
+/* Imagen de categoría */
+.cat__img {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto .6rem;
+    border-radius: 50%;
+    background: #FFF1D0;
+    box-shadow: 0 0 0 8px rgba(249, 168, 38, .18);
+    transition: transform .15s;
+}
+
+.cat:hover .cat__img {
+    transform: scale(1.06);
+}
+
+/* Nombre de categoría */
+.cat__nombre {
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ft-tinta);
+}
+
+/* Categorías en móviles */
+@media (max-width: 575.98px) {
+    .cat__img {
+        width: 76px;
+        height: 76px;
+    }
+}
+
+

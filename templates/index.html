@@ -202,11 +202,13 @@
             {% endif %}
 
             {% if p.id is defined %}
-            <a class="btn btn-fritos rounded-pill w-100"
-               href="{{ url_for('explorar') }}">
+            <button class="btn btn-fritos rounded-pill w-100"
+                    type="button"
+                    data-add="{{ p.id }}"
+                    data-nombre="{{ p.nombre }}">
               <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
               Agregar al carrito
-            </a>
+            </button>
             {% else %}
             <a class="btn btn-fritos rounded-pill w-100"
                href="{{ url_for('explorar') }}">

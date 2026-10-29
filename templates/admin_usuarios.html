@@ -1,0 +1,135 @@
+
+{% extends 'base.html' %}
+{% block title %}Usuarios · Administración · FRITOS TECH{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block contenido %}
+<section class="admin-dashboard">
+    <div class="container">
+
+        <div class="mb-4">
+            <p class="admin-dashboard__eyebrow mb-1">Administración</p>
+            <h1 class="admin-dashboard__title">Usuarios</h1>
+            <p class="admin-dashboard__subtitle mb-0">
+                Activa o desactiva cuentas. Una cuenta inactiva no puede iniciar sesión.
+            </p>
+        </div>
+
+        <div class="chips mb-4" role="navigation" aria-label="Filtrar por rol">
+            <a
+                class="chip {{ 'chip--activo' if not rol_activo }}"
+                href="{{ url_for('admin_usuarios') }}"
+            >
+                Todos
+            </a>
+
+            {% for r in ['cliente', 'vendedor', 'domiciliario', 'administrador'] %}
+            <a
+                class="chip {{ 'chip--activo' if rol_activo == r }}"
+                href="{{ url_for('admin_usuarios', rol=r) }}"
+            >
+                {{ r|capitalize }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <section class="admin-panel">
+            <div class="admin-panel__header">
+                <h2 class="admin-panel__title">Listado</h2>
+                <span class="badge text-bg-light">
+                    {{ usuarios|length }} registros
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Registro</th>
+                            <th>Último acceso</th>
+                            <th class="text-end">Acción</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for u in usuarios %}
+                        <tr>
+                            <td>
+                                <span class="fw-semibold">{{ u.nombre }}</span><br>
+                                <span class="small text-secondary">
+                                    {{ u.correo }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="admin-role">{{ u.rol }}</span>
+                            </td>
+
+                            <td>
+                                <span class="admin-status {{ 'admin-status--active' if u.activo else 'admin-status--inactive' }}">
+                                    {{ 'Activo' if u.activo else 'Inactivo' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ u.creado_en.strftime('%d/%m/%Y') if u.creado_en else '—' }}
+                            </td>
+
+                            <td>
+                                {{ u.ultimo_acceso.strftime('%d/%m/%Y %H:%M') if u.ultimo_acceso else '—' }}
+                            </td>
+
+                            <td class="text-end">
+                                {% if u.id == session['usuario_id'] %}
+                                <span class="small text-secondary">
+                                    Tu cuenta
+                                </span>
+                                {% else %}
+                                <form
+                                    method="post"
+                                    class="d-inline m-0"
+                                    action="{{ url_for('admin_usuario_estado', usuario_id=u.id) }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="rol"
+                                        value="{{ rol_activo }}"
+                                    >
+
+                                    <button
+                                        class="btn btn-contorno-naranja btn-sm rounded-pill"
+                                        type="submit"
+                                    >
+                                        <i
+                                            class="bi {{ 'bi-person-dash' if u.activo else 'bi-person-check' }} me-1"
+                                            aria-hidden="true"
+                                        ></i>
+                                        {{ 'Desactivar' if u.activo else 'Activar' }}
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="admin-empty">
+                                No hay usuarios con este filtro.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}

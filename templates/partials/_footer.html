@@ -9,45 +9,45 @@
           {{ media('logo.png', 'Logo de FRITOS TECH', '🧑‍🍳', 'logo-mark') }}
           <span class="ft-brand__name">FRITOS<span class="ft-brand__tech">TECH</span></span>
         </a>
-        <p class="ft-lema mt-2 mb-0">Tradición, sabor y tecnología<br>al alcance de todos.</p>
+        <p class="ft-lema mt-2 mb-0">Tradición, sabor y tecnología al alcance de todos.</p>
       </div>
 
-      <!-- Enlaces -->
-      <nav class="col-6 col-lg-2" aria-label="Enlaces">
-        <h3 class="ft-title">Enlaces</h3>
-        <ul class="ft-list">
-          <li><a href="{{ url_for('index') }}">Inicio</a></li>
-          <li><a href="#">Productos</a></li>
-          <li><a href="#">Vendedores</a></li>
-          <li><a href="#">Contacto</a></li>
-        </ul>
-      </nav>
+<div class="ft-footer__support">
+    <h3 class="ft-footer__title">
+        <i class="bi bi-headset"></i>
+        <span>Soporte</span>
+    </h3>
 
-      <!-- Soporte -->
-      <nav class="col-6 col-lg-3" aria-label="Soporte">
-        <h3 class="ft-title">Soporte</h3>
-        <ul class="ft-list">
-          <li><a href="#">Preguntas frecuentes</a></li>
-          <li><a href="#">Términos y condiciones</a></li>
-          <li><a href="#">Política de privacidad</a></li>
-        </ul>
-      </nav>
+    <ul class="ft-list">
+        <li>
+            <a href="#">Preguntas frecuentes</a>
+        </li>
+        <li>
+            <a href="#">Términos y condiciones</a>
+        </li>
+        <li>
+            <a href="#">Política de privacidad</a>
+        </li>
+    </ul>
+</div>
+
+
 
       <!-- Redes -->
       <div class="col-lg-3 ft-social-col">
         <h3 class="ft-title">Síguenos</h3>
         <div class="d-flex gap-2">
-          <a class="social" href="#" aria-label="Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
-          <a class="social" href="#" aria-label="Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
-          <a class="social" href="#" aria-label="TikTok"><i class="bi bi-tiktok" aria-hidden="true"></i></a>
-          <a class="social" href="#" aria-label="YouTube"><i class="bi bi-youtube" aria-hidden="true"></i></a>
+          <a class="social" href="https://www.facebook.com/?locale=es_LA" aria-label="Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
+          <a class="social" href="https://www.instagram.com/" aria-label="Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
+          <a class="social" href="https://www.tiktok.com/es/" aria-label="TikTok"><i class="bi bi-tiktok" aria-hidden="true"></i></a>
+          <a class="social" href="https://www.youtube.com/?app=desktop&hl=es" aria-label="YouTube"><i class="bi bi-youtube" aria-hidden="true"></i></a>
         </div>
       </div>
 
     </div>
 
     <div class="ft-legal">
-      © {{ anio }} Fritos Tech. Todos los Derechos Reservados.
+      © {{ anio }} Fritos Tech. Todos los derechos reservados.
     </div>
   </div>
 </footer>

@@ -1,0 +1,36 @@
+/* ==========================================
+   FILTROS Y CHIPS
+   ========================================== */
+
+/* 
+   9. FILTROS Y CHIPS
+ */
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.chip {
+    border: 0;
+    border-radius: 999px;
+    padding: .4rem 1rem;
+    background: #F3E6D2;
+    color: var(--ft-tinta);
+    font-size: .8rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.chip:hover {
+    background: #EBD7B8;
+    color: var(--ft-tinta);
+}
+
+.chip--activo {
+    background: var(--ft-brand);
+    font-weight: 600;
+}
+
+

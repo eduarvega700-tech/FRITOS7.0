@@ -1,6 +1,9 @@
+
 {% extends 'base.html' %}
 {% from 'partials/_macros.html' import tarjeta_producto %}
+
 {% block title %}Explorar fritos · FRITOS TECH{% endblock %}
+
 {% block contenido %}
 
 {# IMÁGENES NUEVAS: agrega aquí solo los fritos a los que quieras ponerles foto.
@@ -36,7 +39,6 @@
   'Arepa frita': 'arepa_frita.jpg',
   'Patacón pisao': 'patacon_pisao.jpg',
   'Hojaldras': 'hojaldras.jpg',
-  'queso frito': 'queso_frito.jpg',
   'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
   'Empanadas de cambray': 'empanadas_cambray.jpg',
   'Empanadas de yuca': 'empanadas_yuca.jpg',
@@ -49,30 +51,42 @@
 } %}
 
 <section class="seccion">
+    <div class="container">
 
-  <div class="container">
+        <h1 class="titulo-script">
+            Explora los fritos de Cartagena
+        </h1>
 
-    <h1 class="titulo-script">Explora los fritos de Cartagena</h1>
+        <div
+            class="chips my-4"
+            role="navigation"
+            aria-label="Filtrar por categoría"
+        >
+            <a
+                class="chip {{ 'chip--activo' if not activa }}"
+                href="{{ url_for('explorar') }}"
+            >
+                Todos
+            </a>
 
-    <div class="chips my-4" role="navigation" aria-label="Filtrar por categoría">
+            {% for c in categorias %}
+            <a
+                class="chip {{ 'chip--activo' if activa == c.slug }}"
+                href="{{ url_for('explorar', categoria=c.slug) }}"
+            >
+                {{ c.nombre }}
+            </a>
+            {% endfor %}
+        </div>
 
-      <a class="chip {{ 'chip--activo' if not activa }}" href="{{ url_for('explorar') }}">Todos</a>
-      {% for c in categorias %}
-
-      <a class="chip {{ 'chip--activo' if activa == c.slug }}" href="{{ url_for('explorar', categoria=c.slug) }}">{{ c.nombre }}</a>
-      {% endfor %}
-
-    </div>
-
-    {% if productos or not activa %}
-    <div class="row g-4">
+        {% if productos or not activa %}
+        <div class="row g-4">
 
       {% for p in productos %}
 
       <div class="col-12 col-sm-6 col-lg-3">
-        {# Busca la foto aunque cambie la ñ, la tilde, las mayúsculas o la extensión #}
-        {% set ruta = imagen_producto(p.nombre, (p.img or p.imagen or ''), imagenes_nuevas.get(p.nombre)) %}
-        {% if ruta %}
+        {% set subida = p.img and p.img.startswith('uploads/') %}
+        {% if subida or p.nombre in imagenes_nuevas %}
         <article class="producto h-100 explorar-con-imagen">
           <div class="producto__imagen explorar-imagen">
             <img src="{{ url_for('static', filename=(p.img if subida else 'img/' ~ imagenes_nuevas[p.nombre])) }}"
@@ -82,7 +96,7 @@
             <h3 class="producto__titulo">{{ p.nombre }}</h3>
             {% if p.vendedor is defined %}<p class="producto__vendedor">{{ p.vendedor }}</p>{% endif %}
             {% if p.precio is defined %}
-            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>mil pesos</span></p>
+            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>c/u</span></p>
             {% endif %}
             <a class="btn btn-fritos rounded-pill w-100" href="{{ url_for('explorar') }}">
               <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
@@ -96,13 +110,14 @@
       </div>
       {% endfor %}
 
+        </div>
+
+        {% else %}
+        <p class="text-muted">
+            Aún no hay productos en esta categoría. Vuelve pronto.
+        </p>
+        {% endif %}
+
     </div>
-
-    {% else %}
-
-    <p class="text-muted">Aún no hay productos en esta categoría. Vuelve pronto.</p>
-    {% endif %}
-    
-  </div>
 </section>
 {% endblock %}
