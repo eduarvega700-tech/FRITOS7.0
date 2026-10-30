@@ -8,7 +8,7 @@ import db
 import urls
 from config import Config
 from helpers import formato_cop, token_csrf, verificar_csrf
-from views import errores
+from views import carrito_api, errores
 
 
 def crear_app():
@@ -26,6 +26,7 @@ def crear_app():
 
     errores.registrar(app)
     urls.registrar_urls(app)
+    carrito_api.registrar(app)      # ← rutas /api/carrito/...
     return app
 
 

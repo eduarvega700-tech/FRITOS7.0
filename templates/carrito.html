@@ -1,8 +1,11 @@
-
 {% extends 'base.html' %}
 {% block title %}Mi carrito · FRITOS TECH{% endblock %}
 
 {% block contenido %}
+<style id="carrito-fallback">
+  .carrito-item { border-radius: 1rem; }
+  .carrito-item__img { width: 64px; height: 64px; object-fit: cover; }
+</style>
 <section class="seccion">
     <div
         class="container"
@@ -12,7 +15,8 @@
     >
 
         <p class="rotulo">Tu pedido</p>
-        <h1 class="titulo-script mb-4">Mi carrito</h1>
+        <h1 class="titulo-script mb-1">Mi carrito</h1>
+        <p class="small text-muted mb-4" id="carrito-puesto" hidden></p>
 
         <!-- Carrito vacío -->
         <div id="carrito-vacio" class="text-center py-5" hidden>
@@ -95,6 +99,12 @@
                         type="hidden"
                         name="items"
                         id="carrito-items"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="puesto_id"
+                        id="carrito-puesto-id"
                     >
 
                     <h2 class="h5 fw-bold mb-3">Resumen</h2>
@@ -233,4 +243,132 @@
 
     </div>
 </section>
+
+<script>
+/* El carrito viene de la BD (carrito_item) vía /api/carrito */
+(function () {
+    const pagina = document.getElementById('carrito-pagina');
+    const csrf = pagina.dataset.csrf;
+    const MAX = parseInt(pagina.dataset.max, 10) || 20;
+    const $ = id => document.getElementById(id);
+    const cop = n => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+    let items = [];
+
+    async function api(url, cuerpo) {
+        const opciones = cuerpo === undefined
+            ? { headers: { 'Accept': 'application/json' } }
+            : { method: 'POST', headers: { 'X-CSRFToken': csrf }, body: new URLSearchParams(Object.assign({ csrf_token: csrf }, cuerpo)) };
+        const r = await fetch(url, opciones);
+        const data = await r.json().catch(() => ({}));
+        return { status: r.status, data: data };
+    }
+
+    function avisarContador(n) {
+        document.querySelectorAll('[data-carrito-contador], #carrito-contador, .carrito-contador, .carrito-badge')
+            .forEach(el => { el.textContent = n; el.hidden = n <= 0; });
+        document.dispatchEvent(new CustomEvent('carrito:actualizado', { detail: { unidades: n } }));
+    }
+
+    function boton(clase, icono, etiqueta, onclick) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = clase;
+        b.setAttribute('aria-label', etiqueta);
+        b.innerHTML = '<i class="bi ' + icono + '" aria-hidden="true"></i>';
+        b.addEventListener('click', onclick);
+        return b;
+    }
+
+    function pintar(d) {
+        items = d.items || [];
+        $('carrito-cargando').hidden = true;
+        $('carrito-error').hidden = true;
+        $('carrito-vacio').hidden = items.length > 0;
+        $('carrito-contenido').hidden = items.length === 0;
+
+        $('carrito-puesto-id').value = d.puesto ? d.puesto.id : '';
+        avisarContador(d.unidades || 0);
+        if (!items.length) return;
+
+        const lista = $('carrito-lista');
+        lista.replaceChildren();
+        items.forEach(it => {
+            const li = document.createElement('li');
+            li.className = 'carrito-item d-flex align-items-center gap-3 p-3 rounded-3';
+
+            const img = document.createElement('img');
+            img.src = it.img; img.alt = it.nombre; img.width = 64; img.height = 64;
+            img.className = 'carrito-item__img rounded-3 flex-shrink-0'; img.style.objectFit = 'cover';
+
+            const info = document.createElement('div');
+            info.className = 'carrito-item__info flex-grow-1';
+            const nom = document.createElement('div');
+            nom.className = 'carrito-item__nombre fw-semibold'; nom.textContent = it.nombre;
+            const pre = document.createElement('div');
+            pre.className = 'carrito-item__precio small text-muted';
+            pre.textContent = cop(it.precio) + ' c/u' + (it.disponible ? '' : ' · No disponible');
+            info.append(nom, pre);
+
+            const ctl = document.createElement('div');
+            ctl.className = 'carrito-item__cantidad d-flex align-items-center gap-2';
+            const cant = document.createElement('span');
+            cant.className = 'fw-semibold text-center'; cant.style.minWidth = '1.5rem';
+            cant.textContent = it.cantidad;
+            const mas = boton('btn btn-outline-secondary btn-sm rounded-circle', 'bi-plus', 'Agregar una unidad', () => cambiar(it.producto_id, 1));
+            mas.disabled = it.cantidad >= MAX;
+            ctl.append(boton('btn btn-outline-secondary btn-sm rounded-circle', 'bi-dash', 'Quitar una unidad', () => cambiar(it.producto_id, -1)), cant, mas);
+
+            const sub = document.createElement('div');
+            sub.className = 'carrito-item__subtotal fw-bold text-end'; sub.style.minWidth = '5.5rem';
+            sub.textContent = cop(it.precio * it.cantidad);
+
+            li.append(img, info, ctl, sub,
+                boton('btn btn-outline-danger btn-sm rounded-circle', 'bi-x-lg', 'Quitar ' + it.nombre, () => quitar(it.producto_id)));
+            lista.append(li);
+        });
+
+        $('carrito-unidades').textContent = d.unidades;
+        $('carrito-total').textContent = cop(d.total);
+    }
+
+    async function cargar() {
+        try {
+            const r = await api('/api/mi-carrito');
+            if (r.status === 401) {
+                $('carrito-cargando').hidden = true;
+                $('carrito-vacio').hidden = false;
+                $('carrito-vacio').querySelector('p.text-muted').innerHTML =
+                    'Inicia sesión como cliente para ver tu carrito. <a href="' + r.data.login + '">Entrar</a>';
+                return;
+            }
+            if (r.status !== 200) throw new Error();
+            pintar(r.data);
+        } catch (_) {
+            $('carrito-cargando').hidden = true;
+            $('carrito-error').hidden = false;
+        }
+    }
+
+    async function cambiar(id, delta) { await api('/api/mi-carrito/cantidad', { producto_id: id, delta: delta }); cargar(); }
+    async function quitar(id) { await api('/api/mi-carrito/quitar', { producto_id: id }); cargar(); }
+
+    $('carrito-vaciar').addEventListener('click', async () => {
+        if (confirm('¿Vaciar el carrito?')) { await api('/api/mi-carrito/vaciar', {}); cargar(); }
+    });
+
+    const dir = $('c-direccion');
+    document.querySelectorAll('input[name="tipo_entrega"]').forEach(r => r.addEventListener('change', () => {
+        const dom = $('t-domicilio').checked;
+        $('bloque-direccion').hidden = !dom;
+        dir.required = dom;
+    }));
+
+    // Al enviar: [{id, cantidad}] — el servidor toma los precios de la BD
+    $('carrito-form').addEventListener('submit', e => {
+        if (!items.length) { e.preventDefault(); return; }
+        $('carrito-items').value = JSON.stringify(items.map(i => ({ id: i.producto_id, cantidad: i.cantidad })));
+    });
+
+    cargar();
+})();
+</script>
 {% endblock %}

@@ -93,7 +93,7 @@
         <img
           class="nose"
           {% set archivo_cat = imagenes.get(c.nombre) %}
-          src="{{ url_for('static', filename=('img/' ~ archivo_cat) if archivo_cat else 'img/logito.png') }}"
+          src="{{ url_for('static', filename=('img/' ~ archivo_cat) if archivo_cat else 'img/default.png') }}"
           alt="{{ c.nombre }}"
           loading="lazy">
 
@@ -162,6 +162,8 @@
       'Empanadas de cambray': 'empanadas_cambray.jpg',
       'Empanadas de yuca': 'empanadas_yuca.jpg',
       'Quibbes': 'quibbes.jpg',
+      'Patacón pisao': 'patacon_pisao.jpg',
+      'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
       'Pastel de pollo': 'pastel_pollo.jpg'
     } %}
       {% for p in productos %}
@@ -196,7 +198,7 @@
             {% if p.precio is defined %}
             <p class="producto__precio">
               ${{ "{:,.0f}".format(p.precio).replace(",", ".") }}
-              <span>mil pesos</span>
+              <span>PESOS</span>
             </p>
             {% endif %}
 

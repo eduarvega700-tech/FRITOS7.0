@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% from 'partials/_macros.html' import tarjeta_producto %}
 
@@ -51,7 +50,7 @@
 } %}
 
 <section class="seccion">
-    <div class="container">
+    <div class="container" id="explorar-pagina" data-csrf="{{ csrf_token() }}">
 
         <h1 class="titulo-script">
             Explora los fritos de Cartagena
@@ -83,30 +82,40 @@
         <div class="row g-4">
 
       {% for p in productos %}
+      {# Foto: subida por el vendedor > foto del catálogo > p.img de la BD > logo #}
+      {% set subida = p.img and p.img.startswith('uploads/') %}
+      {% if subida %}{% set ruta = p.img %}
+      {% elif p.nombre in imagenes_nuevas %}{% set ruta = 'img/' ~ imagenes_nuevas[p.nombre] %}
+      {% elif p.img %}{% set ruta = p.img %}
+      {% else %}{% set ruta = 'img/logito.png' %}{% endif %}
+      {% set disponible = (p.disponible is not defined) or p.disponible %}
 
       <div class="col-12 col-sm-6 col-lg-3">
-        {% set subida = p.img and p.img.startswith('uploads/') %}
-        {% if subida or p.nombre in imagenes_nuevas %}
         <article class="producto h-100 explorar-con-imagen">
           <div class="producto__imagen explorar-imagen">
-            <img src="{{ url_for('static', filename=(p.img if subida else 'img/' ~ imagenes_nuevas[p.nombre])) }}"
-                 alt="{{ p.nombre }}" loading="lazy">
+            <img src="{{ url_for('static', filename=ruta) }}" alt="{{ p.nombre }}" loading="lazy">
           </div>
           <div class="producto__contenido">
             <h3 class="producto__titulo">{{ p.nombre }}</h3>
             {% if p.vendedor is defined %}<p class="producto__vendedor">{{ p.vendedor }}</p>{% endif %}
             {% if p.precio is defined %}
-            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>c/u</span></p>
+            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>PESOS</span></p>
             {% endif %}
-            <a class="btn btn-fritos rounded-pill w-100" href="{{ url_for('explorar') }}">
-              <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
-              {{ 'Agregar al carrito' if p.id is defined else 'Ver producto' }}
-            </a>
+
+            {% if p.id is defined and disponible %}
+            <button class="btn btn-fritos rounded-pill w-100" type="button"
+                    data-agregar
+                    data-id="{{ p.id }}"
+                    data-puesto-nombre="{{ p.vendedor if p.vendedor is defined else 'este puesto' }}">
+              <i class="bi bi-cart-plus me-1" aria-hidden="true"></i> Agregar al carrito
+            </button>
+            {% else %}
+            <button class="btn btn-secondary rounded-pill w-100" type="button" disabled>
+              No disponible
+            </button>
+            {% endif %}
           </div>
         </article>
-        {% else %}
-        {{ tarjeta_producto(p) }}
-        {% endif %}
       </div>
       {% endfor %}
 
@@ -120,4 +129,59 @@
 
     </div>
 </section>
+
+<script>
+/* Agregar al carrito → BD (tabla carrito_item) vía /api/carrito/agregar */
+(function () {
+    const csrf = document.getElementById('explorar-pagina').dataset.csrf;
+    const loginUrl = "{{ url_for('acceso_rol', rol='cliente') }}";
+
+    function actualizarContador(n) {
+        document.querySelectorAll('[data-carrito-contador], #carrito-contador, .carrito-contador, .carrito-badge')
+            .forEach(el => { el.textContent = n; el.hidden = n <= 0; });
+        document.dispatchEvent(new CustomEvent('carrito:actualizado', { detail: { unidades: n } }));
+    }
+
+    async function enviar(producto_id, reemplazar) {
+        const r = await fetch('/api/mi-carrito/agregar', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrf },
+            body: new URLSearchParams({ csrf_token: csrf, producto_id: producto_id, cantidad: 1, reemplazar: reemplazar ? '1' : '' })
+        });
+        return { status: r.status, data: await r.json().catch(() => ({})) };
+    }
+
+    document.addEventListener('click', async function (e) {
+        const btn = e.target.closest('[data-agregar]');
+        if (!btn || btn.disabled) return;
+
+        const id = Number(btn.dataset.id);
+        const original = btn.innerHTML;
+        btn.disabled = true;
+
+        try {
+            let res = await enviar(id, false);
+            if (res.status === 401) { window.location.href = loginUrl; return; }
+
+            if (res.status === 409 && res.data.error === 'otro_puesto') {
+                if (confirm('Tu carrito tiene productos de otro puesto. ¿Vaciarlo y empezar con ' +
+                            btn.dataset.puestoNombre + '?')) {
+                    res = await enviar(id, true);
+                } else { btn.innerHTML = original; btn.disabled = false; return; }
+            }
+
+            if (res.status === 200 && res.data.ok) {
+                actualizarContador(res.data.unidades);
+                btn.innerHTML = '<i class="bi bi-check2 me-1" aria-hidden="true"></i> Agregado';
+            } else {
+                const msg = { cerrado: 'Puesto cerrado', no_disponible: 'No disponible' }[res.data.error] || 'No se pudo agregar';
+                btn.innerHTML = '<i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i> ' + msg;
+            }
+        } catch (_) {
+            btn.innerHTML = 'Error de conexión';
+        }
+        setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 1500);
+    });
+})();
+</script>
 {% endblock %}

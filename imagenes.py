@@ -46,4 +46,4 @@ def ruta_imagen(nombre, imagen):
     """Ruta relativa a /static de la foto de un producto."""
     if imagen and imagen.startswith("uploads/"):
         return imagen
-    return "img/" + IMAGENES_PRODUCTOS.get(nombre, "logito.png")
+    return "img/" + IMAGENES_PRODUCTOS.get(nombre, "default.png")

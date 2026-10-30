@@ -2,8 +2,10 @@
 {% block title %}{{ puesto.nombre }} · FRITOS TECH{% endblock %}
 
 {% block contenido %}
+{# El id del puesto es el vendedor_id #}
+{% set pid = puesto.id if puesto.id is defined and puesto.id else puesto.vendedor_id %}
 <section class="seccion">
-    <div class="container">
+    <div class="container" id="puesto-pagina" data-csrf="{{ csrf_token() }}">
 
         <a class="small text-decoration-none" href="{{ url_for('puestos') }}">
             <i class="bi bi-arrow-left" aria-hidden="true"></i> Todos los puestos
@@ -28,8 +30,7 @@
                 <ul class="list-unstyled small mb-0">
                     <li>
                         <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
-                        {{ puesto.direccion ~ ', ' if puesto.direccion }}{{ puesto.barrio ~ ', ' if puesto.barrio }}{{
-                        puesto.ciudad }}
+                        {{ puesto.direccion ~ ', ' if puesto.direccion }}{{ puesto.barrio ~ ', ' if puesto.barrio }}{{ puesto.ciudad }}
                     </li>
                     {% if puesto.horario %}
                     <li><i class="bi bi-clock" aria-hidden="true"></i> {{ puesto.horario }}</li>
@@ -44,7 +45,7 @@
                     </li>
                 </ul>
                 <a class="btn btn-outline-secondary btn-sm rounded-pill mt-3"
-                    href="{{ url_for('mapa', puesto=puesto.id) }}">
+                    href="{{ url_for('mapa', puesto=pid) }}">
                     <i class="bi bi-geo-alt me-1" aria-hidden="true"></i> Ver en el mapa
                 </a>
             </div>
@@ -52,60 +53,60 @@
 
         <!-- PRODUCTOS -->
         {% if productos %}
+        {% set imagenes_productos = {
+            'Empanadas de carne': 'empanadas_de_carne2.jpg',
+            'Empanada de pollo': 'empanadas_pollo2.jpg',
+            'Arepa de huevo': 'arepa_huevo2.jpg',
+            'Arepa de huevo especial': 'arepa_huevo_especial2.jpg',
+            'Carimañolas de yuca': 'carimañolas_de_yuca2.jpg',
+            'Patacones con hogao': 'patacones_con_hogao2.jpg',
+            'Patacón con queso': 'patacon_con_queso2.jpg',
+            'Buñuelos': 'buñuelos.jpg',
+            'Empanadas de queso': 'empanadas_de_queso.jpg',
+            'Carimañolas de queso': 'carimanolas_de_queso.jpg',
+            'Arepa de huevo con carne': 'arepa_huevo_carne.jpg',
+            'Arepa de huevo con queso': 'arepa_huevo_queso.jpg',
+            'Papa rellena': 'papa_rellena.jpg',
+            'Deditos de queso': 'deditos_queso.jpg',
+            'Marranitas': 'marranitas.jpg',
+            'Aborrajados': 'aborrajados.jpg',
+            'Quibbes': 'quibbes.jpg',
+            'Pastel de pollo': 'pastel_pollo.jpg',
+            'Yuca frita': 'yuca_frita.jpg',
+            'Tajadas de plátano maduro': 'tajadas_platano_maduro.jpg',
+            'Papas criollas fritas': 'papas_criollas_fritas.jpg',
+            'Chicharrón': 'chicharron.jpg',
+            'Empanadas de pipián': 'empanadas_pipian.jpg',
+            'Empanadas de camarón': 'empanadas_camaron.jpg',
+            'Buñuelos de frijol': 'bunuelos_frijol.jpg',
+            'Pasteles de yuca': 'pasteles_yuca.jpg',
+            'Arepa frita': 'arepa_frita.jpg',
+            'Patacón pisao': 'patacon_pisao.jpg',
+            'Hojaldras': 'hojaldras.jpg',
+            'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
+            'Empanadas de cambray': 'empanadas_cambray.jpg',
+            'Empanadas de yuca': 'empanadas_yuca.jpg',
+            'Bolitas de yuca con queso': 'bolitas_yuca_queso.jpg',
+            'Arepa de choclo frita': 'arepa_choclo_frita.jpg',
+            'Cazón frito': 'cazon_frito.jpg',
+            'queso frito': 'queso_frito.jpg',
+            'Plátano relleno frito': 'platano_relleno_frito.jpg',
+            'Tostadas de plátano verde': 'tostadas_platano_verde.jpg',
+            'Papa rellena con arroz y huevo': 'papa_rellena_arroz_huevo.jpg'
+        } %}
+
         <div class="row g-4">
-          {% set imagenes_productos = {
-         'Empanadas de carne': 'empanadas_de_carne2.jpg',
-    'Empanada de pollo': 'empanadas_pollo2.jpg',
-    'Arepa de huevo': 'arepa_huevo2.jpg',
-    'Arepa de huevo especial': 'arepa_huevo_especial2.jpg',
-    'Carimañolas de yuca': 'carimañolas_de_yuca2.jpg',
-    'Patacones con hogao': 'patacones_con_hogao2.jpg',
-    'Patacón con queso': 'patacon_con_queso2.jpg',
-    'Buñuelos': 'buñuelos.jpg',
-    'Empanadas de queso': 'empanadas_de_queso.jpg',
-    'Carimañolas de queso': 'carimanolas_de_queso.jpg',
-    'Arepa de huevo con carne': 'arepa_huevo_carne.jpg',
-    'Arepa de huevo con queso': 'arepa_huevo_queso.jpg',
-    'Papa rellena': 'papa_rellena.jpg',
-    'Deditos de queso': 'deditos_queso.jpg',
-    'Marranitas': 'marranitas.jpg',
-    'Aborrajados': 'aborrajados.jpg',
-    'Quibbes': 'quibbes.jpg',
-    'Pastel de pollo': 'pastel_pollo.jpg',
-    'Yuca frita': 'yuca_frita.jpg',
-    'Tajadas de plátano maduro': 'tajadas_platano_maduro.jpg',
-    'Papas criollas fritas': 'papas_criollas_fritas.jpg',
-    'Chicharrón': 'chicharron.jpg',
-    'Empanadas de pipián': 'empanadas_pipian.jpg',
-    'Empanadas de camarón': 'empanadas_camaron.jpg',
-    'Buñuelos de frijol': 'bunuelos_frijol.jpg',
-    'Pasteles de yuca': 'pasteles_yuca.jpg',
-    'Arepa frita': 'arepa_frita.jpg',
-    'Patacón pisao': 'patacon_pisao.jpg',
-    'Hojaldras': 'hojaldras.jpg',
-    'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
-    'Empanadas de cambray': 'empanadas_cambray.jpg',
-    'Empanadas de yuca': 'empanadas_yuca.jpg',
-    'Bolitas de yuca con queso': 'bolitas_yuca_queso.jpg',
-    'Arepa de choclo frita': 'arepa_choclo_frita.jpg',
-    'Cazón frito': 'cazon_frito.jpg',
-    'queso frito': 'queso_frito.jpg',
-    'Plátano relleno frito': 'platano_relleno_frito.jpg',
-    'Tostadas de plátano verde': 'tostadas_platano_verde.jpg',
-    'Papa rellena con arroz y huevo': 'papa_rellena_arroz_huevo.jpg'
-    } %}
-      {% for p in productos %}
+            {% for p in productos %}
+            {# Foto subida por el vendedor (uploads/...) o imagen del catálogo, con respaldo #}
+            {% set foto_subida = p.img or p.imagen %}
+            {% set ruta_img = foto_subida if (foto_subida and foto_subida.startswith('uploads/'))
+                              else 'img/' ~ imagenes_productos.get(p.nombre, 'default.png') %}
             <div class="col-12 col-sm-6 col-lg-3">
-                 <div class="producto__imagen">
-            <img
-              src="{{ url_for(
-                'static',
-                filename=(p.img if (p.img and p.img.startswith('uploads/'))
-                          else 'img/' ~ imagenes_productos.get(p.nombre, 'default.png'))
-              ) }}"
-              alt="{{ p.nombre }}"
-              loading="lazy">
-          </div>
+                <article class="card border-0 shadow-sm h-100">
+                    <div class="producto__imagen">
+                        <img src="{{ url_for('static', filename=ruta_img) }}"
+                             alt="{{ p.nombre }}" loading="lazy">
+                    </div>
 
                     <div class="card-body d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
@@ -121,9 +122,20 @@
                         {% endif %}
                         <p class="fw-semibold mb-3">{{ p.precio|cop }}</p>
 
-                        {% if p.disponible %}
-                        <button class="btn btn-fritos rounded-pill mt-auto" type="button" data-proximamente>
-                            Agregar al carrito
+                        {% if p.disponible and puesto.abierto %}
+                        <button class="btn btn-fritos rounded-pill mt-auto" type="button"
+                                data-agregar
+                                data-id="{{ p.id }}"
+                                data-nombre="{{ p.nombre }}"
+                                data-precio="{{ p.precio|int }}"
+                                data-puesto="{{ pid }}"
+                                data-puesto-nombre="{{ puesto.nombre }}"
+                                data-img="{{ url_for('static', filename=ruta_img) }}">
+                            <i class="bi bi-cart-plus me-1" aria-hidden="true"></i> Agregar al carrito
+                        </button>
+                        {% elif p.disponible %}
+                        <button class="btn btn-secondary rounded-pill mt-auto" type="button" disabled>
+                            Puesto cerrado
                         </button>
                         {% else %}
                         <button class="btn btn-secondary rounded-pill mt-auto" type="button" disabled>
@@ -141,4 +153,61 @@
 
     </div>
 </section>
+
+<script>
+/* Agregar al carrito → se guarda en la BD (tabla carrito_item) vía /api/carrito/agregar */
+(function () {
+    const csrf = document.getElementById('puesto-pagina').dataset.csrf;
+    const loginUrl = "{{ url_for('acceso_rol', rol='cliente') }}";
+
+    function actualizarContador(n) {
+        document.querySelectorAll('[data-carrito-contador], #carrito-contador, .carrito-contador, .carrito-badge')
+            .forEach(el => { el.textContent = n; el.hidden = n <= 0; });
+        document.dispatchEvent(new CustomEvent('carrito:actualizado', { detail: { unidades: n } }));
+    }
+
+    async function enviar(producto_id, reemplazar) {
+        const r = await fetch('/api/mi-carrito/agregar', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrf },
+            body: new URLSearchParams({ csrf_token: csrf, producto_id: producto_id, cantidad: 1, reemplazar: reemplazar ? '1' : '' })
+        });
+        return { status: r.status, data: await r.json().catch(() => ({})) };
+    }
+
+    document.addEventListener('click', async function (e) {
+        const btn = e.target.closest('[data-agregar]');
+        if (!btn || btn.disabled) return;
+
+        const id = Number(btn.dataset.id);
+        const original = btn.innerHTML;
+        btn.disabled = true;
+
+        try {
+            let res = await enviar(id, false);
+
+            if (res.status === 401) { window.location.href = loginUrl; return; }
+
+            if (res.status === 409 && res.data.error === 'otro_puesto') {
+                if (confirm('Tu carrito tiene productos de otro puesto. ¿Vaciarlo y empezar con ' +
+                            btn.dataset.puestoNombre + '?')) {
+                    res = await enviar(id, true);
+                } else { btn.innerHTML = original; btn.disabled = false; return; }
+            }
+
+            if (res.status === 200 && res.data.ok) {
+                actualizarContador(res.data.unidades);
+                btn.innerHTML = '<i class="bi bi-check2 me-1" aria-hidden="true"></i> Agregado';
+            } else {
+                const msg = { cerrado: 'Este puesto está cerrado.', no_disponible: 'Producto no disponible.' }[res.data.error]
+                            || 'No se pudo agregar. Intenta de nuevo.';
+                btn.innerHTML = '<i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i> ' + msg;
+            }
+        } catch (_) {
+            btn.innerHTML = 'Error de conexión';
+        }
+        setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 1500);
+    });
+})();
+</script>
 {% endblock %}

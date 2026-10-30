@@ -1,0 +1,44 @@
+{# Pega este bloque en templates/base.html, justo ANTES de </body>.
+   Mantiene el numerito rojo del carrito actualizado en TODAS las páginas. #}
+<script>
+(function () {
+    // Enlace del carrito en la barra (cualquier <a> cuyo href contenga "carrito")
+    function enlace() {
+        return document.querySelector('header a[href*="carrito"], nav a[href*="carrito"], a[href$="/carrito"]');
+    }
+
+    function insignia() {
+        let el = document.querySelector('[data-carrito-contador], #carrito-contador, .carrito-contador, .carrito-badge');
+        if (el) return el;
+        const a = enlace();
+        if (!a) return null;
+        // Si la barra no trae el numerito, se crea sobre el icono
+        a.style.position = a.style.position || 'relative';
+        el = document.createElement('span');
+        el.className = 'carrito-badge badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle';
+        el.setAttribute('data-carrito-contador', '');
+        a.appendChild(el);
+        return el;
+    }
+
+    function pintar(n) {
+        const el = insignia();
+        if (!el) return;
+        el.textContent = n > 99 ? '99+' : n;
+        el.hidden = !(n > 0);
+        el.style.display = n > 0 ? '' : 'none';
+    }
+
+    // 1) Al cargar cualquier página: pedir el número real a la BD
+    fetch('/api/mi-carrito/contador', { headers: { 'Accept': 'application/json' } })
+        .then(r => r.ok ? r.json() : { unidades: 0 })
+        .then(d => pintar(d.unidades || 0))
+        .catch(() => {});
+
+    // 2) Cada vez que se agrega, quita o vacía algo
+    document.addEventListener('carrito:actualizado', e => {
+        const n = e.detail && typeof e.detail.unidades === 'number' ? e.detail.unidades : null;
+        if (n !== null) pintar(n);
+    });
+})();
+</script>
