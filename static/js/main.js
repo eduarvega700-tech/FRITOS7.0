@@ -343,7 +343,7 @@
                 var info = crear("div", "carrito-item__info");
                 info.appendChild(crear("h3", "carrito-item__nombre", p.nombre));
                 info.appendChild(crear("p", "carrito-item__vendedor", p.vendedor));
-                info.appendChild(crear("p", "carrito-item__precio", cop(p.precio) + " c/u"));
+                info.appendChild(crear("p", "carrito-item__precio", cop(p.precio) + " PESOS"));
                 li.appendChild(info);
 
                 var acciones = crear("div", "carrito-item__acciones");

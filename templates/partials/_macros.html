@@ -23,7 +23,7 @@
     <p class="tarjeta-producto__vendedor">{{ p.vendedor }}</p>
     <p class="tarjeta-producto__rating"><i class="bi bi-star-fill" aria-hidden="true"></i> {{ p.rating }} <span>({{ p.resenas }})</span></p>
     <p class="tarjeta-producto__lugar"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> {{ p.ciudad }}</p>
-    <p class="tarjeta-producto__precio">{{ p.precio|cop }} <small>c/u</small></p>
+    <p class="tarjeta-producto__precio">{{ p.precio|cop }} <small>PESOS</small></p>
     <button class="btn btn-fritos rounded-pill w-100 mt-auto" type="button" data-add="{{ p.id }}" data-nombre="{{ p.nombre }}">
       <i class="bi bi-cart3 me-1" aria-hidden="true"></i> Agregar al carrito
     </button>
