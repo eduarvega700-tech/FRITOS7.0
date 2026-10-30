@@ -124,9 +124,16 @@
                 <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
 
                     <!-- BUSCADOR -->
-                    <a class="btn-icono" href="{{ url_for('explorar') }}" aria-label="Buscar fritos">
-                        <i class="bi bi-search" aria-hidden="true"></i>
-                    </a>
+                    <form class="buscador" id="form-buscador" action="{{ url_for('explorar') }}"
+    method="get" role="search">
+    <input class="buscador__input" id="buscador-input" type="search" name="q"
+        value="{{ request.args.get('q', '') }}" placeholder="Buscar fritos…"
+        aria-label="Buscar fritos" autocomplete="off" maxlength="60">
+    <button class="btn-icono buscador__boton" id="buscador-boton" type="submit"
+        aria-label="Buscar fritos" aria-expanded="false">
+        <i class="bi bi-search" aria-hidden="true"></i>
+    </button>
+</form>
                     
                     <!-- MAPA DE PUESTOS -->
                     <a class="btn-icono" href="{{ url_for('mapa') }}" aria-label="Mapa de puestos"

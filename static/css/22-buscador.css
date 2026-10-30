@@ -1,0 +1,52 @@
+/* ==========================================
+   BUSCADOR DEL NAVBAR
+   ========================================== */
+
+.buscador {
+    display: flex;
+    align-items: center;
+}
+
+.buscador__input {
+    width: 0;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+    font-size: .9rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: width .25s ease, padding .25s ease, opacity .2s ease, visibility 0s .25s;
+}
+
+.buscador__input::placeholder {
+    color: rgba(255, 255, 255, .6);
+}
+
+.buscador--abierto .buscador__input {
+    width: 190px;
+    padding: 0 .9rem;
+    border: 1px solid rgba(255, 255, 255, .35);
+    opacity: 1;
+    visibility: visible;
+    transition: width .25s ease, padding .25s ease, opacity .2s ease, visibility 0s;
+}
+
+.buscador__input:focus {
+    outline: none;
+    border-color: var(--ft-brand);
+    box-shadow: 0 0 0 .2rem rgba(249, 168, 38, .25);
+}
+
+/* Quita la "x" nativa del input type=search en Chrome */
+.buscador__input::-webkit-search-cancel-button {
+    display: none;
+}
+
+@media (max-width: 991.98px) {
+    .buscador--abierto .buscador__input {
+        width: min(55vw, 220px);
+    }
+}
