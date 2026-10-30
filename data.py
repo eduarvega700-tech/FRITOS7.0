@@ -34,7 +34,7 @@ CATEGORIAS = [
     {
         "nombre": "Buñuelos",
         "slug": "buñuelos",
-        "imagen": "buñuelos.png"
+        "imagen": "bunuelos.png"
     },
     {
         "nombre": "Otros",
@@ -140,7 +140,7 @@ PRODUCTOS = [
         "categoria": "buñuelos",
         "descripcion": "Bolitas de masa fritas, doradas por fuera y suaves por dentro.",
         "emoji": "",
-        "img": "prod-buñuelos.jpg"
+        "img": "prod-bunuelos.jpg"
     },
 
     # PRODUCTO 6: EMPANADA DE POLLO
