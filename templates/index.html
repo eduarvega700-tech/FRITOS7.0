@@ -92,7 +92,8 @@
       <li class="col">
         <img
           class="nose"
-          src="{{ url_for('static', filename=imagen_producto(c.nombre, None, imagenes.get(c.nombre)) or 'img/logito.png') }}"
+          {% set archivo_cat = imagenes.get(c.nombre) %}
+          src="{{ url_for('static', filename=('img/' ~ archivo_cat) if archivo_cat else 'img/logito.png') }}"
           alt="{{ c.nombre }}"
           loading="lazy">
 
@@ -172,11 +173,9 @@
           <!-- IMAGEN DEL PRODUCTO (mismas clases que en Explorar) -->
           <div class="producto__imagen explorar-imagen">
             <img
-              src="{{ url_for(
-                'static',
-                filename=(imagen_producto(p.nombre, (p.img or p.imagen or ''), imagenes_productos.get(p.nombre))
-                          or 'img/default.png')
-              ) }}"
+              {% set guardada = p.img or p.imagen or '' %}
+              {% set archivo_prod = imagenes_productos.get(p.nombre) %}
+              src="{{ url_for('static', filename=(guardada if guardada else (('img/' ~ archivo_prod) if archivo_prod else 'img/default.png'))) }}"
               alt="{{ p.nombre }}"
               loading="lazy">
           </div>

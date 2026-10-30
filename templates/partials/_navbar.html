@@ -22,6 +22,7 @@
                     <span class="lema font-script d-block">
                         El sabor local, conectado.
                     </span>
+                    {% endif %}
                 </span>
 
             </a>
@@ -52,10 +53,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="{{ url_for('index') }}#como-funciona"
-                        >
+                        <a class="nav-link" href="{{ url_for('index') }}#como-funciona">
                             Cómo funciona
                         </a>
                     </li>
@@ -67,11 +65,8 @@
                         </a>
                     </li>
 
-                   <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="mailto:hola@fritostech.co"
-                        >
+                    <li class="nav-item">
+                        <a class="nav-link" href="mailto:hola@fritostech.co">
                             Contacto
                         </a>
                     </li>
@@ -94,7 +89,7 @@
                 </div>
 
                 {% else %}
-                <!-- NAVEGACIÓN DE LA TIENDA -->
+                <!-- ============ NAVEGACIÓN DE LA TIENDA ============ -->
                 <ul class="navbar-nav mx-lg-auto gap-lg-4">
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'index' }}"
@@ -109,7 +104,6 @@
                             href="{{ url_for('puestos') }}">Puestos</a>
                     </li>
 
-
                     {% if session.get('rol') != 'cliente' %}
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'mis_productos' }}"
@@ -123,8 +117,6 @@
                             href="{{ url_for('mis_pedidos') }}">Mis pedidos</a>
                     </li>
                     {% endif %}
-
-
                 </ul>
 
                 <!-- BOTONES Y ACCIONES -->
@@ -134,7 +126,7 @@
                     <a class="btn-icono" href="{{ url_for('explorar') }}" aria-label="Buscar fritos">
                         <i class="bi bi-search" aria-hidden="true"></i>
                     </a>
-                    
+
                     <!-- MAPA DE PUESTOS -->
                     <a class="btn-icono" href="{{ url_for('mapa') }}" aria-label="Mapa de puestos"
                         title="Mapa de puestos">
@@ -146,12 +138,8 @@
                         aria-label="Ver carrito de compras">
                         <i class="bi bi-cart3" aria-hidden="true"></i>
 
-                        <span
-                            id="cart-count"
-                            class="cart-count"
-                            hidden
-                        >0</span>
-                    </button>
+                        <span id="cart-count" class="cart-count" hidden>0</span>
+                    </a>
 
                     {% if session.get('usuario_id') %}
 
@@ -162,18 +150,12 @@
                     </span>
 
                     {% if session.get('rol') == 'administrador' %}
-                    <a
-                        class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('admin_dashboard') }}"
-                    >
+                    <a class="btn btn-fritos rounded-pill" href="{{ url_for('admin_dashboard') }}">
                         <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>
                         Dashboard
                     </a>
                     {% elif session.get('rol') == 'vendedor' %}
-                    <a
-                        class="btn btn-fritos rounded-pill"
-                        href="{{ url_for('mis_productos') }}"
-                    >
+                    <a class="btn btn-fritos rounded-pill" href="{{ url_for('mis_productos') }}">
                         <i class="bi bi-shop me-1" aria-hidden="true"></i>
                         Mis productos
                     </a>
@@ -200,9 +182,7 @@
 
                         <button type="button" class="selector-tema__boton" id="botonTema"
                             aria-label="Activar modo noche" aria-pressed="false" title="Cambiar tema">
-
                             <span class="selector-tema__circulo"></span>
-
                         </button>
 
                         <span class="selector-tema__texto selector-tema__texto--oscuro">
