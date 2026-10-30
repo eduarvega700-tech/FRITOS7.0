@@ -170,7 +170,7 @@
   --carrito-numero: #111111; /* ver nota abajo */
 }
 
-/* --- Productos: nombre, precio c/u y subtotal en naranja --- */
+/* --- Productos: nombre, precio PESOS y subtotal en naranja --- */
 [data-bs-theme="dark"] #carrito-lista li h2,
 [data-bs-theme="dark"] #carrito-lista li h3,
 [data-bs-theme="dark"] #carrito-lista li h4,
