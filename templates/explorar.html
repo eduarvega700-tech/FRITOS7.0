@@ -54,7 +54,7 @@
 <section class="seccion">
     <div class="container">
 
-        <h1 class="titulo-script">
+               <h1 class="titulo-script">
             Explora los fritos de Cartagena
         </h1>
 
@@ -65,7 +65,7 @@
         >
             <a
                 class="chip {{ 'chip--activo' if not activa }}"
-                href="{{ url_for('explorar') }}"
+                href="{{ url_for('explorar', q=request.args.get('q')) }}"
             >
                 Todos
             </a>
@@ -73,18 +73,21 @@
             {% for c in categorias %}
             <a
                 class="chip {{ 'chip--activo' if activa == c.slug }}"
-                href="{{ url_for('explorar', categoria=c.slug) }}"
+                href="{{ url_for('explorar', categoria=c.slug, q=request.args.get('q')) }}"
             >
                 {{ c.nombre }}
             </a>
             {% endfor %}
         </div>
 
+        <p id="busqueda-resumen" class="text-muted small" hidden></p>
+
         {% if productos or not activa %}
-        <div class="row g-4">
+        <div class="row g-4" id="grilla-explorar">
 
             {% for p in productos %}
-            <div class="col-12 col-sm-6 col-lg-3">
+            <div class="col-12 col-sm-6 col-lg-3"
+                 data-buscar="{{ p.nombre }} {{ p.vendedor|default('') }} {{ p.categoria|default('') }}">
 
                 {% set subida = p.img and p.img.startswith('uploads/') %}
 
@@ -152,6 +155,11 @@
             {% endfor %}
 
         </div>
+
+        <p id="busqueda-vacia" class="text-muted mt-3" hidden>
+            No encontramos fritos que coincidan con tu búsqueda.
+            <a class="enlace-naranja" href="{{ url_for('explorar') }}">Ver todos</a>
+        </p>
 
         {% else %}
         <p class="text-muted">
