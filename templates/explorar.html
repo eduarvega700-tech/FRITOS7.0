@@ -99,7 +99,7 @@
             <h3 class="producto__titulo">{{ p.nombre }}</h3>
             {% if p.vendedor is defined %}<p class="producto__vendedor">{{ p.vendedor }}</p>{% endif %}
             {% if p.precio is defined %}
-            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>c/u</span></p>
+            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>PESOS</span></p>
             {% endif %}
 
             {% if p.id is defined and disponible %}
