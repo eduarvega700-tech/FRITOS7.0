@@ -8,12 +8,18 @@ def categorias():
 
 
 def productos_activos(slug=""):
+    # Se une con la tabla producto para traer también la descripción
+    # sin depender de las columnas que tenga la vista v_productos_activos.
+    base = (
+        "SELECT v.*, p.descripcion "
+        "FROM v_productos_activos v JOIN producto p ON p.id = v.id "
+    )
     if slug:
         return consultar(
-            "SELECT * FROM v_productos_activos WHERE categoria = %s ORDER BY id",
+            base + "WHERE v.categoria = %s ORDER BY v.id",
             (slug,),
         )
-    return consultar("SELECT * FROM v_productos_activos ORDER BY id")
+    return consultar(base + "ORDER BY v.id")
 
 
 def productos_por_ids(ids):

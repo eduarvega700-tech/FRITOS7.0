@@ -1,63 +1,143 @@
+
 {% extends 'base.html' %}
-{% block title %}Mapa de puestos · FRITOS TECH{% endblock %}
+
+{% block title %}
+  Mapa de puestos · FRITOS TECH
+{% endblock %}
+
 
 {% block contenido %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-<section class="seccion">
-  <div class="container">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  >
 
-    <p class="rotulo">Cerca de ti</p>
-    <h1 class="titulo-script mb-1">Mapa de puestos</h1>
-    <p class="mb-3">Toca un pin para ver el puesto y entrar a sus productos.</p>
 
-    {% if puestos %}
-    <div id="mapa" style="height: 480px; border-radius: 1rem;"
-         aria-label="Mapa con los puestos"></div>
-    {% else %}
-    <p class="text-muted">Todavía no hay puestos con ubicación en el mapa.</p>
-    {% endif %}
+  <section class="seccion">
 
-  </div>
-</section>
+    <div class="container">
 
-{% if puestos %}
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  var puestos = {{ puestos|tojson }};
+      <p class="rotulo">
+        Cerca de ti
+      </p>
 
-  // Mapa centrado en Cartagena
-  var mapa = L.map("mapa").setView([10.40, -75.52], 12);
+      <h1 class="titulo-script mb-1">
+        Mapa de puestos
+      </h1>
 
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; colaboradores de OpenStreetMap"
-  }).addTo(mapa);
+      <p class="mb-3">
+        Toca un pin para ver el puesto y entrar a sus productos.
+      </p>
 
-  // Un pin por cada puesto
-  var marcadores = {};
-  puestos.forEach(function (p) {
-    var caja = document.createElement("div");
 
-    var titulo = document.createElement("strong");
-    titulo.textContent = p.nombre;
+      {# Muestra el mapa si existen puestos registrados #}
+      {% if puestos %}
 
-    var estado = document.createElement("div");
-    estado.textContent = (p.barrio ? p.barrio + " · " : "") +
-                         (p.abierto ? "Abierto" : "Cerrado");
+        <div
+          id="mapa"
+          style="height: 480px; border-radius: 1rem;"
+          aria-label="Mapa con los puestos"
+        ></div>
 
-    var enlace = document.createElement("a");
-    enlace.href = p.url;
-    enlace.textContent = "Ver productos";
+      {% else %}
 
-    caja.append(titulo, estado, enlace);
-    L.marker([p.lat, p.lng]).addTo(mapa).bindPopup(caja);
-  });
-  var elegido = Number(new URLSearchParams(location.search).get("puesto"));
-  if (marcadores[elegido]) {
-    mapa.setView(marcadores[elegido].getLatLng(), 16);
-    marcadores[elegido].openPopup();
-  }
-</script>
-{% endif %}
+        <p class="text-muted">
+          Todavía no hay puestos con ubicación en el mapa.
+        </p>
+
+      {% endif %}
+
+    </div>
+
+  </section>
+
+
+  {# Scripts del mapa: solo se cargan si existen puestos #}
+  {% if puestos %}
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+
+      // Datos de los puestos enviados desde Flask
+      var puestos = {{ puestos|tojson }};
+
+
+      // Mapa centrado inicialmente en Cartagena
+      var mapa = L.map("mapa").setView([10.40, -75.52], 12);
+
+
+      // Capa de mapas de OpenStreetMap
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+
+        maxZoom: 19,
+
+        attribution: "&copy; colaboradores de OpenStreetMap"
+
+      }).addTo(mapa);
+
+
+      // Almacena los marcadores de cada puesto
+      var marcadores = {};
+
+
+      // Un pin por cada puesto
+      puestos.forEach(function (p) {
+
+        var caja = document.createElement("div");
+
+
+        // Nombre del puesto
+        var titulo = document.createElement("strong");
+
+        titulo.textContent = p.nombre;
+
+
+        // Barrio y estado del puesto
+        var estado = document.createElement("div");
+
+        estado.textContent =
+          (p.barrio ? p.barrio + " · " : "") +
+          (p.abierto ? "Abierto" : "Cerrado");
+
+
+        // Enlace para ver los productos
+        var enlace = document.createElement("a");
+
+        enlace.href = p.url;
+        enlace.textContent = "Ver productos";
+
+
+        // Contenido de la ventana emergente
+        caja.append(titulo, estado, enlace);
+
+
+        // Crea y guarda el marcador utilizando el ID del puesto
+        marcadores[p.id] = L.marker([p.lat, p.lng])
+          .addTo(mapa)
+          .bindPopup(caja);
+
+      });
+
+
+      // Identifica si se recibió un puesto específico por URL
+      var elegido = Number(
+        new URLSearchParams(location.search).get("puesto")
+      );
+
+
+      // Centra el mapa y abre el marcador seleccionado
+      if (marcadores[elegido]) {
+
+        mapa.setView(marcadores[elegido].getLatLng(), 16);
+
+        marcadores[elegido].openPopup();
+
+      }
+
+    </script>
+
+  {% endif %}
+
 {% endblock %}

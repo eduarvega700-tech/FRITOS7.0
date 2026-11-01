@@ -1,81 +1,182 @@
+
 /* Buscador del navbar + filtrado en Explorar */
 (function () {
+
   var form = document.getElementById('form-buscador');
+
   if (!form) return;
 
   var input = document.getElementById('buscador-input');
   var boton = document.getElementById('buscador-boton');
-  var grilla = document.getElementById('grilla-explorar');   // solo existe en Explorar
+  var grilla = document.getElementById('grilla-explorar'); // Solo existe en Explorar
   var resumen = document.getElementById('busqueda-resumen');
   var vacia = document.getElementById('busqueda-vacia');
 
+
   // Minúsculas y sin tildes: "buñuelos" == "bunuelos"
   function limpiar(s) {
-    return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+    return (s || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
   }
 
+
+  // Abre el buscador
   function abrir() {
+
     form.classList.add('buscador--abierto');
     boton.setAttribute('aria-expanded', 'true');
+
     input.focus();
+
   }
 
+
+  // Cierra el buscador
   function cerrar() {
+
     form.classList.remove('buscador--abierto');
     boton.setAttribute('aria-expanded', 'false');
+
   }
+
 
   // Filtra las tarjetas de Explorar (todas las palabras deben aparecer)
   function filtrar() {
+
     if (!grilla) return;
+
     var texto = input.value.trim();
-    var palabras = limpiar(texto).split(/\s+/).filter(Boolean);
+
+    var palabras = limpiar(texto)
+      .split(/\s+/)
+      .filter(Boolean);
+
     var tarjetas = grilla.querySelectorAll('[data-buscar]');
+
     var visibles = 0;
 
+
+    // Comprueba cada tarjeta
     tarjetas.forEach(function (t) {
+
       var base = limpiar(t.getAttribute('data-buscar'));
-      var coincide = palabras.every(function (p) { return base.indexOf(p) !== -1; });
+
+      var coincide = palabras.every(function (p) {
+        return base.indexOf(p) !== -1;
+      });
+
       t.hidden = !coincide;
+
       if (coincide) visibles++;
+
     });
 
+
+    // Actualiza el resumen de resultados
     if (resumen) {
+
       resumen.hidden = !palabras.length;
+
       resumen.textContent = palabras.length
         ? visibles + ' resultado' + (visibles === 1 ? '' : 's') + ' para «' + texto + '»'
         : '';
+
     }
-    if (vacia) vacia.hidden = !(palabras.length && visibles === 0);
+
+
+    // Muestra u oculta el mensaje de búsqueda vacía
+    if (vacia) {
+      vacia.hidden = !(palabras.length && visibles === 0);
+    }
+
   }
 
+
+  // Control del botón del buscador
   boton.addEventListener('click', function (e) {
+
     var abierto = form.classList.contains('buscador--abierto');
-    if (!abierto) { e.preventDefault(); abrir(); return; }          // 1.º clic: despliega
-    if (!input.value.trim()) { e.preventDefault(); cerrar(); }       // vacío: se pliega
-    // con texto: el formulario se envía a /explorar?q=...
+
+    if (!abierto) {
+      e.preventDefault();
+      abrir();
+      return;
+    }
+
+    // Si está vacío, se pliega
+    if (!input.value.trim()) {
+      e.preventDefault();
+      cerrar();
+    }
+
+    // Con texto: el formulario se envía a /explorar?q=...
+
   });
 
+
+  // Control del envío del formulario
   form.addEventListener('submit', function (e) {
-    if (!input.value.trim()) { e.preventDefault(); return; }
-    if (grilla) { e.preventDefault(); filtrar(); }                   // en Explorar no recarga
-  });
 
-  input.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { cerrar(); boton.focus(); }
-  });
+    if (!input.value.trim()) {
+      e.preventDefault();
+      return;
+    }
 
-  if (grilla) {
-    input.addEventListener('input', function () {
+    // En Explorar no recarga la página
+    if (grilla) {
+      e.preventDefault();
       filtrar();
-      // mantiene la URL compartible sin recargar
+    }
+
+  });
+
+
+  // Permite cerrar el buscador con Escape
+  input.addEventListener('keydown', function (e) {
+
+    if (e.key === 'Escape') {
+      cerrar();
+      boton.focus();
+    }
+
+  });
+
+
+  // Filtrado en tiempo real dentro de Explorar
+  if (grilla) {
+
+    input.addEventListener('input', function () {
+
+      filtrar();
+
+
+      // Mantiene la URL compartible sin recargar
       var url = new URL(location.href);
-      if (input.value.trim()) url.searchParams.set('q', input.value.trim());
-      else url.searchParams.delete('q');
+
+      if (input.value.trim()) {
+        url.searchParams.set('q', input.value.trim());
+      } else {
+        url.searchParams.delete('q');
+      }
+
       history.replaceState(null, '', url);
+
     });
+
   }
+
 
   // Si llegamos con ?q=..., mostrar el campo abierto y aplicar el filtro
-  if (input.value.trim()) { abrir(); filtrar(); }
+  if (input.value.trim()) {
+
+    abrir();
+    filtrar();
+
+  }
+
 })();
