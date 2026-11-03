@@ -54,7 +54,7 @@
 <section class="seccion">
     <div class="container">
 
-               <h1 class="titulo-script">
+        <h1 class="titulo-script">
             Explora los fritos de Cartagena
         </h1>
 
@@ -92,7 +92,8 @@
                 {% set subida = p.img and p.img.startswith('uploads/') %}
 
                 {% if subida or p.nombre in imagenes_nuevas %}
-                <article class="producto h-100 explorar-con-imagen">
+                <article class="producto h-100 explorar-con-imagen"
+                    data-det-desc="{{ p.descripcion|default('', true) }}">
 
                     <div class="producto__imagen explorar-imagen">
                         <img
