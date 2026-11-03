@@ -13,7 +13,7 @@ def destino_por_rol(rol):
     if rol == "administrador":
         return url_for("admin_dashboard")
     if rol == "vendedor":
-        return url_for("mis_productos")
+        return url_for("panel_vendedor")
     return url_for("explorar")
 
 

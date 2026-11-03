@@ -1,16 +1,17 @@
 {%- from 'partials/_macros.html' import media %}
 {%- set es_admin = session.get('rol') == 'administrador' %}
+{%- set es_vendedor = session.get('rol') == 'vendedor' %}
 
 <header class="ft-header sticky-top">
 
     <nav class="navbar navbar-expand-lg navbar-dark"
-        aria-label="{{ 'Navegación del panel de administración' if es_admin else 'Navegación principal' }}">
+        aria-label="{{ 'Navegación del panel de administración' if es_admin else ('Navegación del panel del vendedor' if es_vendedor else 'Navegación principal') }}">
 
         <div class="container">
 
             <!-- LOGO Y NOMBRE DE LA MARCA -->
             <a class="navbar-brand d-flex align-items-center gap-2"
-                href="{{ url_for('admin_dashboard') if es_admin else url_for('index') }}">
+                href="{{ url_for('admin_dashboard') if es_admin else (url_for('panel_vendedor') if es_vendedor else url_for('index')) }}">
 
                 <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo de Fritos Tech">
 
@@ -18,6 +19,8 @@
                     <span class="marca">FRITOS TECH</span>
                     {% if es_admin %}
                     <span class="lema font-script d-block">Panel de administración</span>
+                    {% elif es_vendedor %}
+                    <span class="lema font-script d-block">Panel del vendedor</span>
                     {% else %}
                     <span class="lema font-script d-block">
                         <i>El sabor local, conectado.</i></span>
@@ -86,6 +89,51 @@
                     </form>
                 </div>
 
+                {% elif es_vendedor %}
+                <!-- ============ NAVEGACIÓN DEL VENDEDOR ============ -->
+                <ul class="navbar-nav mx-lg-auto gap-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'panel_vendedor' }}"
+                            href="{{ url_for('panel_vendedor') }}">
+                            <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>Panel
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint in ('mis_productos', 'producto_editar') }}"
+                            href="{{ url_for('mis_productos') }}">
+                            <i class="bi bi-basket2 me-1" aria-hidden="true"></i>Mis productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'producto_nuevo' }}"
+                            href="{{ url_for('producto_nuevo') }}">
+                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Agregar producto
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'mis_ventas' }}"
+                            href="{{ url_for('mis_ventas') }}">
+                            <i class="bi bi-receipt me-1" aria-hidden="true"></i>Mis ventas
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+                    <span class="small text-white-50 d-none d-xl-inline">
+                        <i class="bi bi-shop" aria-hidden="true"></i>
+                        {{ session['nombre'] }}
+                    </span>
+
+                    <a class="btn btn-contorno-claro rounded-pill" href="{{ url_for('index') }}">
+                        <i class="bi bi-arrow-up-right-square me-1" aria-hidden="true"></i>Ver tienda
+                    </a>
+
+                    <form method="post" action="{{ url_for('salir') }}" class="m-0">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-outline-light rounded-pill" type="submit">Salir</button>
+                    </form>
+                </div>
+
                 {% else %}
                 <!-- NAVEGACIÓN DE LA TIENDA -->
                 <ul class="navbar-nav mx-lg-auto gap-lg-4">
@@ -125,15 +173,15 @@
 
                     <!-- BUSCADOR -->
                     <form class="buscador" id="form-buscador" action="{{ url_for('explorar') }}"
-    method="get" role="search">
-    <input class="buscador__input" id="buscador-input" type="search" name="q"
-        value="{{ request.args.get('q', '') }}" placeholder="Buscar fritos…"
-        aria-label="Buscar fritos" autocomplete="off" maxlength="60">
-    <button class="btn-icono buscador__boton" id="buscador-boton" type="submit"
-        aria-label="Buscar fritos" aria-expanded="false">
-        <i class="bi bi-search" aria-hidden="true"></i>
-    </button>
-</form>
+                        method="get" role="search">
+                        <input class="buscador__input" id="buscador-input" type="search" name="q"
+                            value="{{ request.args.get('q', '') }}" placeholder="Buscar fritos…"
+                            aria-label="Buscar fritos" autocomplete="off" maxlength="60">
+                        <button class="btn-icono buscador__boton" id="buscador-boton" type="submit"
+                            aria-label="Buscar fritos" aria-expanded="false">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                        </button>
+                    </form>
                     
                     <!-- MAPA DE PUESTOS -->
                     <a class="btn-icono" href="{{ url_for('mapa') }}" aria-label="Mapa de puestos"
@@ -184,7 +232,7 @@
 
                 </div> <!-- cierra los botones y acciones -->
 
-                {% endif %} <!-- cierra el if es_admin / else -->
+                {% endif %} <!-- cierra el if es_admin / es_vendedor / tienda -->
 
             </div> <!-- cierra el collapse -->
 

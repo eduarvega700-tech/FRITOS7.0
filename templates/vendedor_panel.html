@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block title %}Panel del vendedor · FRITOS TECH{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block contenido %}
+{% set primer_nombre = (session.get('nombre') or 'vendedor').split(' ')[0] %}
+
+<section class="pv">
+    <div class="container">
+
+        <header class="pv-cabecera">
+            <div>
+                <p class="pv-eyebrow">Panel del vendedor</p>
+                <h1 class="pv-titulo">Hola, {{ primer_nombre }}</h1>
+                <p class="pv-sub">Este es el resumen de tu negocio en FRITOS TECH.</p>
+            </div>
+
+            <a class="btn btn-fritos btn-lg rounded-pill" href="{{ url_for('producto_nuevo') }}">
+                <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>
+                Agregar producto
+            </a>
+        </header>
+
+        {% if resumen.pendientes %}
+        <div class="pv-aviso" role="status">
+            <i class="bi bi-bell-fill" aria-hidden="true"></i>
+            <span>
+                Tienes <strong>{{ resumen.pendientes }}</strong>
+                pedido{{ '' if resumen.pendientes == 1 else 's' }} por atender.
+            </span>
+            <a href="{{ url_for('mis_ventas', estado='pendiente') }}">Verlos ahora</a>
+        </div>
+        {% endif %}
+
+        <!-- CIFRAS PRINCIPALES -->
+        <div class="pv-stats">
+            <a class="pv-stat pv-stat--destacada" href="{{ url_for('mis_ventas') }}">
+                <span class="pv-stat__icono"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
+                <div>
+                    <p class="pv-stat__etiqueta">Ventas (sin cancelados)</p>
+                    <p class="pv-stat__valor">{{ resumen.ingresos|cop }}</p>
+                </div>
+            </a>
+
+            <a class="pv-stat {{ 'pv-stat--alerta' if resumen.pendientes }}" href="{{ url_for('mis_ventas', estado='pendiente') }}">
+                <span class="pv-stat__icono"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span>
+                <div>
+                    <p class="pv-stat__etiqueta">Pedidos por atender</p>
+                    <p class="pv-stat__valor">{{ resumen.pendientes }}</p>
+                </div>
+            </a>
+
+            <a class="pv-stat pv-stat--ok" href="{{ url_for('mis_productos') }}">
+                <span class="pv-stat__icono"><i class="bi bi-eye" aria-hidden="true"></i></span>
+                <div>
+                    <p class="pv-stat__etiqueta">Productos visibles</p>
+                    <p class="pv-stat__valor">{{ resumen.visibles }}</p>
+                </div>
+            </a>
+
+            <a class="pv-stat {{ 'pv-stat--alerta' if resumen.agotados }}" href="{{ url_for('mis_productos') }}">
+                <span class="pv-stat__icono"><i class="bi bi-slash-circle" aria-hidden="true"></i></span>
+                <div>
+                    <p class="pv-stat__etiqueta">Productos agotados</p>
+                    <p class="pv-stat__valor">{{ resumen.agotados }}</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- CIFRAS SECUNDARIAS -->
+        <div class="pv-resumen">
+            <span class="pv-resumen__item">Publicados <strong>{{ resumen.productos }}</strong></span>
+            <span class="pv-resumen__item">Pedidos recibidos <strong>{{ resumen.pedidos }}</strong></span>
+            <span class="pv-resumen__item">Unidades vendidas <strong>{{ resumen.unidades }}</strong></span>
+            <span class="pv-resumen__item">Promedio por pedido <strong>{{ resumen.promedio|cop }}</strong></span>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- PEDIDOS RECIENTES -->
+            <div class="col-12 col-xl-8">
+                <section class="pv-panel">
+                    <div class="pv-panel__cab">
+                        <div>
+                            <h2 class="pv-panel__titulo">Pedidos recientes</h2>
+                            <p class="pv-panel__nota">Últimos pedidos que incluyen tus productos</p>
+                        </div>
+                        <a class="pv-enlace" href="{{ url_for('mis_ventas') }}">
+                            Ver todas <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+
+                    <div class="pv-tabla-caja">
+                        <table class="pv-tabla">
+                            <thead>
+                                <tr>
+                                    <th>Pedido</th>
+                                    <th>Cliente</th>
+                                    <th>Tus productos</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for p in recientes %}
+                                <tr>
+                                    <td class="pv-principal" data-label="Pedido">
+                                        <span>
+                                            <span class="pv-fuerte">#{{ p.id }}</span><br>
+                                            <span class="pv-tenue">{{ p.creado_en.strftime('%d/%m/%Y %H:%M') }}</span>
+                                        </span>
+                                    </td>
+                                    <td data-label="Cliente">{{ p.cliente }}</td>
+                                    <td data-label="Tus productos" class="pv-fuerte">{{ p.subtotal|cop }}</td>
+                                    <td data-label="Estado">
+                                        <span class="pv-estado pv-estado--{{ p.estado }}">{{ p.estado|capitalize }}</span>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr class="pv-fila-vacia">
+                                    <td colspan="4" class="pv-sin-etiqueta">
+                                        <div class="pv-vacio">
+                                            <i class="bi bi-receipt" aria-hidden="true"></i>
+                                            <p>Todavía no te han hecho pedidos.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- MÁS VENDIDOS -->
+            <div class="col-12 col-xl-4">
+                <section class="pv-panel">
+                    <div class="pv-panel__cab">
+                        <div>
+                            <h2 class="pv-panel__titulo">Más vendidos</h2>
+                            <p class="pv-panel__nota">Tus fritos que más se piden</p>
+                        </div>
+                    </div>
+
+                    {% if mas_vendidos %}
+                    {% set maximo = (mas_vendidos|map(attribute='unidades')|map('int')|list|max) or 1 %}
+                    <ol class="pv-top">
+                        {% for m in mas_vendidos %}
+                        <li>
+                            <div class="pv-top__fila">
+                                <span class="pv-top__nombre">{{ loop.index }}. {{ m.nombre }}</span>
+                                <span class="pv-top__uds">{{ m.unidades|int }} {{ 'ud' if m.unidades|int == 1 else 'uds' }}</span>
+                            </div>
+                            <div class="pv-barra">
+                                <div class="pv-barra__relleno" style="width: {{ (m.unidades|int * 100 / maximo)|round|int }}%"></div>
+                            </div>
+                            <div class="pv-top__dinero">{{ m.ingresos|cop }} en ventas</div>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                    {% else %}
+                    <div class="pv-vacio">
+                        <i class="bi bi-bar-chart" aria-hidden="true"></i>
+                        <p>Aún no hay ventas para mostrar.</p>
+                    </div>
+                    {% endif %}
+                </section>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

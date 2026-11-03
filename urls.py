@@ -25,10 +25,14 @@ RUTAS = [
     ("/registro/<rol>", auth.registro_rol, GET_POST),
 
     # Vendedor
+    ("/vendedor", vendedor.panel_vendedor, GET),
     ("/mis-productos", vendedor.mis_productos, GET),
-    ("/mis-productos/nuevo", vendedor.producto_nuevo, POST),
+    ("/mis-productos/nuevo", vendedor.producto_nuevo, GET_POST),
+    ("/mis-productos/<int:producto_id>/editar", vendedor.producto_editar, GET_POST),
     ("/mis-productos/<int:producto_id>/estado", vendedor.producto_estado, POST),
+    ("/mis-productos/<int:producto_id>/disponible", vendedor.producto_disponible, POST),
     ("/mis-productos/<int:producto_id>/eliminar", vendedor.producto_eliminar, POST),
+    ("/mis-ventas", vendedor.mis_ventas, GET),
 
     # Carrito y pedidos
     ("/carrito", carrito.carrito, GET),
