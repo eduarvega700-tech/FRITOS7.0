@@ -8,7 +8,7 @@ from db import consultar, ejecutar
 def de_vendedor(vendedor_id):
     return consultar(
         "SELECT p.id, p.nombre, p.descripcion, p.precio, p.imagen, "
-        "       p.activo, p.creado_en, c.nombre AS categoria "
+        "       p.activo, p.disponible, p.creado_en, c.nombre AS categoria "
         "FROM producto p JOIN categoria c ON c.id = p.categoria_id "
         "WHERE p.vendedor_id = %s "
         "ORDER BY p.creado_en DESC, p.id DESC",
@@ -32,6 +32,42 @@ def alternar_activo(producto_id, vendedor_id=None):
         sql += " AND vendedor_id = %s"
         params += (vendedor_id,)
     return ejecutar(sql, params)
+
+
+def obtener_de_vendedor(producto_id, vendedor_id):
+    """Un producto del vendedor (para editarlo) o None si no es suyo."""
+    return consultar(
+        "SELECT id, nombre, descripcion, precio, imagen, categoria_id, "
+        "       activo, disponible "
+        "FROM producto WHERE id = %s AND vendedor_id = %s",
+        (producto_id, vendedor_id),
+        uno=True,
+    )
+
+
+def actualizar(producto_id, vendedor_id, categoria_id, nombre,
+               descripcion, precio, imagen=None):
+    """Edita un producto del vendedor. Si imagen es None se conserva la foto."""
+    sql = (
+        "UPDATE producto SET categoria_id = %s, nombre = %s, "
+        "descripcion = %s, precio = %s"
+    )
+    params = [categoria_id, nombre, descripcion, precio]
+    if imagen:
+        sql += ", imagen = %s"
+        params.append(imagen)
+    sql += " WHERE id = %s AND vendedor_id = %s"
+    params += [producto_id, vendedor_id]
+    return ejecutar(sql, tuple(params))
+
+
+def alternar_disponible(producto_id, vendedor_id):
+    """Marca el producto como agotado / disponible (solo si es del vendedor)."""
+    return ejecutar(
+        "UPDATE producto SET disponible = 1 - disponible "
+        "WHERE id = %s AND vendedor_id = %s",
+        (producto_id, vendedor_id),
+    )
 
 
 def imagen_de(producto_id, vendedor_id=None):
