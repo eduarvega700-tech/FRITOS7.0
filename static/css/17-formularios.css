@@ -1,0 +1,72 @@
+/* ==========================================
+   CAMPOS DE LOS FORMULARIOS
+   ========================================== */
+
+/* 
+   17. CAMPOS DE LOS FORMULARIOS
+ */
+
+/* Etiquetas */
+.campo-etiqueta {
+    display: block;
+    font-size: .9rem;
+    font-weight: 500;
+    margin: .9rem 0 .4rem;
+}
+
+/* Contenedor del campo */
+.campo {
+    position: relative;
+}
+
+/* Icono dentro del campo */
+.campo > i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ft-suave);
+    pointer-events: none;
+}
+
+/* Entradas de texto */
+.campo .form-control {
+    height: 48px;
+    border-radius: 12px;
+    border-color: #e4d9c8;
+    background: #fff;
+    padding-left: 2.6rem;
+    font-size: .9rem;
+}
+
+/* Campo seleccionado */
+.campo .form-control:focus {
+    border-color: var(--ft-brand);
+    box-shadow: 0 0 0 .2rem rgba(249, 168, 38, .25);
+}
+
+/* Botón para mostrar u ocultar contraseña */
+.campo__ver {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: none;
+    color: var(--ft-suave);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.campo__ver:hover {
+    color: var(--ft-tinta);
+}
+
+/* Casillas de verificación seleccionadas */
+.form-check-input:checked {
+    background-color: var(--ft-brand);
+    border-color: var(--ft-brand);
+}
+
+

@@ -112,6 +112,8 @@
         {% include 'partials/_footer.html' %}
     {% endblock %}
 
+    {% include 'partials/_detalle_producto.html' %}
+
     <div
         id="aviso"
         class="aviso"
@@ -123,6 +125,8 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/tema.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/buscador.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/detalle-producto.js') }}"></script>
 
 </body>
 </html>

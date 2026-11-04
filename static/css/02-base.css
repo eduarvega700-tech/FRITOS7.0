@@ -1,0 +1,56 @@
+/* ==========================================
+   ESTILOS GENERALES Y ACCESIBILIDAD
+   ========================================== */
+
+/* 
+   2. ESTILOS GENERALES Y ACCESIBILIDAD
+*/
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--fuente-titulo);
+    background: var(--ft-crema);
+    color: var(--ft-tinta);
+}
+
+a {
+    color: inherit;
+}
+
+.font-script {
+    font-family:'Times New Roman', Times, serif;
+    color: orange;
+}
+
+/* Indicador de navegación con teclado */
+:focus-visible {
+    outline: 3px solid var(--ft-brand);
+    outline-offset: 2px;
+}
+
+/* Enlace visible al recibir el foco */
+.visually-hidden-focusable:focus {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    z-index: 2000;
+    background: #fff;
+    padding: .5rem 1rem;
+    border-radius: .5rem;
+}
+/* Respeto por la preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+

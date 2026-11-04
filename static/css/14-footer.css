@@ -1,0 +1,150 @@
+/* ==========================================
+   PIE DE PÁGINA (FOOTER)
+   ========================================== */
+
+/* 
+   13. PIE DE PÁGINA (FOOTER)
+ */
+
+.ft-footer {
+    background: var(--ft-cacao-900);
+    color: #fff;
+    position: relative;
+}
+
+/* Enlaces del footer */
+.ft-footer__links a {
+    color: rgba(255, 255, 255, .9);
+    text-decoration: none;
+    font-size: .8rem;
+}
+
+.ft-footer__links a:hover {
+    color: var(--ft-brand);
+}
+
+/* Texto legal */
+.ft-footer__legal {
+    color: rgba(255, 255, 255, .7);
+}
+
+/* Redes sociales */
+.social {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255, 255, 255, .6);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    text-decoration: none;
+}
+
+.social:hover {
+    background: var(--ft-brand);
+    border-color: var(--ft-brand);
+    color: var(--ft-cacao-900);
+}
+
+/* Elemento decorativo ondulado */
+.ola {
+    display: block;
+    width: 100%;
+    height: 70px;
+}
+
+
+.ft-footer {
+  background: var(--ft-cacao-900);   /* antes #0f1621 */
+  color: #fff;
+  padding: 2.5rem 0 0;               /* sin padding abajo para que la ola quede pegada */
+  position: relative;
+  /* borra el border-radius */
+}
+
+.ft-brand__tech { color: var(--ft-brand); }
+.ft-lema,
+.ft-list a,
+.ft-legal { color: rgba(255, 255, 255, .85); margin-right: 200px; }
+.ft-footer__bottom {
+    text-align: center;
+    padding: 25px 0;
+    margin-top: 30px;
+    border-top: 2px solid var(--ft-brand);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 16px;
+}
+
+.ft-footer__bottom p {
+    margin: 0;
+}
+
+.ft-list a:hover { color: var(--ft-brand); }
+
+.social:hover {
+  background: var(--ft-brand);
+  border-color: var(--ft-brand);
+  color: var(--ft-cacao-900);
+}
+/* ===== Redes: efecto que ilumina ===== */
+.ft-footer a.social {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow .3s ease, border-color .3s ease,
+              background-color .3s ease, color .3s ease;
+}
+
+.ft-footer a.social i {
+  display: inline-block;
+  transition: transform .3s ease, filter .3s ease, color .3s ease;
+}
+
+.ft-footer a.social:hover,
+.ft-footer a.social:focus-visible {
+  border-color: #fbbf24 !important;
+  background-color: rgba(245, 158, 11, .18) !important;
+  color: #fbbf24 !important;
+  animation: brillo 1.4s ease-in-out infinite !important;
+}
+
+.ft-footer a.social:hover i,
+.ft-footer a.social:focus-visible i {
+  color: #fbbf24 !important;
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, .9));
+}
+
+@keyframes brillo {
+  0%, 100% {
+    box-shadow: 0 0 8px  rgba(245, 158, 11, .6),
+                0 0 18px rgba(245, 158, 11, .4);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(251, 191, 36, .9),
+                0 0 30px rgba(245, 158, 11, .7),
+                0 0 48px rgba(245, 158, 11, .4);
+  }
+}
+.social[aria-label="Facebook"]:hover  { background: #1877f2; border-color: #1877f2; color: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.4); }
+.social[aria-label="Instagram"]:hover { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); border-color: transparent; color: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.4); }
+.social[aria-label="TikTok"]:hover    { background: #000; border-color: #fff; color: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.4); }
+.social[aria-label="YouTube"]:hover   { background: #ff0000; border-color: #ff0000; color: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.4); }
+
+.ft-footer__support{
+
+    flex: max-content;
+}
+
+/* . */
+.ft-legal {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* */
+.ft-slogan {
+  max-width: 24ch;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+

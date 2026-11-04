@@ -1,0 +1,90 @@
+
+<!-- VENTANA DE DETALLE DEL PRODUCTO (se abre al tocar la foto) -->
+<div
+  class="modal fade"
+  id="modalProducto"
+  tabindex="-1"
+  aria-labelledby="modalProductoTitulo"
+  aria-hidden="true"
+>
+
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+
+    <div class="modal-content detalle-producto">
+
+
+      <!-- Botón para cerrar la ventana -->
+      <button
+        type="button"
+        class="btn-close detalle-producto__cerrar"
+        data-bs-dismiss="modal"
+        aria-label="Cerrar"
+      ></button>
+
+
+      <!-- Contenido del producto -->
+      <div class="row g-0">
+
+
+        <!-- Imagen del producto -->
+        <div
+          class="col-md-6 detalle-producto__foto"
+          id="modalProductoFoto"
+        >
+          <img
+            id="modalProductoImg"
+            src=""
+            alt=""
+          >
+        </div>
+
+
+        <!-- Información del producto -->
+        <div class="col-md-6 detalle-producto__info">
+
+          <h2
+            class="detalle-producto__titulo"
+            id="modalProductoTitulo"
+          ></h2>
+
+          <p
+            class="detalle-producto__vendedor"
+            id="modalProductoVendedor"
+          ></p>
+
+          <p
+            class="detalle-producto__precio"
+            id="modalProductoPrecio"
+          ></p>
+
+
+          <!-- Descripción -->
+          <h3 class="detalle-producto__sub">
+            Descripción
+          </h3>
+
+          <p
+            class="detalle-producto__desc"
+            id="modalProductoDesc"
+          ></p>
+
+
+          <!-- Botón para agregar al carrito -->
+          <button
+            type="button"
+            id="modalProductoAgregar"
+            class="btn btn-fritos btn-lg rounded-pill w-100 mt-auto"
+          >
+            <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
+            Agregar al carrito
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

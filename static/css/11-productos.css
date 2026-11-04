@@ -1,0 +1,182 @@
+/* ==========================================
+   PRODUCTOS Y TARJETAS DE PRODUCTOS
+   ========================================== */
+
+.producto {
+  overflow: hidden;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(65, 39, 20, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.producto__imagen {
+  width: 100%;
+  height: 203px;
+  overflow: hidden;
+  background: #ffbd4a;
+  flex-shrink: 0;
+}
+
+.producto__imagen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.producto__contenido {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.producto__titulo {
+  margin: 0 0 5px;
+  color: #382316;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.producto__vendedor {
+  margin-bottom: 12px;
+  color: #725c4f;
+  font-size: 0.9rem;
+}
+
+.producto__precio {
+  margin-top: auto;
+  margin-bottom: 14px;
+  color: #382316;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.producto__precio span {
+  color: #f47721;
+  font-size: 0.9rem;
+}
+.explorar-imagen { height: 220px; }
+/* 
+   10. TARJETAS DE PRODUCTOS
+ */
+
+.tarjeta-producto {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(59, 36, 22, .09);
+}
+
+/* Imagen del producto */
+.tarjeta-producto__img {
+    position: relative;
+    height: 180px;
+}
+
+/* Etiquetas promocionales */
+.etiqueta {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--ft-brand);
+    color: var(--ft-cacao-900);
+    font-size: .7rem;
+    font-weight: 600;
+    padding: .2rem .65rem;
+    border-radius: 999px;
+    z-index: 2;
+}
+
+/* Botón de favoritos */
+.btn-fav {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--ft-tinta);
+    display: grid;
+    place-items: center;
+}
+
+/* Favorito seleccionado */
+.btn-fav[aria-pressed="true"] {
+    color: var(--ft-ajiaco);
+}
+
+.btn-fav[aria-pressed="true"] i::before {
+    content: "\f415"; /* bi-heart-fill */
+}
+
+/* Contenido de la tarjeta */
+.tarjeta-producto__cuerpo {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1rem;
+}
+
+.tarjeta-producto__cuerpo p {
+    margin: 0;
+}
+
+/* Nombre del producto */
+.tarjeta-producto__nombre {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 .15rem;
+}
+
+/* Nombre del vendedor */
+.tarjeta-producto__vendedor {
+    font-size: .8rem;
+    color: var(--ft-suave);
+}
+
+/* Calificación */
+.tarjeta-producto__rating {
+    font-size: .8rem;
+    margin-top: .35rem !important;
+}
+
+.tarjeta-producto__rating i {
+    color: var(--ft-brand);
+}
+
+.tarjeta-producto__rating span {
+    color: var(--ft-suave);
+}
+
+/* Ubicación */
+.tarjeta-producto__lugar {
+    font-size: .8rem;
+}
+
+.tarjeta-producto__lugar i {
+    color: var(--ft-ajiaco);
+}
+
+/* Precio */
+.tarjeta-producto__precio {
+    font-weight: 800;
+    font-size: 1.15rem;
+    margin: .5rem 0 .75rem !important;
+}
+
+.tarjeta-producto__precio small {
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--ft-naranja);
+}
+
+

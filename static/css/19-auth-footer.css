@@ -1,0 +1,51 @@
+/* ==========================================
+   PIE DE PÁGINA DE AUTENTICACIÓN
+   ========================================== */
+
+/* 19. PIE DE PÁGINA DE AUTENTICACIÓN */
+
+.auth-footer {
+    background: #1a0e08;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Enlaces */
+.auth-footer a {
+    color: rgba(255, 255, 255, .9);
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    color: var(--ft-brand);
+}
+
+/* Separación entre enlaces */
+.auth-footer__links li + li {
+    border-left: 1px solid rgba(255, 255, 255, .3);
+    padding-left: 1rem;
+}
+
+/* Elemento decorativo */
+.auth-footer__ola {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: min(46%, 520px);
+    height: 72px;
+    pointer-events: none;
+}
+
+/* Eslogan del pie de página */
+.auth-footer__lema {
+    position: absolute;
+    right: 3rem;
+    top: 50%;
+    transform: translateY(-50%) rotate(-5deg);
+    color: var(--ft-brand);
+    font-size: 1.5rem;
+    line-height: 1.05;
+    text-align: right;
+    margin: 0;
+}

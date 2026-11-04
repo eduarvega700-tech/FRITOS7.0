@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo|default('Próximamente') }} · FRITOS TECH{% endblock %}
+
+{% block contenido %}
+<section class="seccion">
+  <div class="container text-center">
+    <p class="rotulo">Próximamente</p>
+    <h1 class="titulo-script mb-3">{{ titulo|default('Próximamente') }}</h1>
+
+    {% if rf %}
+    <p class="small text-muted mb-3">{{ rf }}</p>
+    {% endif %}
+
+    <p class="mb-4">Estamos trabajando en esta sección.</p>
+    <a class="btn btn-fritos rounded-pill" href="/">Volver al inicio</a>
+  </div>
+</section>
+{% endblock %}

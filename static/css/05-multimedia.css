@@ -1,0 +1,38 @@
+/* ==========================================
+   IMÁGENES Y ELEMENTOS MULTIMEDIA
+   ========================================== */
+
+/* 
+   4. IMÁGENES Y ELEMENTOS MULTIMEDIA
+*/
+
+.media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.media__fallback {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.media--cover {
+    background: linear-gradient(135deg, #FFE3A6, #F9A826);
+    height: 100%;
+}
+
+.media--cover .media__fallback {
+    font-size: 4rem;
+}
+
+

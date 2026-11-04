@@ -1,0 +1,93 @@
+/* ==========================================
+   SEPARADORES Y SELECCIÓN DE ROL
+   ========================================== */
+
+/* 
+   18. SEPARADORES Y SELECCIÓN DE ROL
+ */
+
+/* Separador de formularios */
+.separador {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 1.1rem 0;
+    font-size: .8rem;
+    color: var(--ft-suave);
+}
+
+.separador::before,
+.separador::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e4d9c8;
+}
+
+/* Tarjeta para seleccionar un rol */
+.rol {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    padding: .8rem 1rem;
+    border: 1px solid #eadfcc;
+    border-radius: 12px;
+    background: #fff;
+    text-decoration: none;
+    text-align: left;
+    color: var(--ft-tinta);
+}
+
+/* Rol seleccionado o resaltado */
+.rol:hover,
+.rol--activo {
+    background: #FFF3D6;
+    border-color: var(--ft-brand);
+}
+
+/* Icono del rol */
+.rol__icono {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #EFE9E0;
+    font-size: 1.25rem;
+}
+
+.rol--activo .rol__icono,
+.rol:hover .rol__icono {
+    background: #FFE3A6;
+    color: var(--ft-brand-dark);
+}
+
+/* Textos del rol */
+.rol__texto {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.rol__texto strong {
+    font-weight: 600;
+    font-size: .95rem;
+}
+
+.rol__texto small {
+    color: var(--ft-suave);
+    font-size: .78rem;
+}
+
+/* Flecha del rol */
+.rol > .bi-chevron-right {
+    color: var(--ft-suave);
+}
+
+.rol--activo > .bi-chevron-right {
+    color: var(--ft-brand-dark);
+}
+
+

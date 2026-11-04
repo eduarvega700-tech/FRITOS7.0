@@ -1,32 +1,100 @@
+
 {# Imagen con respaldo: si el archivo no existe en static/img, se muestra el emoji. #}
 {% macro media(src, alt, emoji, cls='') -%}
-{# Las fotos que suben los vendedores vienen como 'uploads/archivo.jpg' (carpeta static/uploads);
-   las demás viven en static/img. #}
-{%- set ruta = src if (src and src.startswith('uploads/')) else 'img/' ~ (src or '') -%}
-<div class="media {{ cls }}">
-  <span class="media__fallback" aria-hidden="true">{{ emoji or '🥟' }}</span>
-  <img src="{{ url_for('static', filename=ruta) }}" alt="{{ alt }}" loading="lazy" onerror="this.remove()">
-</div>
+
+  {# Las fotos que suben los vendedores vienen como 'uploads/archivo.jpg' (carpeta static/uploads);
+     las demás viven en static/img. #}
+  {%- set ruta = src if (src and src.startswith('uploads/')) else 'img/' ~ (src or '') -%}
+
+  <div class="media {{ cls }}">
+
+    <span class="media__fallback" aria-hidden="true">
+      {{ emoji or '🥟' }}
+    </span>
+
+    <img
+      src="{{ url_for('static', filename=ruta) }}"
+      alt="{{ alt }}"
+      loading="lazy"
+      onerror="this.remove()"
+    >
+
+  </div>
+
 {%- endmacro %}
 
+
 {% macro tarjeta_producto(p) -%}
-<article class="tarjeta-producto h-100">
-  <div class="tarjeta-producto__img">
-    {{ media(p.img, p.nombre, p.emoji, 'media--cover') }}
-    {% if p.etiqueta %}<span class="etiqueta">{{ p.etiqueta }}</span>{% endif %}
-    <button class="btn-fav" type="button" aria-pressed="false" aria-label="Guardar {{ p.nombre }} en favoritos">
-      <i class="bi bi-heart" aria-hidden="true"></i>
-    </button>
-  </div>
-  <div class="tarjeta-producto__cuerpo">
-    <h3 class="tarjeta-producto__nombre">{{ p.nombre }}</h3>
-    <p class="tarjeta-producto__vendedor">{{ p.vendedor }}</p>
-    <p class="tarjeta-producto__rating"><i class="bi bi-star-fill" aria-hidden="true"></i> {{ p.rating }} <span>({{ p.resenas }})</span></p>
-    <p class="tarjeta-producto__lugar"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> {{ p.ciudad }}</p>
-    <p class="tarjeta-producto__precio">{{ p.precio|cop }} <small>c/u</small></p>
-    <button class="btn btn-fritos rounded-pill w-100 mt-auto" type="button" data-add="{{ p.id }}" data-nombre="{{ p.nombre }}">
-      <i class="bi bi-cart3 me-1" aria-hidden="true"></i> Agregar al carrito
-    </button>
-  </div>
-</article>
+
+  <article
+    class="tarjeta-producto h-100"
+    data-det-desc="{{ p.descripcion|default('', true) }}"
+  >
+
+    {# Imagen y elementos superiores de la tarjeta #}
+    <div class="tarjeta-producto__img">
+
+      {{ media(p.img, p.nombre, p.emoji, 'media--cover') }}
+
+      {% if p.etiqueta %}
+        <span class="etiqueta">{{ p.etiqueta }}</span>
+      {% endif %}
+
+      <button
+        class="btn-fav"
+        type="button"
+        aria-pressed="false"
+        aria-label="Guardar {{ p.nombre }} en favoritos"
+      >
+        <i class="bi bi-heart" aria-hidden="true"></i>
+      </button>
+
+    </div>
+
+
+    {# Información del producto #}
+    <div class="tarjeta-producto__cuerpo">
+
+      <h3 class="tarjeta-producto__nombre">
+        {{ p.nombre }}
+      </h3>
+
+      <p class="tarjeta-producto__vendedor">
+        {{ p.vendedor }}
+      </p>
+
+      {# Calificación y reseñas #}
+      <p class="tarjeta-producto__rating">
+        <i class="bi bi-star-fill" aria-hidden="true"></i>
+        {{ p.rating }}
+        <span>({{ p.resenas }})</span>
+      </p>
+
+      {# Ubicación del vendedor #}
+      <p class="tarjeta-producto__lugar">
+        <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+        {{ p.ciudad }}
+      </p>
+
+      {# Precio del producto #}
+      <p class="tarjeta-producto__precio">
+        {{ p.precio|cop }}
+        <small>PESOS</small>
+      </p>
+
+      {# Botón para agregar al carrito #}
+      <button
+        class="btn btn-fritos rounded-pill w-100 mt-auto"
+        type="button"
+        data-add="{{ p.id }}"
+        data-nombre="{{ p.nombre }}"
+      >
+        <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
+        Agregar al carrito
+      </button>
+
+    </div>
+
+  </article>
+
 {%- endmacro %}

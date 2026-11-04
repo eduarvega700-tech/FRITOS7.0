@@ -1,280 +1,163 @@
-
 {% extends 'base.html' %}
 {% block title %}Mis productos · FRITOS TECH{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block contenido %}
-<section class="seccion">
+<section class="pv">
     <div class="container">
 
-        <p class="rotulo">Panel de vendedor</p>
-
-        <h1 class="titulo-script mb-1">
-            Mis productos
-        </h1>
-
-        <p class="mb-4">
-            Estos son los fritos que has publicado
-            ({{ productos|length }} en total).
-            Los clientes ven los que están <strong>visibles</strong>
-            en Inicio y en Explorar.
-        </p>
-
-        <div class="row g-4">
-
-            <!-- ============ FORMULARIO: AGREGAR PRODUCTO ============ -->
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-
-                        <h2 class="h5 fw-bold mb-3">
-                            <i
-                                class="bi bi-plus-circle me-1"
-                                aria-hidden="true"
-                            ></i>
-                            Agregar producto
-                        </h2>
-
-                        <form
-                            method="post"
-                            action="{{ url_for('producto_nuevo') }}"
-                            enctype="multipart/form-data"
-                        >
-                            <input
-                                type="hidden"
-                                name="csrf_token"
-                                value="{{ csrf_token() }}"
-                            >
-
-                            <label class="campo-etiqueta" for="p-nombre">
-                                Nombre
-                            </label>
-
-                            <input
-                                class="form-control mb-3"
-                                id="p-nombre"
-                                name="nombre"
-                                type="text"
-                                maxlength="120"
-                                placeholder="Ej: Empanadas de carne"
-                                required
-                            >
-
-                            <label class="campo-etiqueta" for="p-categoria">
-                                Categoría
-                            </label>
-
-                            <select
-                                class="form-select mb-3"
-                                id="p-categoria"
-                                name="categoria_id"
-                                required
-                            >
-                                <option value="" selected disabled>
-                                    Elige una categoría
-                                </option>
-
-                                {% for c in categorias %}
-                                <option value="{{ c.id }}">
-                                    {{ c.nombre }}
-                                </option>
-                                {% endfor %}
-                            </select>
-
-                            <label class="campo-etiqueta" for="p-precio">
-                                Precio (COP)
-                            </label>
-
-                            <input
-                                class="form-control mb-3"
-                                id="p-precio"
-                                name="precio"
-                                type="number"
-                                min="100"
-                                max="1000000"
-                                step="50"
-                                placeholder="2000"
-                                required
-                            >
-
-                            <label class="campo-etiqueta" for="p-descripcion">
-                                Descripción
-                                <span class="text-muted">(opcional)</span>
-                            </label>
-
-                            <textarea
-                                class="form-control mb-3"
-                                id="p-descripcion"
-                                name="descripcion"
-                                rows="3"
-                                maxlength="255"
-                                placeholder="Cuéntales a tus clientes qué lo hace especial"
-                            ></textarea>
-
-                            <label class="campo-etiqueta" for="p-imagen">
-                                Foto
-                                <span class="text-muted">
-                                    (opcional · JPG, PNG o WEBP · máx. 2 MB)
-                                </span>
-                            </label>
-
-                            <input
-                                class="form-control mb-4"
-                                id="p-imagen"
-                                name="imagen"
-                                type="file"
-                                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                            >
-
-                            <button
-                                class="btn btn-fritos btn-lg rounded-pill w-100"
-                                type="submit"
-                            >
-                                Publicar producto
-                                <i
-                                    class="bi bi-arrow-right ms-1"
-                                    aria-hidden="true"
-                                ></i>
-                            </button>
-                        </form>
-
-                    </div>
-                </div>
+        <header class="pv-cabecera">
+            <div>
+                <p class="pv-eyebrow">Panel del vendedor</p>
+                <h1 class="pv-titulo">Mis productos</h1>
+                <p class="pv-sub">
+                    Edita, oculta, marca como agotado o elimina tus fritos.
+                    Los clientes ven los que están <strong>visibles</strong>.
+                </p>
             </div>
 
-            <!-- ============ LISTA DE MIS PRODUCTOS ============ -->
-            <div class="col-lg-8">
+            <a class="btn btn-fritos btn-lg rounded-pill" href="{{ url_for('producto_nuevo') }}">
+                <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>
+                Agregar producto
+            </a>
+        </header>
+
+        <section class="pv-panel">
+            <div class="pv-panel__cab">
+                <div class="d-flex align-items-center gap-2">
+                    <h2 class="pv-panel__titulo">Catálogo</h2>
+                    <span class="pv-contador">{{ productos|length }} productos</span>
+                </div>
 
                 {% if productos %}
-                <div class="row g-4">
-
-                    {% for p in productos %}
-                    <div class="col-12 col-sm-6">
-                        <article class="producto h-100">
-
-                            <div class="producto__imagen">
-                                <img
-                                    src="{{ url_for('static', filename=p.imagen if p.imagen else 'img/logito.png') }}"
-                                    alt="{{ p.nombre }}"
-                                    loading="lazy"
-                                >
-                            </div>
-
-                            <div class="producto__contenido">
-
-                                <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
-                                    <span class="small text-muted">
-                                        {{ p.categoria }}
-                                    </span>
-
-                                    {% if p.activo %}
-                                    <span class="badge text-bg-success">
-                                        Visible
-                                    </span>
-                                    {% else %}
-                                    <span class="badge text-bg-secondary">
-                                        Oculto
-                                    </span>
-                                    {% endif %}
-                                </div>
-
-                                <h3 class="producto__titulo">
-                                    {{ p.nombre }}
-                                </h3>
-
-                                {% if p.descripcion %}
-                                <p class="small text-muted mb-2">
-                                    {{ p.descripcion }}
-                                </p>
-                                {% endif %}
-
-                                <p class="producto__precio">
-                                    {{ p.precio|cop }}
-                                    <span>c/u</span>
-                                </p>
-
-                                <p class="small text-muted mb-3">
-                                    Publicado el
-                                    {{ p.creado_en.strftime('%d/%m/%Y') }}
-                                </p>
-
-                                <div class="d-flex gap-2">
-
-                                    <form
-                                        method="post"
-                                        class="flex-fill m-0"
-                                        action="{{ url_for('producto_estado', producto_id=p.id) }}"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="csrf_token"
-                                            value="{{ csrf_token() }}"
-                                        >
-
-                                        <button
-                                            class="btn btn-contorno-naranja btn-sm rounded-pill w-100"
-                                            type="submit"
-                                        >
-                                            <i
-                                                class="bi {{ 'bi-eye-slash' if p.activo else 'bi-eye' }} me-1"
-                                                aria-hidden="true"
-                                            ></i>
-                                            {{ 'Ocultar' if p.activo else 'Mostrar' }}
-                                        </button>
-                                    </form>
-
-                                    <form
-                                        method="post"
-                                        class="m-0"
-                                        action="{{ url_for('producto_eliminar', producto_id=p.id) }}"
-                                        onsubmit="return confirm('¿Eliminar este producto? Esta acción no se puede deshacer.');"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="csrf_token"
-                                            value="{{ csrf_token() }}"
-                                        >
-
-                                        <button
-                                            class="btn btn-outline-danger btn-sm rounded-pill"
-                                            type="submit"
-                                            aria-label="Eliminar {{ p.nombre }}"
-                                        >
-                                            <i
-                                                class="bi bi-trash"
-                                                aria-hidden="true"
-                                            ></i>
-                                        </button>
-                                    </form>
-
-                                </div>
-                            </div>
-
-                        </article>
-                    </div>
-                    {% endfor %}
-
-                </div>
-
-                {% else %}
-                <div class="text-center py-5">
-                    <i
-                        class="bi bi-box-seam display-4 text-muted"
-                        aria-hidden="true"
-                    ></i>
-
-                    <p class="mt-3 mb-1 fw-semibold">
-                        Todavía no has agregado productos.
-                    </p>
-
-                    <p class="text-muted">
-                        Usa el formulario para publicar el primero.
-                    </p>
-                </div>
+                <label class="pv-buscar">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input id="pv-buscar" type="search" placeholder="Buscar en mis productos"
+                           aria-label="Buscar en mis productos" autocomplete="off">
+                </label>
                 {% endif %}
-
             </div>
-        </div>
 
+            {% if productos %}
+            <div class="pv-tabla-caja">
+                <table class="pv-tabla" id="pv-tabla-productos">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Visibilidad</th>
+                            <th>Disponibilidad</th>
+                            <th class="pv-der">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for p in productos %}
+                        <tr data-nombre="{{ p.nombre }} {{ p.categoria }}">
+                            <td class="pv-principal" data-label="Producto">
+                                <div class="pv-prod">
+                                    <img class="pv-prod__foto"
+                                         src="{{ url_for('static', filename=p.foto) }}"
+                                         alt="{{ p.nombre }}" loading="lazy">
+                                    <div>
+                                        <p class="pv-prod__nombre">{{ p.nombre }}</p>
+                                        <p class="pv-prod__cat">{{ p.categoria }}</p>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td data-label="Precio" class="pv-fuerte">{{ p.precio|cop }}</td>
+
+                            <td data-label="Visibilidad">
+                                <span class="pv-estado pv-estado--{{ 'visible' if p.activo else 'oculto' }}">
+                                    {{ 'Visible' if p.activo else 'Oculto' }}
+                                </span>
+                            </td>
+
+                            <td data-label="Disponibilidad">
+                                <span class="pv-estado pv-estado--{{ 'disponible' if p.disponible else 'agotado' }}">
+                                    {{ 'Disponible' if p.disponible else 'Agotado' }}
+                                </span>
+                            </td>
+
+                            <td class="pv-sin-etiqueta">
+                                <div class="pv-acciones">
+                                    <a class="btn btn-contorno-naranja btn-sm rounded-pill"
+                                       href="{{ url_for('producto_editar', producto_id=p.id) }}">
+                                        <i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar
+                                    </a>
+
+                                    <form method="post" action="{{ url_for('producto_estado', producto_id=p.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="pv-icono" type="submit"
+                                                title="{{ 'Ocultar de la tienda' if p.activo else 'Mostrar en la tienda' }}"
+                                                aria-label="{{ 'Ocultar' if p.activo else 'Mostrar' }} {{ p.nombre }}">
+                                            <i class="bi {{ 'bi-eye-slash' if p.activo else 'bi-eye' }}" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="{{ url_for('producto_disponible', producto_id=p.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="pv-icono" type="submit"
+                                                title="{{ 'Marcar como agotado' if p.disponible else 'Marcar como disponible' }}"
+                                                aria-label="{{ 'Marcar agotado' if p.disponible else 'Marcar disponible' }}: {{ p.nombre }}">
+                                            <i class="bi {{ 'bi-slash-circle' if p.disponible else 'bi-check-circle' }}" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="{{ url_for('producto_eliminar', producto_id=p.id) }}"
+                                          onsubmit="return confirm('¿Eliminar este producto? Esta acción no se puede deshacer.');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="pv-icono pv-icono--peligro" type="submit"
+                                                title="Eliminar" aria-label="Eliminar {{ p.nombre }}">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pv-vacio" id="pv-sin-resultados" hidden>
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <p>Ningún producto coincide con tu búsqueda.</p>
+            </div>
+
+            {% else %}
+            <div class="pv-vacio">
+                <i class="bi bi-box-seam" aria-hidden="true"></i>
+                <p>Todavía no has agregado productos.</p>
+                <a class="btn btn-fritos rounded-pill" href="{{ url_for('producto_nuevo') }}">
+                    Agrega el primero
+                </a>
+            </div>
+            {% endif %}
+        </section>
     </div>
 </section>
+
+<script>
+    // Filtra la tabla mientras escribes (sin tildes ni mayúsculas)
+    (function () {
+        var caja = document.getElementById('pv-buscar');
+        if (!caja) return;
+        var filas = document.querySelectorAll('#pv-tabla-productos tbody tr');
+        var vacio = document.getElementById('pv-sin-resultados');
+        function limpiar(s) {
+            return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        }
+        caja.addEventListener('input', function () {
+            var texto = limpiar(caja.value.trim()), visibles = 0;
+            filas.forEach(function (fila) {
+                var coincide = !texto || limpiar(fila.dataset.nombre).indexOf(texto) !== -1;
+                fila.hidden = !coincide;
+                if (coincide) visibles++;
+            });
+            vacio.hidden = visibles > 0 || !texto;
+        });
+    })();
+</script>
 {% endblock %}

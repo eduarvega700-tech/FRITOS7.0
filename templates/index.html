@@ -149,6 +149,12 @@
       'Deditos de queso': 'deditos_queso.jpg',
       'Marranitas': 'marranitas.jpg',
       'Aborrajados': 'aborrajados.jpg',
+      'Empanadas de pipián': 'empanadas_pipian.jpg',
+      'Empanadas vallecaucanas': 'empanadas_vallecaucanas.jpg',
+      'Empanadas de cambray': 'empanadas_cambray.jpg',
+      'Empanadas de yuca': 'empanadas_yuca.jpg',
+      'Patacón pisao': 'patacon_pisao.jpg',
+      'Empanadas de camarón': 'empanadas_camaron.jpg',
       'Quibbes': 'quibbes.jpg',
       'Pastel de pollo': 'pastel_pollo.jpg'
     } %}
@@ -156,7 +162,8 @@
       <div class="col-12 col-sm-6 col-lg-3"
            data-categoria="{{ p.categoria }}">
 
-        <article class="producto h-100">
+        <article class="producto h-100"
+                 data-det-desc="{{ p.descripcion|default('', true) }}">
 
           <!-- IMAGEN DEL PRODUCTO -->
           <div class="producto__imagen">
@@ -164,7 +171,7 @@
               src="{{ url_for(
                 'static',
                 filename=(p.img if (p.img and p.img.startswith('uploads/'))
-                          else 'img/' ~ imagenes_productos.get(p.nombre, 'logito.png'))
+                          else 'img/' ~ imagenes_productos.get(p.nombre, 'default.png'))
               ) }}"
               alt="{{ p.nombre }}"
               loading="lazy">
@@ -186,7 +193,7 @@
             {% if p.precio is defined %}
             <p class="producto__precio">
               ${{ "{:,.0f}".format(p.precio).replace(",", ".") }}
-              <span>c/u</span>
+              <span>PESOS</span>
             </p>
             {% endif %}
 

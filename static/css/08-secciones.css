@@ -1,0 +1,68 @@
+/* ==========================================
+   SECCIONES GENERALES
+   ========================================== */
+
+/*
+   7. SECCIONES GENERALES
+*/
+
+.seccion {
+    position: relative;
+    padding: 3rem 0;
+}
+
+.seccion--crema {
+    background: var(--ft-crema);
+}
+
+.seccion--arena {
+    background: var(--ft-arena);
+}
+
+.seccion--sin-tope {
+    padding-top: .5rem;
+}
+
+/* Etiqueta superior */
+.rotulo {
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--ft-naranja);
+    margin-bottom: .1rem;
+}
+
+/* Títulos decorativos */
+.titulo-script {
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 2.8rem);
+    line-height: 1.05;
+}
+
+/* Enlaces destacados */
+.enlace-naranja {
+    color: var(--ft-naranja);
+    font-weight: 600;
+    font-size: .85rem;
+    text-decoration: none;
+}
+
+.enlace-naranja:hover {
+    text-decoration: underline;
+}
+
+/* Elemento decorativo */
+.pincelada {
+    position: absolute;
+    left: -28px;
+    top: 2.2rem;
+    width: 96px;
+    height: 52px;
+    background: var(--ft-brand);
+    border-radius: 55% 45% 60% 40% / 60% 45% 55% 40%;
+    transform: rotate(-8deg);
+}
+
+

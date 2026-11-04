@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Mis ventas · FRITOS TECH{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block contenido %}
+<section class="pv">
+    <div class="container">
+
+        <header class="pv-cabecera">
+            <div>
+                <p class="pv-eyebrow">Panel del vendedor</p>
+                <h1 class="pv-titulo">Mis ventas</h1>
+                <p class="pv-sub">
+                    Pedidos que incluyen tus productos. Las ventas canceladas
+                    no se suman a los totales.
+                </p>
+            </div>
+        </header>
+
+        <!-- RESUMEN -->
+        <div class="pv-stats mb-4">
+            <div class="pv-stat pv-stat--destacada">
+                <span class="pv-stat__icono"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
+                <div>
+                    <p class="pv-stat__etiqueta">Ventas (sin cancelados)</p>
+                    <p class="pv-stat__valor">{{ resumen.ingresos|cop }}</p>
+                </div>
+            </div>
+
+            <div class="pv-stat">
+                <span class="pv-stat__icono"><i class="bi bi-receipt" aria-hidden="true"></i></span>
+                <div>
+                    <p class="pv-stat__etiqueta">Pedidos recibidos</p>
+                    <p class="pv-stat__valor">{{ resumen.pedidos }}</p>
+                </div>
+            </div>
+
+            <div class="pv-stat">
+                <span class="pv-stat__icono"><i class="bi bi-bag-check" aria-hidden="true"></i></span>
+                <div>
+                    <p class="pv-stat__etiqueta">Unidades vendidas</p>
+                    <p class="pv-stat__valor">{{ resumen.unidades }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTRO POR ESTADO -->
+        <div class="chips mb-4" role="navigation" aria-label="Filtrar por estado">
+            <a class="chip {{ 'chip--activo' if not estado_activo }}" href="{{ url_for('mis_ventas') }}">
+                Todos
+            </a>
+
+            {% for e in estados %}
+            <a class="chip {{ 'chip--activo' if estado_activo == e }}"
+               href="{{ url_for('mis_ventas', estado=e) }}">
+                {{ e|capitalize }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <section class="pv-panel">
+            <div class="pv-panel__cab">
+                <div class="d-flex align-items-center gap-2">
+                    <h2 class="pv-panel__titulo">Pedidos</h2>
+                    <span class="pv-contador">{{ pedidos|length }} pedidos</span>
+                </div>
+            </div>
+
+            <div class="pv-tabla-caja">
+                <table class="pv-tabla">
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Tus productos</th>
+                            <th>Entrega</th>
+                            <th>Subtotal</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for p in pedidos %}
+                        <tr>
+                            <td class="pv-principal" data-label="Pedido">
+                                <span>
+                                    <span class="pv-fuerte">#{{ p.id }}</span><br>
+                                    <span class="pv-tenue">{{ p.creado_en.strftime('%d/%m/%Y %H:%M') }}</span>
+                                </span>
+                            </td>
+
+                            <td data-label="Cliente">{{ p.cliente }}</td>
+
+                            <td data-label="Tus productos">
+                                <div>
+                                    <ul class="pv-items">
+                                        {% for it in items.get(p.id, []) %}
+                                        <li><b>{{ it.cantidad }}×</b> <span>{{ it.nombre }}</span></li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% if p.notas %}
+                                    <p class="pv-nota">“{{ p.notas }}”</p>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <td data-label="Entrega">
+                                <div class="pv-entrega">
+                                    {% if p.tipo_entrega == 'domicilio' %}
+                                    <i class="bi bi-truck" aria-hidden="true"></i>
+                                    <span>Domicilio<br><span class="pv-tenue">{{ p.direccion }}</span></span>
+                                    {% else %}
+                                    <i class="bi bi-bag-check" aria-hidden="true"></i>
+                                    <span>Recoger en el local</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <td data-label="Subtotal" class="pv-fuerte">{{ p.subtotal|cop }}</td>
+
+                            <td data-label="Estado">
+                                <span class="pv-estado pv-estado--{{ p.estado }}">{{ p.estado|capitalize }}</span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr class="pv-fila-vacia">
+                            <td colspan="6" class="pv-sin-etiqueta">
+                                <div class="pv-vacio">
+                                    <i class="bi bi-receipt" aria-hidden="true"></i>
+                                    <p>No hay pedidos con este filtro.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}

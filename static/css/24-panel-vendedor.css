@@ -1,0 +1,728 @@
+/* ==========================================
+   PANEL DEL VENDEDOR
+   (resumen, mis productos, mis ventas y formulario de producto)
+   ========================================== */
+
+.pv {
+    --pv-card: #fff;
+    --pv-borde: #EADBC5;
+    --pv-fondo-suave: #FBF3E6;
+    --pv-hover: #FFF9EE;
+    --pv-sombra: 0 1px 2px rgba(42, 24, 16, .05), 0 8px 24px rgba(42, 24, 16, .06);
+
+    --pv-ok: #1E7A4C;       --pv-ok-bg: #DDF3E6;
+    --pv-aviso: #8A5A00;    --pv-aviso-bg: #FFF0CC;
+    --pv-info: #1F5A99;     --pv-info-bg: #E3EEFB;
+    --pv-mal: #A12222;      --pv-mal-bg: #FBE0E0;
+    --pv-neutro: #6B5E53;   --pv-neutro-bg: #EFE8DD;
+
+    padding: 2.25rem 0 4rem;
+    color: var(--ft-tinta);
+}
+
+body.modo-noche .pv {
+    --pv-card: #2b1a11;
+    --pv-borde: rgba(255, 255, 255, .1);
+    --pv-fondo-suave: #33201a;
+    --pv-hover: #35221a;
+    --pv-sombra: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+
+    --pv-ok: #7FD6A6;       --pv-ok-bg: rgba(46, 160, 100, .2);
+    --pv-aviso: #FFC857;    --pv-aviso-bg: rgba(249, 168, 38, .18);
+    --pv-info: #8DBBF0;     --pv-info-bg: rgba(70, 130, 210, .22);
+    --pv-mal: #FF9A9A;      --pv-mal-bg: rgba(192, 40, 45, .25);
+    --pv-neutro: #CBBBAA;   --pv-neutro-bg: rgba(255, 255, 255, .08);
+}
+
+/* ---------- Cabecera de página ---------- */
+
+.pv-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.pv-eyebrow {
+    margin: 0 0 .3rem;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ft-naranja);
+}
+
+.pv-titulo {
+    margin: 0;
+    font-family: var(--fuente-titulo);
+    font-size: clamp(1.6rem, 3vw, 2.15rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--ft-tinta);
+}
+
+.pv-sub {
+    max-width: 62ch;
+    margin: .4rem 0 0;
+    color: var(--ft-suave);
+}
+
+.pv-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin-bottom: .9rem;
+    font-size: .9rem;
+    color: var(--ft-suave);
+    text-decoration: none;
+}
+
+.pv-volver:hover {
+    color: var(--ft-naranja);
+}
+
+/* ---------- Aviso destacado ---------- */
+
+.pv-aviso {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem .9rem;
+    margin-bottom: 1.5rem;
+    padding: .9rem 1.2rem;
+    border-radius: 1rem;
+    background: var(--pv-aviso-bg);
+    color: var(--pv-aviso);
+    font-weight: 500;
+}
+
+.pv-aviso i {
+    font-size: 1.25rem;
+}
+
+.pv-aviso a {
+    margin-left: auto;
+    font-weight: 700;
+    color: inherit;
+}
+
+/* ---------- Tarjetas de cifras ---------- */
+
+.pv-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.pv-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.15rem 1.25rem;
+    background: var(--pv-card);
+    border: 1px solid var(--pv-borde);
+    border-radius: 1.15rem;
+    box-shadow: var(--pv-sombra);
+    color: inherit;
+    text-decoration: none;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+a.pv-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(42, 24, 16, .06), 0 14px 30px rgba(42, 24, 16, .1);
+    color: inherit;
+}
+
+.pv-stat__icono {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    font-size: 1.3rem;
+    background: var(--pv-aviso-bg);
+    color: var(--pv-aviso);
+}
+
+.pv-stat__etiqueta {
+    margin: 0;
+    font-size: .82rem;
+    font-weight: 500;
+    color: var(--ft-suave);
+}
+
+.pv-stat__valor {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ft-tinta);
+}
+
+.pv-stat--ok .pv-stat__icono {
+    background: var(--pv-ok-bg);
+    color: var(--pv-ok);
+}
+
+.pv-stat--alerta .pv-stat__icono {
+    background: var(--pv-mal-bg);
+    color: var(--pv-mal);
+}
+
+.pv-stat--destacada {
+    background: linear-gradient(135deg, #3B2416, #2A1810);
+    border-color: transparent;
+}
+
+.pv-stat--destacada .pv-stat__icono {
+    background: rgba(249, 168, 38, .2);
+    color: var(--ft-brand);
+}
+
+.pv-stat--destacada .pv-stat__etiqueta {
+    color: rgba(255, 255, 255, .72);
+}
+
+.pv-stat--destacada .pv-stat__valor {
+    color: #fff;
+}
+
+/* Cifras secundarias en fila */
+.pv-resumen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    margin-bottom: 1.75rem;
+}
+
+.pv-resumen__item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .45rem;
+    padding: .45rem 1rem;
+    border-radius: 999px;
+    background: var(--pv-card);
+    border: 1px solid var(--pv-borde);
+    font-size: .88rem;
+    color: var(--ft-suave);
+}
+
+.pv-resumen__item strong {
+    font-size: 1rem;
+    color: var(--ft-tinta);
+}
+
+/* ---------- Paneles (tarjetas con título) ---------- */
+
+.pv-panel {
+    height: 100%;
+    overflow: hidden;
+    background: var(--pv-card);
+    border: 1px solid var(--pv-borde);
+    border-radius: 1.25rem;
+    box-shadow: var(--pv-sombra);
+}
+
+.pv-panel__cab {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem 1rem;
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid var(--pv-borde);
+}
+
+.pv-panel__titulo {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ft-tinta);
+}
+
+.pv-panel__nota {
+    margin: .15rem 0 0;
+    font-size: .82rem;
+    color: var(--ft-suave);
+}
+
+.pv-enlace {
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--ft-naranja);
+    text-decoration: none;
+}
+
+.pv-enlace:hover {
+    color: var(--ft-brand-dark);
+    text-decoration: underline;
+}
+
+.pv-contador {
+    display: inline-block;
+    padding: .25rem .75rem;
+    border-radius: 999px;
+    background: var(--pv-fondo-suave);
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--ft-suave);
+}
+
+/* ---------- Tablas ---------- */
+
+.pv-tabla-caja {
+    overflow-x: auto;
+}
+
+.pv-tabla {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.pv-tabla th {
+    padding: .75rem 1.1rem;
+    background: var(--pv-fondo-suave);
+    border-bottom: 1px solid var(--pv-borde);
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--ft-suave);
+}
+
+.pv-tabla td {
+    padding: .9rem 1.1rem;
+    border-bottom: 1px solid var(--pv-borde);
+    vertical-align: middle;
+    color: var(--ft-tinta);
+}
+
+.pv-tabla tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.pv-tabla tbody tr:hover td {
+    background: var(--pv-hover);
+}
+
+.pv-der {
+    text-align: right !important;
+}
+
+.pv-fuerte {
+    font-weight: 700;
+}
+
+.pv-tenue {
+    font-size: .82rem;
+    color: var(--ft-suave);
+}
+
+/* Producto (foto + nombre + categoría) */
+.pv-prod {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    min-width: 230px;
+}
+
+.pv-prod__foto {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    object-fit: cover;
+    background: var(--ft-arena);
+}
+
+.pv-prod__nombre {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ft-tinta);
+}
+
+.pv-prod__cat {
+    margin: 0;
+    font-size: .82rem;
+    color: var(--ft-suave);
+}
+
+/* Etiquetas de estado */
+.pv-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .28rem .75rem;
+    border-radius: 999px;
+    background: var(--pv-neutro-bg);
+    color: var(--pv-neutro);
+    font-size: .78rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pv-estado::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.pv-estado--pendiente,
+.pv-estado--agotado-aviso { background: var(--pv-aviso-bg); color: var(--pv-aviso); }
+
+.pv-estado--preparando { background: var(--pv-info-bg); color: var(--pv-info); }
+
+.pv-estado--listo,
+.pv-estado--entregado,
+.pv-estado--visible,
+.pv-estado--disponible { background: var(--pv-ok-bg); color: var(--pv-ok); }
+
+.pv-estado--cancelado,
+.pv-estado--agotado { background: var(--pv-mal-bg); color: var(--pv-mal); }
+
+.pv-estado--oculto { background: var(--pv-neutro-bg); color: var(--pv-neutro); }
+
+/* Botones de acción por fila */
+.pv-acciones {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: .45rem;
+}
+
+.pv-acciones form {
+    margin: 0;
+}
+
+.pv-icono {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--pv-borde);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ft-suave);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.pv-icono:hover {
+    background: var(--ft-arena);
+    border-color: var(--ft-brand);
+    color: var(--ft-tinta);
+}
+
+.pv-icono--peligro:hover {
+    background: var(--pv-mal-bg);
+    border-color: var(--pv-mal);
+    color: var(--pv-mal);
+}
+
+/* Detalle de pedido */
+.pv-items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: .88rem;
+}
+
+.pv-items li {
+    display: flex;
+    gap: .5rem;
+    padding: .1rem 0;
+}
+
+.pv-items b {
+    min-width: 1.6rem;
+    color: var(--ft-naranja);
+}
+
+.pv-nota {
+    margin: .4rem 0 0;
+    font-size: .8rem;
+    font-style: italic;
+    color: var(--ft-suave);
+}
+
+.pv-entrega {
+    display: flex;
+    gap: .5rem;
+    font-size: .88rem;
+}
+
+.pv-entrega i {
+    margin-top: .1rem;
+    color: var(--ft-naranja);
+}
+
+/* Barras de "más vendidos" */
+.pv-top {
+    display: grid;
+    gap: 1.1rem;
+    margin: 0;
+    padding: 1.2rem 1.4rem 1.4rem;
+    list-style: none;
+}
+
+.pv-top__fila {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .35rem;
+    font-size: .92rem;
+}
+
+.pv-top__nombre {
+    font-weight: 600;
+    color: var(--ft-tinta);
+}
+
+.pv-top__uds {
+    white-space: nowrap;
+    color: var(--ft-suave);
+}
+
+.pv-barra {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--ft-arena);
+}
+
+.pv-barra__relleno {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--ft-brand), var(--ft-naranja));
+}
+
+.pv-top__dinero {
+    margin-top: .3rem;
+    font-size: .8rem;
+    color: var(--ft-suave);
+}
+
+/* Estado vacío */
+.pv-vacio {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--ft-suave);
+}
+
+.pv-vacio i {
+    display: block;
+    margin-bottom: .6rem;
+    font-size: 2.6rem;
+    color: var(--ft-brand);
+}
+
+.pv-vacio p {
+    margin: 0 0 1rem;
+}
+
+/* Buscador de la tabla */
+.pv-buscar {
+    position: relative;
+    width: min(100%, 280px);
+}
+
+.pv-buscar i {
+    position: absolute;
+    top: 50%;
+    left: .95rem;
+    transform: translateY(-50%);
+    color: var(--ft-suave);
+    pointer-events: none;
+}
+
+.pv-buscar input {
+    width: 100%;
+    padding: .5rem 1rem .5rem 2.5rem;
+    border: 1px solid var(--pv-borde);
+    border-radius: 999px;
+    background: var(--pv-card);
+    color: var(--ft-tinta);
+    font-size: .9rem;
+}
+
+.pv-buscar input:focus {
+    outline: none;
+    border-color: var(--ft-brand);
+    box-shadow: 0 0 0 .2rem rgba(249, 168, 38, .25);
+}
+
+/* ---------- Formulario de producto ---------- */
+
+.pv-form {
+    padding: 1.5rem;
+}
+
+.pv-form__rejilla {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem 1.25rem;
+}
+
+.pv-form__ancho {
+    grid-column: 1 / -1;
+}
+
+.pv-form .campo-etiqueta {
+    display: block;
+    margin-bottom: .35rem;
+}
+
+.pv-form .form-control,
+.pv-form .form-select {
+    padding: .7rem .95rem;
+    border: 1px solid var(--pv-borde);
+    border-radius: .85rem;
+    background-color: var(--pv-card);
+    color: var(--ft-tinta);
+}
+
+.pv-form .form-control:focus,
+.pv-form .form-select:focus {
+    border-color: var(--ft-brand);
+    box-shadow: 0 0 0 .2rem rgba(249, 168, 38, .25);
+}
+
+.pv-subida {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 1rem;
+    border: 2px dashed var(--pv-borde);
+    border-radius: 1rem;
+    background: var(--pv-fondo-suave);
+}
+
+.pv-subida__vista {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 96px;
+    height: 96px;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: var(--ft-arena);
+    color: var(--ft-suave);
+    font-size: 2rem;
+}
+
+.pv-subida__vista img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pv-subida__texto {
+    flex: 1;
+    min-width: 0;
+}
+
+.pv-form__pie {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.6rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--pv-borde);
+}
+
+/* ---------- Celulares: las tablas pasan a tarjetas ---------- */
+
+@media (max-width: 767.98px) {
+    .pv {
+        padding-top: 1.5rem;
+    }
+
+    .pv-form__rejilla {
+        grid-template-columns: 1fr;
+    }
+
+    .pv-tabla-caja {
+        overflow: visible;
+        padding: .9rem;
+    }
+
+    .pv-tabla,
+    .pv-tabla tbody,
+    .pv-tabla tr,
+    .pv-tabla td {
+        display: block;
+        width: 100%;
+    }
+
+    .pv-tabla thead {
+        display: none;
+    }
+
+    .pv-tabla tr {
+        margin-bottom: .85rem;
+        padding: .4rem 1rem;
+        border: 1px solid var(--pv-borde);
+        border-radius: 1rem;
+        background: var(--pv-card);
+    }
+
+    .pv-tabla tbody tr:hover td {
+        background: transparent;
+    }
+
+    .pv-tabla td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: .6rem 0;
+        border-bottom: 1px dashed var(--pv-borde);
+        text-align: right;
+    }
+
+    .pv-tabla tr td:last-child {
+        border-bottom: 0;
+    }
+
+    .pv-tabla td::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        color: var(--ft-suave);
+        text-align: left;
+    }
+
+    .pv-tabla td.pv-principal {
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .pv-tabla td.pv-principal::before,
+    .pv-tabla td.pv-sin-etiqueta::before {
+        display: none;
+    }
+
+    .pv-tabla tr.pv-fila-vacia {
+        padding: 0;
+        border: 0;
+    }
+
+    .pv-prod {
+        min-width: 0;
+    }
+}
