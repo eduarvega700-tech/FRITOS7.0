@@ -35,8 +35,8 @@
 
 /* Símbolo del logo */
 .logo-mark {
-    width: 52px;
-    height: 52px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     background: var(--ft-brand);
     flex: 0 0 auto;
@@ -79,3 +79,10 @@
 }
 
 
+/* Tamaño del logo de FRITOS TECH */
+.ft-header .navbar-brand .logo {
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
