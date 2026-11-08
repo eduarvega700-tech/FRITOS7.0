@@ -21,6 +21,163 @@
                     {% if editando %}
                         Cambia lo que necesites y guarda.
                     {% else %}
+                        Publica un nuevo frito para que los clientes puedan pedirlo.
+                    {% endif %}
+                </p>
+            </div>
+        </header>
+
+        <div class="row">
+            <div class="col-xl-8">
+                <section class="pv-panel">
+                    <div class="pv-panel__cab">
+                        <h2 class="pv-panel__titulo">Datos del producto</h2>
+                    </div>
+
+                    <form
+                        method="post"
+                        class="pv-form"
+                        action="{{ url_for('producto_editar', producto_id=producto.id) if editando else url_for('producto_nuevo') }}"
+                        enctype="multipart/form-data"
+                    >
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="pv-form__rejilla">
+
+                            <div class="pv-form__ancho">
+                                <label class="campo-etiqueta" for="p-nombre">Nombre</label>
+                                <input class="form-control" id="p-nombre" name="nombre" type="text"
+                                       maxlength="120" placeholder="Ej: Empanadas de carne"
+                                       value="{{ producto.nombre or '' }}" required>
+                            </div>
+
+                            <div>
+                                <label class="campo-etiqueta" for="p-categoria">Categoría</label>
+                                <select class="form-select" id="p-categoria" name="categoria_id" required>
+                                    <option value="" disabled {{ 'selected' if not cat_actual }}>
+                                        Elige una categoría
+                                    </option>
+                                    {% for c in categorias %}
+                                    <option value="{{ c.id }}" {{ 'selected' if (c.id|string) == cat_actual }}>
+                                        {{ c.nombre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="campo-etiqueta" for="p-precio">Precio (COP)</label>
+                                <input class="form-control" id="p-precio" name="precio" type="number"
+                                       min="100" max="1000000" step="50" placeholder="2000"
+                                       value="{{ producto.precio or '' }}" required>
+                            </div>
+
+                            <div class="pv-form__ancho">
+                                <label class="campo-etiqueta" for="p-descripcion">
+                                    Descripción <span class="text-muted">(opcional)</span>
+                                </label>
+                                <textarea class="form-control" id="p-descripcion" name="descripcion"
+                                          rows="3" maxlength="255"
+                                          placeholder="Cuéntales a tus clientes qué lo hace especial"
+                                >{{ producto.descripcion or '' }}</textarea>
+                                <div class="pv-tenue text-end mt-1">
+                                    <span id="p-contador">0</span>/255
+                                </div>
+                            </div>
+
+                            <div class="pv-form__ancho">
+                                <label class="campo-etiqueta" for="p-imagen">
+                                    Foto
+                                    <span class="text-muted">(opcional · JPG, PNG o WEBP · máx. 2 MB)</span>
+                                </label>
+
+                                <div class="pv-subida">
+                                    <div class="pv-subida__vista" id="p-vista">
+                                        {% if editando and producto.imagen %}
+                                        <img src="{{ url_for('static', filename=producto.imagen) }}"
+                                             alt="Foto actual de {{ producto.nombre }}">
+                                        {% else %}
+                                        <i class="bi bi-image" aria-hidden="true"></i>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="pv-subida__texto">
+                                        <input class="form-control" id="p-imagen" name="imagen" type="file"
+                                               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                                        {% if editando and producto.imagen %}
+                                        <p class="pv-tenue mb-0 mt-2">
+                                            Esta es tu foto actual. Sube otra solo si quieres cambiarla.
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pv-form__pie">
+                            <button class="btn btn-fritos btn-lg rounded-pill" type="submit">
+                                {{ 'Guardar cambios' if editando else 'Publicar producto' }}
+                                <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                            </button>
+
+                            <a class="btn btn-outline-secondary btn-lg rounded-pill"
+                               href="{{ url_for('mis_productos') }}">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    (function () {
+        // Contador de caracteres de la descripción
+        var texto = document.getElementById('p-descripcion');
+        var contador = document.getElementById('p-contador');
+        function contar() { contador.textContent = texto.value.length; }
+        texto.addEventListener('input', contar);
+        contar();
+
+        // Vista previa de la foto elegida
+        var archivo = document.getElementById('p-imagen');
+        var vista = document.getElementById('p-vista');
+        archivo.addEventListener('change', function () {
+            var f = archivo.files && archivo.files[0];
+            if (!f) return;
+            var img = document.createElement('img');
+            img.alt = 'Vista previa de la foto';
+            img.src = URL.createObjectURL(f);
+            vista.replaceChildren(img);
+        });
+    })();
+</script>
+{% endblock %}
+{% extends 'base.html' %}
+{% block title %}{{ 'Editar producto' if editando else 'Agregar producto' }} · FRITOS TECH{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block contenido %}
+{% set cat_actual = (producto.categoria_id|string) if producto.categoria_id is defined and producto.categoria_id else '' %}
+
+<section class="pv">
+    <div class="container">
+
+        <a class="pv-volver" href="{{ url_for('mis_productos') }}">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Volver a mis productos
+        </a>
+
+        <header class="pv-cabecera">
+            <div>
+                <p class="pv-eyebrow">Panel del vendedor</p>
+                <h1 class="pv-titulo">{{ 'Editar producto' if editando else 'Agregar producto' }}</h1>
+                <p class="pv-sub">
+                    {% if editando %}
+                        Cambia lo que necesites y guarda.
+                    {% else %}
                         Publica tus nuevos fritos para que los clientes puedan pedirlo.
                     {% endif %}
                 </p>
