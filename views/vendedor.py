@@ -39,14 +39,25 @@ def _leer_formulario():
         "descripcion": request.form.get("descripcion", "").strip(),
         "categoria_id": request.form.get("categoria_id", ""),
         "precio": request.form.get("precio", ""),
+        "cantidad_disponible": request.form.get("cantidad_disponible", ""),
+        "oferta_activa": request.form.get("oferta_activa") == "1",
+        "descuento_porcentaje": request.form.get("descuento_porcentaje", "0"),
     }
     if (not datos["nombre"] or not datos["categoria_id"].isdigit()
-            or not datos["precio"].isdigit()):
-        return datos, "Completa el nombre, la categoría y el precio."
+            or not datos["precio"].isdigit()
+            or not datos["cantidad_disponible"].isdigit()
+            or not datos["descuento_porcentaje"].isdigit()):
+        return datos, "Completa nombre, categoría, precio y cantidad disponible."
     if not 100 <= int(datos["precio"]) <= 1_000_000:
         return datos, "El precio debe estar entre $100 y $1.000.000."
+    if not 0 <= int(datos["cantidad_disponible"]) <= 100000:
+        return datos, "La cantidad debe estar entre 0 y 100.000 unidades."
+    if not 0 <= int(datos["descuento_porcentaje"]) <= 90:
+        return datos, "El descuento debe estar entre 0% y 90%."
     if len(datos["nombre"]) > 120 or len(datos["descripcion"]) > 255:
         return datos, "El nombre o la descripción son demasiado largos."
+    if datos["oferta_activa"] and int(datos["descuento_porcentaje"]) < 1:
+        return datos, "Indica un descuento entre 1% y 90%, o desactiva la oferta."
     return datos, None
 
 
@@ -120,6 +131,8 @@ def producto_nuevo():
                     session["usuario_id"], int(datos["categoria_id"]),
                     datos["nombre"], datos["descripcion"] or None,
                     int(datos["precio"]), imagen,
+                    int(datos["cantidad_disponible"]), datos["oferta_activa"],
+                    int(datos["descuento_porcentaje"]),
                 )
                 flash(f"«{datos['nombre']}» ya está en tu catálogo.", "success")
                 return redirect(url_for("mis_productos"))
@@ -144,6 +157,8 @@ def producto_editar(producto_id):
     if actual is None:
         abort(404)
     actual["precio"] = int(actual["precio"])
+    actual["cantidad_disponible"] = int(actual["cantidad_disponible"])
+    actual["descuento_porcentaje"] = int(actual["descuento_porcentaje"] or 0)
 
     if request.method == "POST":
         datos, error = _leer_formulario()
@@ -155,7 +170,9 @@ def producto_editar(producto_id):
                 producto.actualizar(
                     producto_id, session["usuario_id"],
                     int(datos["categoria_id"]), datos["nombre"],
-                    datos["descripcion"] or None, int(datos["precio"]), nueva,
+                    datos["descripcion"] or None, int(datos["precio"]),
+                    int(datos["cantidad_disponible"]), datos["oferta_activa"],
+                    int(datos["descuento_porcentaje"]), nueva,
                 )
                 if nueva:
                     quitar_imagen(actual["imagen"])  # borra la foto anterior

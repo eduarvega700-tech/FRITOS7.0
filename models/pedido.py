@@ -13,33 +13,56 @@ def _agrupar_items(filas):
     return items
 
 
-def crear(cliente_id, tipo, direccion, notas, productos, items):
-    """Crea el pedido y sus ítems en una transacción. Devuelve el id.
-
-    `productos` son las filas reales de MySQL; el precio SIEMPRE sale de ahí,
-    nunca del navegador. `items` es {producto_id: cantidad}.
-    """
-    total = sum(int(f["precio"]) * items[f["id"]] for f in productos)
+def crear(cliente_id, tipo, direccion, notas, items):
+    """Crea pedido con precios vigentes y descuenta inventario en una transacción."""
+    if not items:
+        raise ValueError("Tu carrito está vacío.")
     db = get_db()
     db.begin()
     try:
+        ids = list(items)
+        marcas = ",".join(["%s"] * len(ids))
         with db.cursor() as cur:
             cur.execute(
-                "INSERT INTO pedido "
-                "(cliente_id, tipo_entrega, direccion, notas, total) "
-                "VALUES (%s, %s, %s, %s, %s)",
-                (cliente_id, tipo,
-                 direccion if tipo == "domicilio" else None,
-                 notas or None, total),
+                "SELECT p.id,p.nombre,p.precio,p.cantidad_disponible,p.activo,p.oferta_activa,"
+                "p.descuento_porcentaje,u.activo AS vendedor_activo "
+                "FROM producto p JOIN usuario u ON u.id=p.vendedor_id "
+                "WHERE p.id IN (" + marcas + ") FOR UPDATE", tuple(ids)
+            )
+            filas = cur.fetchall()
+            por_id = {f["id"]: f for f in filas}
+            if len(por_id) != len(items):
+                raise ValueError("Uno de los productos ya no está disponible. Actualiza tu carrito.")
+            total = 0
+            lineas = []
+            for producto_id, cantidad in items.items():
+                f = por_id[producto_id]
+                if not f["activo"] or not f["vendedor_activo"]:
+                    raise ValueError(f"{f['nombre']} ya no está disponible.")
+                if cantidad > int(f["cantidad_disponible"]):
+                    raise ValueError(f"Solo quedan {f['cantidad_disponible']} unidades de {f['nombre']}.")
+                precio = int(f["precio"])
+                if f["oferta_activa"]:
+                    precio = precio * (100 - int(f["descuento_porcentaje"])) // 100
+                total += precio * cantidad
+                lineas.append((producto_id, f["nombre"], precio, cantidad))
+
+            cur.execute(
+                "INSERT INTO pedido (cliente_id,tipo_entrega,direccion,notas,total) "
+                "VALUES (%s,%s,%s,%s,%s)",
+                (cliente_id,tipo,direccion if tipo == "domicilio" else None,notas or None,total),
             )
             pedido_id = cur.lastrowid
-            for f in productos:
+            for producto_id, nombre, precio, cantidad in lineas:
                 cur.execute(
-                    "INSERT INTO pedido_item "
-                    "(pedido_id, producto_id, nombre, precio_unitario, cantidad) "
-                    "VALUES (%s, %s, %s, %s, %s)",
-                    (pedido_id, f["id"], f["nombre"],
-                     int(f["precio"]), items[f["id"]]),
+                    "INSERT INTO pedido_item (pedido_id,producto_id,nombre,precio_unitario,cantidad) "
+                    "VALUES (%s,%s,%s,%s,%s)",
+                    (pedido_id,producto_id,nombre,precio,cantidad),
+                )
+                cur.execute(
+                    "UPDATE producto SET cantidad_disponible=cantidad_disponible-%s, "
+                    "disponible=(cantidad_disponible-%s > 0) WHERE id=%s",
+                    (cantidad,cantidad,producto_id),
                 )
         db.commit()
     except Exception:
@@ -92,7 +115,34 @@ def recientes(limite=6):
 
 
 def cambiar_estado(pedido_id, estado):
-    """True si el pedido existe (rowcount 0 también pasa si el estado era igual)."""
-    if ejecutar("UPDATE pedido SET estado = %s WHERE id = %s", (estado, pedido_id)):
+    """Actualiza estado; al cancelar por primera vez devuelve unidades al inventario."""
+    db = get_db()
+    db.begin()
+    try:
+        with db.cursor() as cur:
+            cur.execute("SELECT estado FROM pedido WHERE id=%s FOR UPDATE", (pedido_id,))
+            actual = cur.fetchone()
+            if actual is None:
+                db.rollback()
+                return False
+            if actual["estado"] == estado:
+                db.commit()
+                return True
+            # Un pedido cancelado no se reactiva para evitar descontar stock dos veces.
+            if actual["estado"] == "cancelado":
+                db.rollback()
+                return False
+            if estado == "cancelado":
+                cur.execute("SELECT producto_id,cantidad FROM pedido_item WHERE pedido_id=%s", (pedido_id,))
+                for item in cur.fetchall():
+                    if item["producto_id"] is not None:
+                        cur.execute(
+                            "UPDATE producto SET cantidad_disponible=cantidad_disponible+%s,disponible=1 "
+                            "WHERE id=%s", (item["cantidad"],item["producto_id"])
+                        )
+            cur.execute("UPDATE pedido SET estado=%s WHERE id=%s", (estado,pedido_id))
+        db.commit()
         return True
-    return consultar("SELECT id FROM pedido WHERE id = %s", (pedido_id,), uno=True) is not None
+    except Exception:
+        db.rollback()
+        raise

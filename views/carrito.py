@@ -33,10 +33,11 @@ def api_carrito():
         "id": f["id"],
         "nombre": f["nombre"],
         "vendedor": f["vendedor"],
-        "precio": int(f["precio"]),
-        "cantidad": items[f["id"]],
+        "precio": int(f["precio_final"]),
+        "cantidad": min(items[f["id"]], int(f["cantidad_disponible"])),
+        "stock": int(f["cantidad_disponible"]),
         "img": url_for("static", filename=ruta_imagen(f["nombre"], f["img"])),
-    } for f in filas]
+    } for f in filas if int(f["cantidad_disponible"]) > 0]
     return jsonify({"productos": productos})
 
 
@@ -66,8 +67,11 @@ def pedido_nuevo():
             flash("Algún producto ya no está disponible. Revisa tu carrito.", "warning")
             return redirect(url_for("carrito"))
         pedido_id = pedido_model.crear(
-            session["usuario_id"], tipo, direccion, notas, filas, items
+            session["usuario_id"], tipo, direccion, notas, items
         )
+    except ValueError as error:
+        flash(str(error), "warning")
+        return redirect(url_for("carrito"))
     except pymysql.MySQLError as error:
         current_app.logger.error("Error de MySQL: %s", error)
         flash("No pudimos registrar tu pedido. Inténtalo de nuevo.", "danger")

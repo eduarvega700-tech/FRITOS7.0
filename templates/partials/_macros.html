@@ -77,10 +77,23 @@
       </p>
 
       {# Precio del producto #}
-      <p class="tarjeta-producto__precio">
-        {{ p.precio|cop }}
-        <small>PESOS</small>
-      </p>
+      {% if p.oferta_activa and p.descuento_porcentaje %}
+        <span class="badge bg-success mb-1">{{ p.descuento_porcentaje }}% de descuento</span>
+        <p class="mb-0 text-muted text-decoration-line-through">{{ p.precio|cop }}</p>
+        <p class="tarjeta-producto__precio text-success">{{ p.precio_final|cop }} <small>PESOS</small></p>
+      {% else %}
+        <p class="tarjeta-producto__precio">{{ p.precio|cop }} <small>PESOS</small></p>
+      {% endif %}
+
+      {% if p.cantidad_disponible is defined %}
+        {% if p.cantidad_disponible == 0 %}
+          <p class="small text-danger fw-semibold">Agotado</p>
+        {% elif p.cantidad_disponible <= 5 %}
+          <p class="small text-warning-emphasis fw-semibold">¡Últimas {{ p.cantidad_disponible }} unidades!</p>
+        {% else %}
+          <p class="small text-muted">Disponible</p>
+        {% endif %}
+      {% endif %}
 
       {# Botón para agregar al carrito #}
       <button
@@ -88,9 +101,11 @@
         type="button"
         data-add="{{ p.id }}"
         data-nombre="{{ p.nombre }}"
+        data-stock="{{ p.cantidad_disponible if p.cantidad_disponible is defined else 50 }}"
+        {% if p.cantidad_disponible is defined and p.cantidad_disponible <= 0 %}disabled{% endif %}
       >
         <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
-        Agregar al carrito
+        {{ 'Agotado' if p.cantidad_disponible is defined and p.cantidad_disponible <= 0 else 'Agregar al carrito' }}
       </button>
 
     </div>

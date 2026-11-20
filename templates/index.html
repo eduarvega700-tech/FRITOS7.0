@@ -226,27 +226,37 @@
             </p>
             {% endif %}
 
+            {% set stock = p.cantidad_disponible|default(0, true)|int %}
+            {% set oferta = p.oferta_activa|default(0, true)|int == 1 and p.descuento_porcentaje|default(0, true)|int > 0 %}
+            {% set descuento = p.descuento_porcentaje|default(0, true)|int %}
+            {% set precio_final = p.precio_final|default((p.precio * (100 - descuento) / 100) if oferta else p.precio, true) %}
+
             {% if p.precio is defined %}
-            <p class="producto__precio">
-              ${{ "{:,.0f}".format(p.precio).replace(",", ".") }}
-              <span>PESOS</span>
-            </p>
+              {% if oferta %}
+              <div class="producto__precio">
+                <span class="text-decoration-line-through text-muted">${{ "{:,.0f}".format(p.precio).replace(",", ".") }}</span>
+                <strong class="text-success">${{ "{:,.0f}".format(precio_final|float).replace(",", ".") }}</strong>
+                <span class="badge bg-success">{{ descuento }}% DTO.</span>
+              </div>
+              {% else %}
+              <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>PESOS</span></p>
+              {% endif %}
             {% endif %}
 
-            {% if p.id is defined %}
-            <button class="btn btn-fritos rounded-pill w-100"
-                    type="button"
-                    data-add="{{ p.id }}"
-                    data-nombre="{{ p.nombre }}">
-              <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
-              Agregar al carrito
-            </button>
+            {% if stock > 0 %}
+            <span class="badge bg-success mb-2">Disponible · {{ stock }} unidades</span>
             {% else %}
-            <a class="btn btn-fritos rounded-pill w-100"
-               href="{{ url_for('explorar') }}">
-              <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
-              Ver producto
-            </a>
+            <span class="badge bg-secondary mb-2">Agotado</span>
+            {% endif %}
+
+            {% if p.id is defined and stock > 0 %}
+            <button class="btn btn-fritos rounded-pill w-100" type="button" data-add="{{ p.id }}" data-nombre="{{ p.nombre }}">
+              <i class="bi bi-cart3 me-1" aria-hidden="true"></i> Agregar al carrito
+            </button>
+            {% elif p.id is defined %}
+            <button class="btn btn-secondary rounded-pill w-100" type="button" disabled>Producto agotado</button>
+            {% else %}
+            <a class="btn btn-fritos rounded-pill w-100" href="{{ url_for('explorar') }}">Ver producto</a>
             {% endif %}
 
           </div>
