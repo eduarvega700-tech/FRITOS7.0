@@ -1,6 +1,6 @@
 
 {% extends 'base.html' %}
-{% from 'partials/_macros.html' import tarjeta_producto %}
+{% from 'partials/_macros.html' import tarjeta_producto, aviso_stock, boton_agregar, precio_producto %}
 
 {% block title %}Explorar fritos · FRITOS TECH{% endblock %}
 
@@ -114,74 +114,27 @@
                         </p>
                         {% endif %}
 
-                        {% set stock = p.cantidad_disponible|default(0, true)|int %}
-                        {% set oferta = p.oferta_activa|default(0, true)|int == 1 and p.descuento_porcentaje|default(0, true)|int > 0 %}
-                        {% set descuento = p.descuento_porcentaje|default(0, true)|int %}
-                        {% set precio_final = p.precio_final|default((p.precio * (100 - descuento) / 100) if oferta else p.precio, true) %}
+                        {{ precio_producto(p) }}
 
-                        {% if p.precio is defined %}
-                            {% if oferta %}
-                            <div class="producto__precio">
-                                <span class="text-decoration-line-through text-muted">${{ "{:,.0f}".format(p.precio).replace(",", ".") }}</span>
-                                <strong class="text-success">${{ "{:,.0f}".format(precio_final|float).replace(",", ".") }}</strong>
-                                <span class="badge bg-success">{{ descuento }}% DTO.</span>
-                            </div>
-                            {% else %}
-                            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>PESOS</span></p>
-                            {% endif %}
-                        {% endif %}
-
-                        {% if stock > 0 %}
-                        <span class="badge bg-success mb-2">Disponible · {{ stock }} unidades</span>
+                        {% if p.id is defined %}
+                        {{ aviso_stock(p) }}
+                        {{ boton_agregar(p) }}
                         {% else %}
-                        <span class="badge bg-secondary mb-2">Agotado</span>
-                        {% endif %}
-
-                        {% if p.id is defined and stock > 0 %}
-                        <button class="btn btn-fritos rounded-pill w-100" type="button" data-add="{{ p.id }}" data-nombre="{{ p.nombre }}">
-                            <i class="bi bi-cart3 me-1" aria-hidden="true"></i> Agregar al carrito
-                        </button>
-                        {% elif p.id is defined %}
-                        <button class="btn btn-secondary rounded-pill w-100" type="button" disabled>Producto agotado</button>
-                        {% else %}
-                        <a class="btn btn-fritos rounded-pill w-100" href="{{ url_for('explorar') }}">Ver producto</a>
+                        <a
+                            class="btn btn-fritos rounded-pill w-100"
+                            href="{{ url_for('explorar') }}"
+                        >
+                            <i
+                                class="bi bi-cart3 me-1"
+                                aria-hidden="true"
+                            ></i>
+                            Ver producto
+                        </a>
                         {% endif %}
                     </div>
                 </article>
                 {% else %}
-                <article class="producto h-100 explorar-con-imagen" data-det-desc="{{ p.descripcion|default('', true) }}">
-                    <div class="producto__imagen explorar-imagen">
-                        <img src="{{ url_for('static', filename='img/default.png') }}" alt="{{ p.nombre }}" loading="lazy">
-                    </div>
-                    <div class="producto__contenido">
-                        <h3 class="producto__titulo">{{ p.nombre }}</h3>
-                        {% if p.vendedor is defined %}<p class="producto__vendedor">{{ p.vendedor }}</p>{% endif %}
-                        {% set stock = p.cantidad_disponible|default(0, true)|int %}
-                        {% set oferta = p.oferta_activa|default(0, true)|int == 1 and p.descuento_porcentaje|default(0, true)|int > 0 %}
-                        {% set descuento = p.descuento_porcentaje|default(0, true)|int %}
-                        {% set precio_final = p.precio_final|default((p.precio * (100 - descuento) / 100) if oferta else p.precio, true) %}
-                        {% if p.precio is defined %}
-                            {% if oferta %}
-                            <div class="producto__precio">
-                                <span class="text-decoration-line-through text-muted">${{ "{:,.0f}".format(p.precio).replace(",", ".") }}</span>
-                                <strong class="text-success">${{ "{:,.0f}".format(precio_final|float).replace(",", ".") }}</strong>
-                                <span class="badge bg-success">{{ descuento }}% DTO.</span>
-                            </div>
-                            {% else %}
-                            <p class="producto__precio">${{ "{:,.0f}".format(p.precio).replace(",", ".") }} <span>PESOS</span></p>
-                            {% endif %}
-                        {% endif %}
-                        {% if stock > 0 %}<span class="badge bg-success mb-2">Disponible · {{ stock }} unidades</span>
-                        {% else %}<span class="badge bg-secondary mb-2">Agotado</span>{% endif %}
-                        {% if p.id is defined and stock > 0 %}
-                        <button class="btn btn-fritos rounded-pill w-100" type="button" data-add="{{ p.id }}" data-nombre="{{ p.nombre }}"><i class="bi bi-cart3 me-1" aria-hidden="true"></i> Agregar al carrito</button>
-                        {% elif p.id is defined %}
-                        <button class="btn btn-secondary rounded-pill w-100" type="button" disabled>Producto agotado</button>
-                        {% else %}
-                        <a class="btn btn-fritos rounded-pill w-100" href="{{ url_for('explorar') }}">Ver producto</a>
-                        {% endif %}
-                    </div>
-                </article>
+                {{ tarjeta_producto(p) }}
                 {% endif %}
 
             </div>

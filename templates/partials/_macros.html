@@ -24,6 +24,54 @@
 {%- endmacro %}
 
 
+{# Aviso de disponibilidad. NUNCA muestra la cantidad exacta.
+   Más de 5: Disponible · De 1 a 5: ¡Últimas unidades! · 0: Agotado #}
+{% macro aviso_stock(p) -%}
+  {% if p.cantidad_disponible is defined %}
+    {% if p.cantidad_disponible <= 0 %}
+      <p class="small text-danger fw-semibold">Agotado</p>
+    {% elif p.cantidad_disponible <= 5 %}
+      <p class="small text-warning-emphasis fw-semibold">¡Últimas unidades!</p>
+    {% else %}
+      <p class="small text-muted">Disponible</p>
+    {% endif %}
+  {% endif %}
+{%- endmacro %}
+
+
+{# Precio con oferta: muestra el % de descuento, el precio original tachado y el
+   precio rebajado. Sin oferta muestra solo el precio normal. #}
+{% macro precio_producto(p) -%}
+  {% if p.precio is defined %}
+    {% if p.oferta_activa and p.descuento_porcentaje and p.precio_final is defined %}
+      <span class="badge bg-danger mb-1">{{ p.descuento_porcentaje }}% de descuento</span>
+      <p class="mb-0 small text-muted text-decoration-line-through">{{ p.precio|cop }}</p>
+      <p class="producto__precio text-success">{{ p.precio_final|cop }} <span>PESOS</span></p>
+    {% else %}
+      <p class="producto__precio">{{ p.precio|cop }} <span>PESOS</span></p>
+    {% endif %}
+  {% endif %}
+{%- endmacro %}
+
+
+{# Botón "Agregar al carrito". Lleva data-stock para que main.js sepa cuántas
+   unidades puede agregar; si no hay existencias queda deshabilitado. #}
+{% macro boton_agregar(p) -%}
+  {% set agotado = p.cantidad_disponible is defined and p.cantidad_disponible <= 0 %}
+  <button
+    class="btn btn-fritos rounded-pill w-100"
+    type="button"
+    data-add="{{ p.id }}"
+    data-nombre="{{ p.nombre }}"
+    data-stock="{{ p.cantidad_disponible if p.cantidad_disponible is defined else 50 }}"
+    {% if agotado %}disabled{% endif %}
+  >
+    <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
+    {{ 'Agotado' if agotado else 'Agregar al carrito' }}
+  </button>
+{%- endmacro %}
+
+
 {% macro tarjeta_producto(p) -%}
 
   <article
@@ -85,15 +133,7 @@
         <p class="tarjeta-producto__precio">{{ p.precio|cop }} <small>PESOS</small></p>
       {% endif %}
 
-      {% if p.cantidad_disponible is defined %}
-        {% if p.cantidad_disponible == 0 %}
-          <p class="small text-danger fw-semibold">Agotado</p>
-        {% elif p.cantidad_disponible <= 5 %}
-          <p class="small text-warning-emphasis fw-semibold">¡Últimas {{ p.cantidad_disponible }} unidades!</p>
-        {% else %}
-          <p class="small text-muted">Disponible</p>
-        {% endif %}
-      {% endif %}
+      {{ aviso_stock(p) }}
 
       {# Botón para agregar al carrito #}
       <button

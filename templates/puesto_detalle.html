@@ -113,7 +113,9 @@
                             {% if p.cantidad_disponible == 0 %}
                             <span class="badge text-bg-danger">Agotado</span>
                             {% elif p.cantidad_disponible <= 5 %}
-                            <span class="badge text-bg-warning">¡Últimas {{ p.cantidad_disponible }} unidades!</span>
+                            <span class="badge text-bg-warning">¡Últimas unidades!</span>
+                            {% else %}
+                            <span class="badge text-bg-success">Disponible</span>
                             {% endif %}
                             {% if p.oferta_activa and p.descuento_porcentaje %}
                             <span class="badge text-bg-success">-{{ p.descuento_porcentaje }}%</span>
@@ -132,7 +134,9 @@
                         {% endif %}
 
                         {% if p.cantidad_disponible > 0 %}
-                        <button class="btn btn-fritos rounded-pill mt-auto" type="button" data-proximamente>
+                        <button class="btn btn-fritos rounded-pill mt-auto" type="button"
+                                data-add="{{ p.id }}" data-nombre="{{ p.nombre }}"
+                                data-stock="{{ p.cantidad_disponible }}">
                             Agregar al carrito
                         </button>
                         {% else %}
