@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from 'partials/_macros.html' import media %}
+{% from 'partials/_macros.html' import media, aviso_stock, boton_agregar, precio_producto %}
 
 {% block contenido %}
 
@@ -226,21 +226,11 @@
             </p>
             {% endif %}
 
-            {% if p.precio is defined %}
-            <p class="producto__precio">
-              ${{ "{:,.0f}".format(p.precio).replace(",", ".") }}
-              <span>PESOS</span>
-            </p>
-            {% endif %}
+            {{ precio_producto(p) }}
 
             {% if p.id is defined %}
-            <button class="btn btn-fritos rounded-pill w-100"
-                    type="button"
-                    data-add="{{ p.id }}"
-                    data-nombre="{{ p.nombre }}">
-              <i class="bi bi-cart3 me-1" aria-hidden="true"></i>
-              Agregar al carrito
-            </button>
+            {{ aviso_stock(p) }}
+            {{ boton_agregar(p) }}
             {% else %}
             <a class="btn btn-fritos rounded-pill w-100"
                href="{{ url_for('explorar') }}">

@@ -44,7 +44,8 @@
                     <thead>
                         <tr>
                             <th>Producto</th>
-                            <th>Precio</th>
+                            <th>Precio / oferta</th>
+                            <th>Inventario</th>
                             <th>Visibilidad</th>
                             <th>Disponibilidad</th>
                             <th class="pv-der">Acciones</th>
@@ -66,7 +67,19 @@
                                 </div>
                             </td>
 
-                            <td data-label="Precio" class="pv-fuerte">{{ p.precio|cop }}</td>
+                            <td data-label="Precio / oferta" class="pv-fuerte">
+                                {% if p.oferta_activa and p.descuento_porcentaje %}
+                                    <span class="text-muted text-decoration-line-through">{{ p.precio|cop }}</span><br>
+                                    <strong class="text-success">{{ (p.precio * (100 - p.descuento_porcentaje) // 100)|cop }}</strong>
+                                    <small class="d-block text-success">-{{ p.descuento_porcentaje }}%</small>
+                                {% else %}{{ p.precio|cop }}{% endif %}
+                            </td>
+                            <td data-label="Inventario">
+                                <strong>{{ p.cantidad_disponible }}</strong> unidades
+                                {% if p.cantidad_disponible == 0 %}<span class="pv-estado pv-estado--agotado">Agotado</span>
+                                {% elif p.cantidad_disponible <= 5 %}<span class="pv-estado pv-estado--agotado">Casi agotado</span>
+                                {% else %}<span class="pv-estado pv-estado--disponible">En existencia</span>{% endif %}
+                            </td>
 
                             <td data-label="Visibilidad">
                                 <span class="pv-estado pv-estado--{{ 'visible' if p.activo else 'oculto' }}">
@@ -96,14 +109,7 @@
                                         </button>
                                     </form>
 
-                                    <form method="post" action="{{ url_for('producto_disponible', producto_id=p.id) }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <button class="pv-icono" type="submit"
-                                                title="{{ 'Marcar como agotado' if p.disponible else 'Marcar como disponible' }}"
-                                                aria-label="{{ 'Marcar agotado' if p.disponible else 'Marcar disponible' }}: {{ p.nombre }}">
-                                            <i class="bi {{ 'bi-slash-circle' if p.disponible else 'bi-check-circle' }}" aria-hidden="true"></i>
-                                        </button>
-                                    </form>
+
 
                                     <form method="post" action="{{ url_for('producto_eliminar', producto_id=p.id) }}"
                                           onsubmit="return confirm('¿Eliminar este producto? Esta acción no se puede deshacer.');">

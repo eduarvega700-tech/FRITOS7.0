@@ -32,7 +32,9 @@ def obtener(puesto_id):
 def productos_de(puesto_id):
     return consultar(
         "SELECT p.id, p.nombre, p.descripcion, p.precio, p.imagen, "
-        "       p.disponible, c.nombre AS categoria "
+        "       p.disponible,p.cantidad_disponible,p.oferta_activa,p.descuento_porcentaje, "
+        "       CASE WHEN p.oferta_activa=1 THEN FLOOR(p.precio*(100-p.descuento_porcentaje)/100) "
+        "       ELSE p.precio END AS precio_final,c.nombre AS categoria "
         "FROM producto p JOIN categoria c ON c.id = p.categoria_id "
         "WHERE p.vendedor_id = %s AND p.activo = 1 "
         "ORDER BY c.id, p.nombre",

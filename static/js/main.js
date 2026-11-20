@@ -100,8 +100,14 @@
             var carrito = leer();
             var id = agregar.getAttribute("data-add");
 
-            // Sumar una unidad del producto seleccionado (máximo 50).
-            carrito[id] = Math.min((carrito[id] || 0) + 1, 50);
+            // No permitir agregar más unidades que las registradas en inventario.
+            var stock = parseInt(agregar.getAttribute("data-stock") || "0", 10);
+            var actual = carrito[id] || 0;
+            if (stock <= 0 || actual >= stock) {
+                mostrarAviso(stock <= 0 ? "Producto agotado" : "No hay más unidades disponibles");
+                return;
+            }
+            carrito[id] = Math.min(actual + 1, 50, stock);
 
             guardar(carrito);
             pintarContador();
@@ -358,7 +364,7 @@
                 mas.type = "button";
                 mas.setAttribute("data-cambiar", p.id + ":1");
                 mas.setAttribute("aria-label", "Agregar una unidad de " + p.nombre);
-                mas.disabled = p.cantidad >= maxUnidades;
+                mas.disabled = p.cantidad >= Math.min(maxUnidades, p.stock || maxUnidades);
                 cantidad.appendChild(menos);
                 cantidad.appendChild(num);
                 cantidad.appendChild(mas);
@@ -417,11 +423,15 @@
 
                     // Quitar del navegador los productos que ya no existen.
                     var vigente = {};
-                    productos.forEach(function (p) { vigente[p.id] = p.cantidad; });
-                    if (Object.keys(vigente).length !== Object.keys(guardado).length) {
+                    var cambioInventario = false;
+                    productos.forEach(function (p) {
+                        vigente[p.id] = p.cantidad;
+                        if (Number(guardado[p.id] || 0) !== Number(p.cantidad)) cambioInventario = true;
+                    });
+                    if (cambioInventario || Object.keys(vigente).length !== Object.keys(guardado).length) {
                         guardar(vigente);
                         pintarContador();
-                        mostrarAviso("Quitamos productos que ya no están disponibles");
+                        mostrarAviso("Actualizamos las cantidades según el inventario disponible");
                     }
 
                     elCargando.hidden = true;
@@ -448,7 +458,9 @@
                 if (nueva <= 0) {
                     delete carrito[id];
                 } else {
-                    carrito[id] = Math.min(nueva, maxUnidades);
+                    var productoActual = productos.find(function (p) { return String(p.id) === String(id); });
+                    var limite = productoActual ? Math.min(maxUnidades, productoActual.stock || maxUnidades) : maxUnidades;
+                    carrito[id] = Math.min(nueva, limite);
                 }
             } else if (quitar) {
                 delete carrito[quitar.getAttribute("data-quitar")];

@@ -87,8 +87,10 @@
 
 
     // Comprueba si la tarjeta tiene botón para agregar
+    var botonAgregar = card.querySelector('[data-add]');
+
     $('modalProductoAgregar').hidden =
-      !card.querySelector('[data-add]');
+      !botonAgregar || botonAgregar.disabled;
 
 
     modal.show();
