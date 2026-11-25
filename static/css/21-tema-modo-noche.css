@@ -220,3 +220,13 @@ body:not(.modo-noche) .selector-tema .selector-tema__texto--claro,
 body.modo-noche .selector-tema .selector-tema__texto--oscuro {
   color: #ff6b3d !important;
 }
+/* ===== SALUDO DEL USUARIO ===== */
+.saludo-usuario {
+    color: #f8f8f8;
+    font-weight: 600;
+}
+
+body[data-theme="dark"] .saludo-usuario {
+    color: #ffffff;
+}
+
