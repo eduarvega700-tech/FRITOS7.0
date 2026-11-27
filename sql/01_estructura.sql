@@ -1,6 +1,6 @@
 -- ============================================================
 -- 01_estructura.sql   ·   FRITOS TECH
--- SOLO ESTRUCTURA: base de datos, tablas y vista. No trae datos.
+-- SOLO ESTRUCTURA: base de datos, tablas y v ista. No trae datos.
 --
 -- EJECUTAR PRIMERO (y luego 02_datos.sql).
 -- Se puede ejecutar varias veces sin borrar nada:
