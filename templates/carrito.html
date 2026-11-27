@@ -1,25 +1,16 @@
-
 {% extends 'base.html' %}
 {% block title %}Mi carrito · FRITOS TECH{% endblock %}
 
 {% block contenido %}
 <section class="seccion">
-    <div
-        class="container"
-        id="carrito-pagina"
-        data-csrf="{{ csrf_token() }}"
-        data-max="{{ max_unidades }}"
-    >
+    <div class="container" id="carrito-pagina" data-csrf="{{ csrf_token() }}" data-max="{{ max_unidades }}">
 
         <p class="rotulo">Tu pedido</p>
         <h1 class="titulo-script mb-4">Mi carrito</h1>
 
         <!-- Carrito vacío -->
         <div id="carrito-vacio" class="text-center py-5" hidden>
-            <i
-                class="bi bi-cart-x display-4 text-muted"
-                aria-hidden="true"
-            ></i>
+            <i class="bi bi-cart-x display-4 text-muted" aria-hidden="true"></i>
 
             <p class="mt-3 mb-1 fw-semibold">
                 Tu carrito está vacío.
@@ -29,25 +20,14 @@
                 Explora los fritos y agrega los que se te antojen.
             </p>
 
-            <a
-                class="btn btn-fritos btn-lg rounded-pill"
-                href="{{ url_for('explorar') }}"
-            >
+            <a class="btn btn-fritos btn-lg rounded-pill" href="{{ url_for('explorar') }}">
                 Explorar fritos
-                <i
-                    class="bi bi-arrow-right ms-1"
-                    aria-hidden="true"
-                ></i>
+                <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
             </a>
         </div>
 
         <!-- Error al cargar -->
-        <p
-            id="carrito-error"
-            class="alert alert-warning small"
-            role="alert"
-            hidden
-        >
+        <p id="carrito-error" class="alert alert-warning small" role="alert" hidden>
             No pudimos cargar tu carrito. Inténtalo de nuevo en unos minutos.
         </p>
 
@@ -59,43 +39,20 @@
 
             <!-- Productos -->
             <div class="col-lg-7">
-                <ul
-                    class="list-unstyled d-grid gap-3 mb-3"
-                    id="carrito-lista"
-                ></ul>
+                <ul class="list-unstyled d-grid gap-3 mb-3" id="carrito-lista"></ul>
 
-                <button
-                    class="btn btn-link enlace-naranja p-0 small"
-                    type="button"
-                    id="carrito-vaciar"
-                >
-                    <i
-                        class="bi bi-trash me-1"
-                        aria-hidden="true"
-                    ></i>
+                <button class="btn btn-link enlace-naranja p-0 small" type="button" id="carrito-vaciar">
+                    <i class="bi bi-trash me-1" aria-hidden="true"></i>
                     Vaciar carrito
                 </button>
             </div>
 
             <!-- Resumen y datos del pedido -->
             <div class="col-lg-5">
-                <form
-                    class="carrito-resumen"
-                    method="post"
-                    action="{{ url_for('pedido_nuevo') }}"
-                    id="carrito-form"
-                >
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}"
-                    >
+                <form class="carrito-resumen" method="post" action="{{ url_for('pedido_nuevo') }}" id="carrito-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-                    <input
-                        type="hidden"
-                        name="items"
-                        id="carrito-items"
-                    >
+                    <input type="hidden" name="items" id="carrito-items">
 
                     <h2 class="h5 fw-bold mb-3">Resumen</h2>
 
@@ -114,66 +71,165 @@
                             ¿Cómo lo quieres?
                         </legend>
 
-                        <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                type="radio"
-                                name="tipo_entrega"
-                                id="t-recoger"
-                                value="recoger"
-                                checked
-                            >
+                        direccion de pedido 
 
-                            <label
-                                class="form-check-label"
-                                for="t-recoger"
-                            >
-                                <i
-                                    class="bi bi-bag-check me-1"
-                                    aria-hidden="true"
-                                ></i>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="tipo_entrega" id="t-recoger"
+                                value="recoger" checked>
+
+                            <label class="form-check-label" for="t-recoger">
+                                <i class="bi bi-bag-check me-1" aria-hidden="true"></i>
                                 Recoger en el local
                             </label>
                         </div>
 
                         <div class="form-check">
-                            <input
-                                class="form-check-input"
-                                type="radio"
-                                name="tipo_entrega"
-                                id="t-domicilio"
-                                value="domicilio"
-                            >
+                            <input class="form-check-input" type="radio" name="tipo_entrega" id="t-domicilio"
+                                value="domicilio">
 
-                            <label
-                                class="form-check-label"
-                                for="t-domicilio"
-                            >
-                                <i
-                                    class="bi bi-truck me-1"
-                                    aria-hidden="true"
-                                ></i>
+                            <label class="form-check-label" for="t-domicilio">
+                                <i class="bi bi-truck me-1" aria-hidden="true"></i>
                                 Domicilio
                             </label>
                         </div>
                     </fieldset>
 
                     <div id="bloque-direccion" class="mb-3" hidden>
-                        <label
-                            class="campo-etiqueta"
-                            for="c-direccion"
-                        >
-                            Dirección de entrega
-                        </label>
 
-                        <input
-                            class="form-control"
-                            id="c-direccion"
-                            name="direccion"
-                            type="text"
-                            maxlength="200"
-                            placeholder="Barrio, calle, número y referencias"
-                        >
+                        <fieldset>
+                            <legend class="campo-etiqueta">
+                                ¿Dónde quieres recibir tu pedido?
+                            </legend>
+
+                            <!-- Tipo de vivienda -->
+                            <div class="d-flex gap-3 mb-3">
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipo_vivienda" id="v-casa"
+                                        value="casa" checked>
+
+                                    <label class="form-check-label" for="v-casa">
+                                        <i class="bi bi-house-door me-1"></i>
+                                        Casa
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipo_vivienda" id="v-edificio"
+                                        value="edificio">
+
+                                    <label class="form-check-label" for="v-edificio">
+                                        <i class="bi bi-buildings me-1"></i>
+                                        Edificio / conjunto
+                                    </label>
+                                </div>
+
+                            </div>
+
+                            <!-- Barrio -->
+                            <div class="mb-3">
+                                <label class="campo-etiqueta" for="c-barrio">
+                                    Barrio
+                                </label>
+
+                                <input class="form-control" id="c-barrio" name="barrio" type="text"
+                                    list="barrios-cartagena" maxlength="80" placeholder="Escribe tu barrio"
+                                    autocomplete="off">
+
+                                <datalist id="barrios-cartagena">
+                                    <option value="Alameda La Victoria">
+                                    <option value="Alto Bosque">
+                                    <option value="Amberes">
+                                    <option value="Bocagrande">
+                                    <option value="Blas de Lezo">
+                                    <option value="Bosque">
+                                    <option value="Canapote">
+                                    <option value="Castillogrande">
+                                    <option value="Centro">
+                                    <option value="El Cabrero">
+                                    <option value="El Campestre">
+                                    <option value="El Pozón">
+                                    <option value="Getsemaní">
+                                    <option value="La Esperanza">
+                                    <option value="La María">
+                                    <option value="La Quinta">
+                                    <option value="Los Alpes">
+                                    <option value="Manga">
+                                    <option value="Manga Norte">
+                                    <option value="María Auxiliadora">
+                                    <option value="Olaya Herrera">
+                                    <option value="Pie de la Popa">
+                                    <option value="Pie del Cerro">
+                                    <option value="San Fernando">
+                                    <option value="San Francisco">
+                                    <option value="San José de los Campanos">
+                                    <option value="Santa Lucía">
+                                    <option value="Torices">
+                                    <option value="Ternera">
+                                    <option value="Urbanización La India">
+                                    <option value="Villa Estrella">
+                                </datalist>
+                            </div>
+
+                            <!-- Dirección -->
+                            <div class="mb-3">
+                                <label class="campo-etiqueta" for="c-direccion">
+                                    Dirección
+                                </label>
+
+                                <input class="form-control" id="c-direccion" name="direccion" type="text"
+                                    maxlength="200" placeholder="Ej: Cra. 18 # 24-35">
+                            </div>
+
+                            <!-- Datos de edificio -->
+                            <div id="datos-edificio" hidden>
+
+                                <div class="mb-3">
+                                    <label class="campo-etiqueta" for="c-edificio">
+                                        Edificio / conjunto
+                                    </label>
+
+                                    <input class="form-control" id="c-edificio" name="edificio" type="text"
+                                        maxlength="100" placeholder="Nombre del edificio o conjunto">
+                                </div>
+
+                                <div class="row g-2 mb-3">
+
+                                    <div class="col-6">
+                                        <label class="campo-etiqueta" for="c-torre">
+                                            Torre / bloque
+                                        </label>
+
+                                        <input class="form-control" id="c-torre" name="torre" type="text" maxlength="30"
+                                            placeholder="Ej: Torre 2">
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="campo-etiqueta" for="c-apartamento">
+                                            Apartamento
+                                        </label>
+
+                                        <input class="form-control" id="c-apartamento" name="apartamento" type="text"
+                                            maxlength="30" placeholder="Ej: 304">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Referencia -->
+                            <div>
+                                <label class="campo-etiqueta" for="c-referencia">
+                                    Referencia
+                                    <span class="text-muted">(opcional)</span>
+                                </label>
+
+                                <input class="form-control" id="c-referencia" name="referencia" type="text"
+                                    maxlength="100" placeholder="Ej: casa de rejas blancas">
+                            </div>
+
+                        </fieldset>
+
                     </div>
 
                     <label class="campo-etiqueta" for="c-notas">
@@ -181,46 +237,26 @@
                         <span class="text-muted">(opcional)</span>
                     </label>
 
-                    <textarea
-                        class="form-control mb-3"
-                        id="c-notas"
-                        name="notas"
-                        rows="2"
-                        maxlength="255"
-                        placeholder="Ej: sin ají, por favor"
-                    ></textarea>
+                    <textarea class="form-control mb-3" id="c-notas" name="notas" rows="2" maxlength="255"
+                        placeholder="Ej: sin ají, por favor"></textarea>
 
                     {% if session.get('rol') == 'cliente' %}
-                    <button
-                        class="btn btn-fritos btn-lg rounded-pill w-100"
-                        type="submit"
-                    >
+                    <button class="btn btn-fritos btn-lg rounded-pill w-100" type="submit">
                         Realizar pedido
-                        <i
-                            class="bi bi-arrow-right ms-1"
-                            aria-hidden="true"
-                        ></i>
+                        <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
                     </button>
 
                     {% elif session.get('usuario_id') %}
                     <p class="small text-muted mb-0">
-                        <i
-                            class="bi bi-info-circle me-1"
-                            aria-hidden="true"
-                        ></i>
+                        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
                         Solo las cuentas de cliente pueden hacer pedidos.
                     </p>
 
                     {% else %}
-                    <a
-                        class="btn btn-fritos btn-lg rounded-pill w-100"
-                        href="{{ url_for('acceso_rol', rol='cliente') }}"
-                    >
-                        Ir a pagar
-                        <i
-                            class="bi bi-arrow-right ms-1"
-                            aria-hidden="true"
-                        ></i>
+                    <a class="btn btn-fritos btn-lg rounded-pill w-100"
+                        href="{{ url_for('acceso_rol', rol='cliente') }}">
+                        Inicia sesión para pedir
+                        <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
                     </a>
 
                     <p class="small text-muted text-center mt-2 mb-0">
