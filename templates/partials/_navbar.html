@@ -1,11 +1,11 @@
-{%- from 'partials/_macros.html' import media %}
+﻿{%- from 'partials/_macros.html' import media %}
 {%- set es_admin = session.get('rol') == 'administrador' %}
 {%- set es_vendedor = session.get('rol') == 'vendedor' %}
 
 <header class="ft-header sticky-top">
 
     <nav class="navbar navbar-expand-lg navbar-dark"
-        aria-label="{{ 'Navegación del panel de administración' if es_admin else ('Navegación del panel del vendedor' if es_vendedor else 'Navegación principal') }}">
+        aria-label="{{ 'NavegaciÃ³n del panel de administraciÃ³n' if es_admin else ('NavegaciÃ³n del panel del vendedor' if es_vendedor else 'NavegaciÃ³n principal') }}">
 
         <div class="container">
 
@@ -18,7 +18,7 @@
                 <span class="lh-1">
                     <span class="marca">FRITOS TECH</span>
                     {% if es_admin %}
-                    <span class="lema font-script d-block">Panel de administración</span>
+                    <span class="lema font-script d-block">Panel de administraciÃ³n</span>
                     {% elif es_vendedor %}
                     <span class="lema font-script d-block">Panel del vendedor</span>
                     {% else %}
@@ -29,17 +29,17 @@
 
             </a>
 
-            <!-- BOTÓN DEL MENÚ PARA MÓVILES -->
+            <!-- BOTÃ“N DEL MENÃš PARA MÃ“VILES -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
-                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
+                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menÃº">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- CONTENIDO DEL MENÚ -->
+            <!-- CONTENIDO DEL MENÃš -->
             <div class="collapse navbar-collapse" id="menuPrincipal">
 
                 {% if es_admin %}
-                <!-- ============ NAVEGACIÓN DEL ADMINISTRADOR ============ -->
+                <!-- ============ NAVEGACIÃ“N DEL ADMINISTRADOR ============ -->
                 <ul class="navbar-nav mx-lg-auto gap-lg-3">
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'admin_dashboard' }}"
@@ -62,7 +62,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'admin_categorias' }}"
                             href="{{ url_for('admin_categorias') }}">
-                            <i class="bi bi-grid me-1" aria-hidden="true"></i>Categorías
+                            <i class="bi bi-grid me-1" aria-hidden="true"></i>CategorÃ­as
                         </a>
                     </li>
                     <li class="nav-item">
@@ -90,7 +90,7 @@
                 </div>
 
                 {% elif es_vendedor %}
-                <!-- ============ NAVEGACIÓN DEL VENDEDOR ============ -->
+                <!-- ============ NAVEGACIÃ“N DEL VENDEDOR ============ -->
                 <ul class="navbar-nav mx-lg-auto gap-lg-3">
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'panel_vendedor' }}"
@@ -135,7 +135,7 @@
                 </div>
 
                 {% else %}
-                <!-- NAVEGACIÓN DE LA TIENDA -->
+                <!-- NAVEGACIÃ“N DE LA TIENDA -->
                 <ul class="navbar-nav mx-lg-auto gap-lg-4">
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'index' }}"
@@ -175,7 +175,7 @@
                     <form class="buscador" id="form-buscador" action="{{ url_for('explorar') }}" method="get"
                         role="search">
                         <input class="buscador__input" id="buscador-input" type="search" name="q"
-                            value="{{ request.args.get('q', '') }}" placeholder="Buscar fritos…"
+                            value="{{ request.args.get('q', '') }}" placeholder="Buscar fritosâ€¦"
                             aria-label="Buscar fritos" autocomplete="off" maxlength="60">
                         <button class="btn-icono buscador__boton" id="buscador-boton" type="submit"
                             aria-label="Buscar fritos" aria-expanded="false">
@@ -196,10 +196,10 @@
                         <span id="cart-count" class="cart-count" hidden>0</span>
                     </a>
 
-                    <!-- INICIAR SESIÓN / SALIR -->
+                    <!-- INICIAR SESIÃ“N / SALIR -->
                     {% if session.get('rol') %}
 
-                    <span class="text-nowrap">
+                    <span class="saludo-usuario text-nowrap">
                         Hola, {{ session.get('nombre', 'Usuario') }} 
                     </span>
 
@@ -212,10 +212,10 @@
                     {% else %}
                     <a class="btn btn-fritos btn-sm rounded-pill px-3 text-nowrap"
                         href="{{ url_for('iniciar_sesion') }}">
-                        Iniciar sesión
+                        Iniciar sesiÃ³n
                     </a>
                     {% endif %}
-                    <!-- SELECTOR DE MODO DÍA Y NOCHE -->
+                    <!-- SELECTOR DE MODO DÃA Y NOCHE -->
                     <div class="selector-tema">
 
                         <span class="selector-tema__texto selector-tema__texto--claro">
